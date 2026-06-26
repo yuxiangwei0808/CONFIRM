@@ -1,0 +1,925 @@
+{
+  "created_at": "2026-06-17T16:01:06",
+  "seed": 20260617,
+  "harmonize": "combat",
+  "feature_limit": null,
+  "source_files": [
+    {
+      "path": "data/prepared_data/benchmark_ready/claim_inventory_ready.csv",
+      "sha256": "fdd77f775a6571cc6f2e87f5c014257d8d1c22a92e6dfdf306e57132517c1d0f"
+    },
+    {
+      "path": "data/prepared_data/benchmark_ready/feature_dictionary.csv",
+      "sha256": "a09b5be51e124b4cd3d0798400f653859aa825fc7b9f286a771689fdf6ef7269"
+    },
+    {
+      "path": "data/prepared_data/smri_disease/ADNI.parquet",
+      "sha256": "a62613c653153895aa80b031c2a501421b82b34e9c66ccc37b592b551e8bcab0"
+    },
+    {
+      "path": "data/prepared_data/smri_disease/OASIS3.parquet",
+      "sha256": "73ff6a2ee48440d4fb6628bea9ddc2da2051f8e7275c6f6286706b3a4a58861e"
+    },
+    {
+      "path": "data/labels/claim_label_table.csv",
+      "sha256": "a171da929539dc484a8308ad25ce654a6fcdae0a10d8147bc6162fe0ad718a1c"
+    }
+  ],
+  "code_files": [
+    {
+      "path": "src/bench/labels.py",
+      "sha256": "530d3676f29b0e79f4cbb52d9d4ffc1aaae48132135e863ced522ef4a50bedff"
+    },
+    {
+      "path": "src/bench/metrics.py",
+      "sha256": "bc986dfe9515c2f48b9c4d98feb258379530160d6ce63965f6404b6c051e2ccb"
+    },
+    {
+      "path": "src/bench/run_benchmark_ready.py",
+      "sha256": "4e1d7205a4cd5318233d95991599db2d5316ed18c7c0c8a2652f80ce602a7f39"
+    },
+    {
+      "path": "src/bench/run_expanded_benchmark.py",
+      "sha256": "f01897114ea3dca4637eaa2c059df1d8bf4e1c382bbd9a14e72e26aea3e52778"
+    },
+    {
+      "path": "src/bench/injected_nulls.py",
+      "sha256": "aafcc79dc5a4a4fc85e99ebe9b552559b1b3b6cf2af60fbe1e8037259a40b0fb"
+    },
+    {
+      "path": "src/confirm/analysis.py",
+      "sha256": "89cfbfade5b1b2fdb1cecd25c30ba550fa92645c4a80c1ad12afa42d03b4220a"
+    },
+    {
+      "path": "src/confirm/contract.py",
+      "sha256": "641a1e6944ae0ad2b73ca826c0982b7a788b2f9fd75d76de2466965eeaffbe3a"
+    },
+    {
+      "path": "src/confirm/verdict.py",
+      "sha256": "88bfb24a1f78abd2a367ae135676c29e09195fd4d6d7ffe9e8e2167c39ed6012"
+    },
+    {
+      "path": "src/confirm/replication.py",
+      "sha256": "52e4d86a75e0a84d5ac76a5b21b60811da81db3972e5cd61ac3658979466b412"
+    },
+    {
+      "path": "src/confirm/results.py",
+      "sha256": "182c318bc22619b4dbe00bb68100c3adae8d3e1770aea80c119f7d0584ba7114"
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "age_fc_ukb_hcpaging",
+      "scoring_label": "candidate_unknown",
+      "scoring_bucket": "candidate",
+      "discovery_cohort": "UKB",
+      "replication_cohort": "HCP_Aging",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "age_fc_hcpa_hcp",
+      "scoring_label": "candidate_unknown",
+      "scoring_bucket": "candidate",
+      "discovery_cohort": "HCP_Aging",
+      "replication_cohort": "HCP",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "sex_fc_ukb_hcp",
+      "scoring_label": "candidate_unknown",
+      "scoring_bucket": "candidate",
+      "discovery_cohort": "UKB",
+      "replication_cohort": "HCP",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "site"
+      ],
+      "covariates_min": [
+        "age"
+      ]
+    },
+    {
+      "claim_id": "sex_fc_abcd_hcp",
+      "scoring_label": "candidate_unknown",
+      "scoring_bucket": "candidate",
+      "discovery_cohort": "ABCD",
+      "replication_cohort": "HCP",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "site"
+      ],
+      "covariates_min": [
+        "age"
+      ]
+    },
+    {
+      "claim_id": "cognition_fc_ukb_abcd",
+      "scoring_label": "underpowered_small_positive",
+      "scoring_bucket": "small_positive",
+      "discovery_cohort": "UKB",
+      "replication_cohort": "ABCD",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "cognition_fc_hcp_hcpa",
+      "scoring_label": "underpowered_small_positive",
+      "scoring_bucket": "small_positive",
+      "discovery_cohort": "HCP",
+      "replication_cohort": "HCP_Aging",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "cognition_dyno_ukb_abcd",
+      "scoring_label": "underpowered_small_positive",
+      "scoring_bucket": "small_positive",
+      "discovery_cohort": "UKB",
+      "replication_cohort": "ABCD",
+      "n_features": 30,
+      "reported_feature_count": 30,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "adhd_fc_adhd200_abcd",
+      "scoring_label": "fragile",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "ADHD200",
+      "replication_cohort": "ABCD",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "adhd_region_adhd200_abcd",
+      "scoring_label": "fragile",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "ADHD200",
+      "replication_cohort": "ABCD",
+      "n_features": 76,
+      "reported_feature_count": 76,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "asd_fc_abide2_abcd",
+      "scoring_label": "fragile",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "ABIDE2",
+      "replication_cohort": "ABCD",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "ad_fc_adni_oasis3",
+      "scoring_label": "candidate_unknown",
+      "scoring_bucket": "candidate",
+      "discovery_cohort": "ADNI_fMRI",
+      "replication_cohort": "OASIS3_fMRI",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "ad_region_adni_oasis3",
+      "scoring_label": "candidate_unknown",
+      "scoring_bucket": "candidate",
+      "discovery_cohort": "ADNI_fMRI",
+      "replication_cohort": "OASIS3_fMRI",
+      "n_features": 76,
+      "reported_feature_count": 76,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "ad_dyno_adni_oasis3",
+      "scoring_label": "candidate_unknown",
+      "scoring_bucket": "candidate",
+      "discovery_cohort": "ADNI_fMRI",
+      "replication_cohort": "OASIS3_fMRI",
+      "n_features": 30,
+      "reported_feature_count": 30,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "injected_null_site_abcd",
+      "scoring_label": "known_null",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "ABCD_DISC",
+      "replication_cohort": "ABCD_REP",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site",
+        "synthetic_site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "injected_null_site_ukb",
+      "scoring_label": "known_null",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "UKB_DISC",
+      "replication_cohort": "UKB_REP",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site",
+        "synthetic_site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "injected_null_random_hcp",
+      "scoring_label": "known_null",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "HCP_DISC",
+      "replication_cohort": "HCP_REP",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "injected_null_fishing_abide2",
+      "scoring_label": "known_null",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "ABIDE2_DISC",
+      "replication_cohort": "ABIDE2_REP",
+      "n_features": 84,
+      "reported_feature_count": 1,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 84,
+        "selection": "discovery_only"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "injected_null_fishing_adhd200",
+      "scoring_label": "known_null",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "ADHD200_DISC",
+      "replication_cohort": "ADHD200_REP",
+      "n_features": 84,
+      "reported_feature_count": 1,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 84,
+        "selection": "discovery_only"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "underpowered_asd_site_abide2",
+      "scoring_label": "fragile",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "ABIDE2_DISC",
+      "replication_cohort": "ABIDE2_REP",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "underpowered_adhd_site_adhd200",
+      "scoring_label": "fragile",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "ADHD200_DISC",
+      "replication_cohort": "ADHD200_REP",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "injected_null_random_ukb",
+      "scoring_label": "known_null",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "UKB_DISC",
+      "replication_cohort": "UKB_REP",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "injected_null_random_abcd",
+      "scoring_label": "known_null",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "ABCD_DISC",
+      "replication_cohort": "ABCD_REP",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "injected_null_random_abide2",
+      "scoring_label": "known_null",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "ABIDE2_DISC",
+      "replication_cohort": "ABIDE2_REP",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "injected_null_random_adhd200",
+      "scoring_label": "known_null",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "ADHD200_DISC",
+      "replication_cohort": "ADHD200_REP",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "injected_null_random_hcpaging",
+      "scoring_label": "known_null",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "HCP_Aging_DISC",
+      "replication_cohort": "HCP_Aging_REP",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "injected_null_site_hcp",
+      "scoring_label": "known_null",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "HCP_DISC",
+      "replication_cohort": "HCP_REP",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site",
+        "synthetic_site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "injected_null_site_hcpaging",
+      "scoring_label": "known_null",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "HCP_Aging_DISC",
+      "replication_cohort": "HCP_Aging_REP",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site",
+        "synthetic_site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "injected_null_fishing_ukb",
+      "scoring_label": "known_null",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "UKB_DISC",
+      "replication_cohort": "UKB_REP",
+      "n_features": 84,
+      "reported_feature_count": 1,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 84,
+        "selection": "discovery_only"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "injected_null_fishing_abcd",
+      "scoring_label": "known_null",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "ABCD_DISC",
+      "replication_cohort": "ABCD_REP",
+      "n_features": 84,
+      "reported_feature_count": 1,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 84,
+        "selection": "discovery_only"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "injected_null_fishing_hcp",
+      "scoring_label": "known_null",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "HCP_DISC",
+      "replication_cohort": "HCP_REP",
+      "n_features": 84,
+      "reported_feature_count": 1,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 84,
+        "selection": "discovery_only"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "adhd_dyno_adhd200_abcd",
+      "scoring_label": "fragile",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "ADHD200",
+      "replication_cohort": "ABCD",
+      "n_features": 30,
+      "reported_feature_count": 30,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "asd_fc_abide2_internal_split",
+      "scoring_label": "fragile",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "ABIDE2_DISC",
+      "replication_cohort": "ABIDE2_REP",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "adhd_fc_adhd200_internal_split",
+      "scoring_label": "fragile",
+      "scoring_bucket": "negative",
+      "discovery_cohort": "ADHD200_DISC",
+      "replication_cohort": "ADHD200_REP",
+      "n_features": 84,
+      "reported_feature_count": 84,
+      "search_provenance": {
+        "declared": true,
+        "family_size": 1,
+        "selection": "preregistered"
+      },
+      "covariates_full": [
+        "age",
+        "sex",
+        "site"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "ad_smri_adni_oasis3",
+      "scoring_label": "known_positive",
+      "scoring_bucket": "positive",
+      "discovery_cohort": "ADNI",
+      "replication_cohort": "OASIS3",
+      "n_features": 1,
+      "reported_feature_count": null,
+      "search_provenance": null,
+      "covariates_full": [
+        "age",
+        "sex",
+        "eTIV"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "ad_brainwide_smri_adni_oasis3",
+      "scoring_label": "known_positive",
+      "scoring_bucket": "positive",
+      "discovery_cohort": "ADNI",
+      "replication_cohort": "OASIS3",
+      "n_features": 5,
+      "reported_feature_count": null,
+      "search_provenance": null,
+      "covariates_full": [
+        "age",
+        "sex",
+        "eTIV"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "ad_hippocampal_atrophy_adni_oasis3",
+      "scoring_label": "known_positive",
+      "scoring_bucket": "positive",
+      "discovery_cohort": "ADNI",
+      "replication_cohort": "OASIS3",
+      "n_features": 1,
+      "reported_feature_count": null,
+      "search_provenance": null,
+      "covariates_full": [
+        "age",
+        "sex",
+        "eTIV"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    },
+    {
+      "claim_id": "brainwide_adni_oasis_ad_signature",
+      "scoring_label": "known_positive",
+      "scoring_bucket": "positive",
+      "discovery_cohort": "ADNI",
+      "replication_cohort": "OASIS3",
+      "n_features": 5,
+      "reported_feature_count": null,
+      "search_provenance": null,
+      "covariates_full": [
+        "age",
+        "sex",
+        "eTIV"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ]
+    }
+  ],
+  "skipped": [
+    {
+      "claim_id": "brain_aging_atrophy_ukb_hcpaging",
+      "reason": "registered UKB/HCP_Aging prepared cohort tables contain fMRI descriptors only; no local sMRI/eTIV columns"
+    },
+    {
+      "claim_id": "sex_smri_ukb_hcp",
+      "reason": "registered UKB/HCP prepared cohort tables contain fMRI descriptors only; no local eTIV-adjusted sMRI volume or thickness columns"
+    },
+    {
+      "claim_id": "sex_smri_abcd_hcp",
+      "reason": "registered ABCD/HCP prepared cohort tables do not provide matching local eTIV-adjusted sMRI volume or thickness columns"
+    },
+    {
+      "claim_id": "asd_fc_abide2_site_split",
+      "reason": "prepared ABIDE2 site column is constant; original site split cannot be recovered without fabricating labels"
+    },
+    {
+      "claim_id": "adhd_fc_adhd200_site_split",
+      "reason": "prepared ADHD200 site column is constant; original site split cannot be recovered without fabricating labels"
+    }
+  ]
+}

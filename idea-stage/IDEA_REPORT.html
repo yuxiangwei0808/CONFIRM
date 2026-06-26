@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Idea Discovery Report — Agentic Framework for Reproducible Neuroimaging Analysis</title>
+
+<meta name="generator" content="ARIS render-html (academic, v1)">
+<meta name="aris:source-path" content="idea-stage/IDEA_REPORT.md">
+<meta name="aris:source-sha256" content="0c8feef4f81003a315affa9e92d029a16faaf6c1beafc48084af68f472c1b2f5">
+<meta name="aris:generated-at" content="2026-06-01 23:46 UTC">
+
+<!-- MathJax 3 -->
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+  options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+<!-- highlight.js -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-light.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+
+
+<style>
+:root {
+  --bg: #fdfcf7;
+  --bg-soft: #f4f1ea;
+  --bg-code: #f8f5ec;
+  --ink: #1a1a1a;
+  --ink-soft: #4a4a4a;
+  --ink-muted: #6b6b6b;
+  --primary: #1a4a8c;
+  --primary-soft: #2d6cb8;
+  --accent: #b8390e;
+  --warn: #b45309;
+  --warn-bg: #fef3c7;
+  --info-bg: #dbeafe;
+  --good-bg: #d1fae5;
+  --good: #065f46;
+  --bad-bg: #fee2e2;
+  --bad: #991b1b;
+  --border: #d6d0c0;
+  --border-soft: #e8e3d5;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "Source Serif Pro", "Source Serif 4", "Crimson Pro", "Georgia", "Songti SC", "STSong", serif;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--bg);
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+}
+
+.layout {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 48px;
+  padding: 40px 32px;
+}
+
+nav.toc {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  font-size: 13px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  border-right: 1px solid var(--border-soft);
+  padding-right: 16px;
+}
+nav.toc h3 {
+  margin: 0 0 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+nav.toc ol { list-style: none; padding: 0; margin: 0; counter-reset: toc; }
+nav.toc ol li { margin: 5px 0; counter-increment: toc; }
+nav.toc ol li::before { content: counter(toc) ". "; color: var(--ink-muted); margin-right: 4px; }
+nav.toc a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+}
+nav.toc a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+nav.toc ul { list-style: none; padding-left: 14px; margin: 3px 0; font-size: 12px; }
+nav.toc ul li::before { content: "→ "; color: var(--border); }
+
+main { min-width: 0; }
+
+header.hero {
+  border-bottom: 3px double var(--primary);
+  padding-bottom: 24px;
+  margin-bottom: 32px;
+}
+header.hero .eyebrow {
+  color: var(--accent);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+body.aris-blog header.hero .eyebrow {
+  font-family: inherit;
+  color: var(--ink-muted);
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-weight: 400;
+}
+header.hero h1 {
+  font-size: 32px;
+  line-height: 1.2;
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+header.hero .subtitle {
+  font-size: 16px;
+  color: var(--ink-soft);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+header.hero .byline {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin: 0 0 20px;
+}
+header.hero .byline strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+header.hero .meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--ink-muted);
+  border-top: 1px solid var(--border-soft);
+  padding-top: 14px;
+}
+header.hero .meta span strong { color: var(--ink-soft); }
+header.hero .meta code {
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11px;
+  background: var(--bg-soft);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-soft);
+}
+
+h2 {
+  font-size: 24px;
+  margin: 44px 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink);
+  font-weight: 700;
+}
+h2 .num { color: var(--primary); font-weight: 600; margin-right: 8px; }
+h3 { font-size: 19px; margin: 28px 0 10px; color: var(--primary); font-weight: 600; }
+h4 { font-size: 16px; margin: 20px 0 8px; color: var(--ink); font-weight: 600; }
+
+p { margin: 10px 0; }
+ul, ol { padding-left: 22px; margin: 10px 0; }
+ul li, ol li { margin: 4px 0; }
+ul li::marker { color: var(--primary); }
+
+strong { color: var(--accent); font-weight: 600; }
+em { color: var(--ink-soft); }
+
+a { color: var(--primary); }
+a:hover { color: var(--accent); }
+
+code:not(.hljs) {
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 0.86em;
+  background: var(--bg-code);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-soft);
+  color: var(--accent);
+}
+
+pre {
+  background: #fafaf6;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  padding: 0;
+  overflow-x: auto;
+  border-radius: 4px;
+  margin: 14px 0;
+}
+pre code, pre code.hljs {
+  background: transparent !important;
+  display: block;
+  padding: 14px 18px !important;
+  font-size: 13px;
+  line-height: 1.55;
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", monospace;
+  color: var(--ink);
+}
+pre.diagram {
+  background: #f9f6ed;
+  border-left: 4px solid var(--accent);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.callout {
+  margin: 16px 0;
+  padding: 12px 16px;
+  border-radius: 4px;
+  border-left: 4px solid;
+  font-size: 15px;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.callout-info { background: var(--info-bg); border-left-color: var(--primary); }
+.callout-info .callout-title { color: var(--primary); }
+.callout-warn { background: var(--warn-bg); border-left-color: var(--warn); }
+.callout-warn .callout-title { color: var(--warn); }
+.callout-good { background: var(--good-bg); border-left-color: var(--good); }
+.callout-good .callout-title { color: var(--good); }
+.callout-bad { background: var(--bad-bg); border-left-color: var(--bad); }
+.callout-bad .callout-title { color: var(--bad); }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+thead { background: var(--primary); color: white; }
+th, td {
+  text-align: left;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+th { font-weight: 600; font-size: 13px; letter-spacing: 0.02em; }
+tr:last-child td { border-bottom: none; }
+tbody tr:nth-child(even) { background: var(--bg-soft); }
+
+details.qa, details {
+  background: white;
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  margin: 10px 0;
+  padding: 0;
+}
+details summary {
+  cursor: pointer;
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--primary);
+  list-style: none;
+  user-select: none;
+}
+details summary::-webkit-details-marker { display: none; }
+details summary::before {
+  content: "▸ ";
+  margin-right: 4px;
+  display: inline-block;
+  transition: transform 0.15s;
+}
+details[open] summary::before { transform: rotate(90deg); }
+details[open] summary { border-bottom: 1px solid var(--border-soft); }
+details > :not(summary) { padding: 10px 14px; }
+details p:first-of-type { margin-top: 8px; }
+
+mjx-container[display="true"] { margin: 12px 0 !important; }
+
+footer.aris-footer {
+  margin-top: 60px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--border); }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; gap: 20px; padding: 20px 16px; }
+  nav.toc {
+    position: static;
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid var(--border-soft);
+    padding-right: 0;
+    padding-bottom: 14px;
+  }
+  header.hero h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+}
+@media print {
+  nav.toc { display: none; }
+  .layout { grid-template-columns: 1fr; padding: 0; }
+  body { background: white; }
+  header.hero { border-bottom-color: var(--ink); }
+  #cite-pop, dialog.lightbox { display: none !important; }
+}
+
+/* --- P0 polish: TOC scrollspy active state ---------------------------- */
+nav.toc a.active {
+  color: var(--accent);
+  font-weight: 600;
+  border-bottom-color: var(--accent);
+}
+
+/* --- P0 polish: Long-code auto-collapse ------------------------------- */
+details.code-card {
+  margin: 14px 0;
+  background: #fafaf6;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: 4px;
+}
+details.code-card > summary {
+  cursor: pointer;
+  padding: 8px 14px;
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-family: "JetBrains Mono", "SF Mono", monospace;
+  list-style: none;
+  user-select: none;
+}
+details.code-card > summary::-webkit-details-marker { display: none; }
+details.code-card > summary::before { content: none; }
+details.code-card > pre {
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-left: none;
+  border-radius: 0;
+}
+@media print {
+  details.code-card { border: 1px solid #ccc; background: white; }
+  details.code-card > summary { display: none !important; }
+  details.code-card > pre { border: 1px solid #ddd; border-radius: 4px; background: white; }
+}
+
+/* --- P0 polish: Paper popover ([[ref]] popups) ------------------------ */
+[data-ref] {
+  color: var(--primary);
+  border-bottom: 1px dotted var(--primary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+[data-ref]:hover { background: rgba(26, 74, 140, 0.08); }
+#cite-pop {
+  position: fixed;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  font-size: 13px;
+  line-height: 1.5;
+  z-index: 1000;
+}
+#cite-pop[hidden] { display: none; }
+#cite-pop .cp-title {
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+  padding-right: 24px;
+}
+#cite-pop .cp-meta {
+  color: var(--ink-muted);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+#cite-pop .cp-key {
+  color: var(--accent);
+  font-style: italic;
+  margin-bottom: 8px;
+}
+#cite-pop .cp-link {
+  display: inline-block;
+  color: var(--primary);
+  font-weight: 500;
+}
+#cite-pop .cp-close {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--ink-muted);
+}
+
+/* --- P0 polish: Figure lightbox (native <dialog>) --------------------- */
+dialog.lightbox {
+  border: none;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.92);
+  width: 96vw;
+  height: 96vh;
+  max-width: 96vw;
+  max-height: 96vh;
+}
+dialog.lightbox::backdrop { background: rgba(0, 0, 0, 0.92); }
+dialog.lightbox .lb-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 16px;
+  position: relative;
+}
+dialog.lightbox img {
+  max-width: 90vw;
+  max-height: 84vh;
+  object-fit: contain;
+  cursor: zoom-out;
+}
+dialog.lightbox figcaption {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  text-align: center;
+  max-width: 700px;
+}
+dialog.lightbox .lb-close {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+/* --- P0 polish: blog/talk mode active-H2 highlight (opt-in) ----------- */
+body.aris-blog h2 { scroll-margin-top: 24px; }
+body.aris-blog h2.aris-active-h2 {
+  background: linear-gradient(to right, rgba(26, 74, 140, 0.06), transparent);
+  border-radius: 4px;
+  padding-left: 12px;
+  margin-left: -12px;
+}
+</style>
+</head>
+<body class="">
+<div class="layout">
+
+<nav class="toc">
+  <h3>Contents</h3>
+  <ol>
+<li><a href="#0-executive-summary">0. Executive Summary</a>
+</li>
+<li><a href="#1-literature-landscape">1. Literature Landscape</a>
+<ul>
+<li><a href="#11-agentic--llm-systems-for-neuroimaging--dominated-by-single-patient-radiology-analysis-layer-nearly-empty">1.1 Agentic / LLM systems for neuroimaging — *dominated by single-patient radiology; analysis layer nearly empty*</a></li>
+<li><a href="#12-general-autonomous-data-science--ai-scientist-agents--strong-machinery-no-scientific-rigor">1.2 General autonomous data-science / &quot;AI scientist&quot; agents — *strong machinery, no scientific rigor*</a></li>
+<li><a href="#13-reproducibility--replication-science--the-field-is-asking-for-exactly-this-but-has-no-enforcer">1.3 Reproducibility &amp; replication science — *the field is asking for exactly this, but has no enforcer*</a></li>
+<li><a href="#14-existing-automation-tooling--preprocessing-is-solved-the-decision-layer-is-not">1.4 Existing automation tooling — *preprocessing is solved; the &quot;decision layer&quot; is not*</a></li>
+</ul>
+</li>
+<li><a href="#2-synthesis--the-white-space-convergence-of-all-four-searches">2. Synthesis — The White Space (convergence of all four searches)</a>
+</li>
+<li><a href="#3-key-references">3. Key References</a>
+</li>
+<li><a href="#4-phase-2--ranked--filtered-ideas-cross-model-jury-codex-gpt-55-xhigh">4. Phase 2 — Ranked &amp; Filtered Ideas (cross-model jury: Codex `gpt-5.5`, xhigh)</a>
+<ul>
+<li><a href="#converged-contribution-what-advances">Converged contribution (what advances)</a></li>
+<li><a href="#headline-claim-the-paper">Headline claim (the paper)</a></li>
+<li><a href="#minimum-viable-evaluation">Minimum viable evaluation</a></li>
+<li><a href="#pilots-status-needs-manual-pilot--paper-only-this-session">Pilots (status: NEEDS MANUAL PILOT — paper-only this session)</a></li>
+<li><a href="#top-reviewer-attacks--preemptions">Top reviewer attacks → preemptions</a></li>
+</ul>
+</li>
+<li><a href="#5-phase-3--deep-novelty-verification-both-contributions-verified-proceed-with-caution">5. Phase 3 — Deep Novelty Verification (both contributions VERIFIED; PROCEED-WITH-CAUTION)</a>
+<ul>
+<li><a href="#51-core--newly-found-competitors--per-claim-verdict">5.1 CORE — newly-found competitors &amp; per-claim verdict</a></li>
+<li><a href="#52-companion--neurodecide-bench-score-710">5.2 COMPANION — NeuroDecide-Bench (score 7/10)</a></li>
+<li><a href="#53-net-novelty-actions-carried-into-refinement">5.3 Net novelty actions (carried into refinement)</a></li>
+</ul>
+</li>
+<li><a href="#6-phase-4--external-critical-review-codex-gpt-55-xhigh-same-thread-multi-round">6. Phase 4 — External Critical Review (Codex `gpt-5.5`, xhigh; same thread, multi-round)</a>
+</li>
+<li><a href="#7-phase-45--refined-proposal--experiment-plan-links">7. Phase 4.5 — Refined Proposal &amp; Experiment Plan (links)</a>
+</li>
+<li><a href="#8-eliminated--demoted-ideas-audit-trail">8. Eliminated / demoted ideas (audit trail)</a>
+</li>
+<li><a href="#9-next-steps">9. Next Steps</a>
+</li>
+</ol>
+</nav>
+
+<main>
+<header class="hero">
+  
+  <h1>Idea Discovery Report — Agentic Framework for Reproducible Neuroimaging Analysis</h1>
+  
+  
+  <div class="meta">
+    <span><strong>Source:</strong> <code>idea-stage/IDEA_REPORT.md</code></span>
+    <span><strong>SHA256:</strong> <code>0c8feef4f810</code></span>
+    <span><strong>Rendered:</strong> 2026-06-01 23:46 UTC</span>
+    
+  </div>
+</header>
+
+<h1 id="idea-discovery-report--agentic-framework-for-reproducible-neuroimaging-analysis">Idea Discovery Report — Agentic Framework for Reproducible Neuroimaging Analysis</h1>
+<p><strong>Direction:</strong> A general agentic (LLM-driven) framework for <strong>reproducible neuroimaging analysis</strong> — an agent that takes a scientific/clinical question + a cohort and autonomously <strong>plans → runs → QCs → interprets</strong> a reproducible statistical analysis on precomputed derivatives. <strong>Goal:</strong> research-backed open-source tool (paper + adopted tool). <strong>Date:</strong> 2026-06-01. <strong>Pipeline:</strong> research-lit → idea-creator → novelty-check → research-review → research-refine-pipeline. <strong>Status:</strong> ✅ Phase 1 (landscape) · ✅ Phase 2 (ideas + jury) · ✅ Phase 3 (novelty, verified) · ✅ Phase 4 (review) · ✅ Phase 4.5 (refined proposal + experiment plan).</p>
+<blockquote><p>Scope rationale &amp; locked decisions: see repo <code>RESEARCH_BRIEF.md</code>.</p></blockquote>
+<hr />
+<h2 id="0-executive-summary">0. Executive Summary</h2>
+<p><strong>Best idea (RECOMMENDED): "CONFIRM" — a claim-contract-governed, replication-gated neuroimaging analysis agent.</strong> Existing agents make analyses <em>executable</em> and validate <em>execution integrity</em>; none prevent an agent from promoting a statistically <em>inadmissible</em> finding (underpowered, unreplicated, confounded, fork-dependent) to "confirmed." CONFIRM makes the <strong>scientific claim</strong> the governed unit: a finding is labeled **"confirmed" only if it passes machine-checkable admissibility gates — multiplicity, confound, power, <em>cross-cohort replication</em>, multiverse — else the agent abstains/labels it.**</p>
+<p><strong>Key evidence:</strong> cross-model jury + novelty verification (every competitor WebFetch-verified) → <strong>cross-cohort replication-as-a-gate is HIGH novelty and unoccupied</strong> (NeuroClaw/NeuroAgent/NIAgent validate execution, not claims; EviBound gates execution integrity, not statistical validity; Many-AI- Analysts <em>observes</em> the multiverse, doesn't <em>gate</em>). Senior-reviewer score <strong>7.5→8.5/10</strong> if scoped to <strong>CONFIRM-lite</strong> and the must-win experiment lands. Uniquely enabled by your multi-cohort, multi-modal data; the core loop runs on <strong>CPU over precomputed derivatives</strong>.</p>
+<p><strong>Recommended next step:</strong> build B0 infra (claim-contract schema → executor+provenance → ComBat/replication harness), mount data, run pilots P1–P3, then the <strong>must-win</strong> experiment (false-confirmed rate vs an execution-valid runner). Full method in <code>refine-logs/FINAL_PROPOSAL.md</code>; plan in <code>refine-logs/EXPERIMENT_PLAN.md</code>.</p>
+<hr />
+<h2 id="1-literature-landscape">1. Literature Landscape</h2>
+<p>Four independent searches mapped: (1.1) agentic neuroimaging systems, (1.2) general autonomous data-science agents, (1.3) reproducibility/replication science, (1.4) existing automation tooling.</p>
+<h3 id="11-agentic--llm-systems-for-neuroimaging--dominated-by-single-patient-radiology-analysis-layer-nearly-empty">1.1 Agentic / LLM systems for neuroimaging — <em>dominated by single-patient radiology; analysis layer nearly empty</em></h3>
+<table><thead><tr><th>System</th><th>Year</th><th>Covers</th><th>Gap vs. our direction</th></tr></thead><tbody><tr><td>Agentic LLMs for Neuro-Radiological Analysis (2604.16729)</td><td>2026</td><td>skull-strip→seg→volumetry on single scans</td><td>no stats, no cohort, no discovery</td></tr><tr><td><strong>NeuroAgent</strong> (2605.06584)</td><td>2026</td><td>preprocessing + <strong>1 task (AD classification)</strong> + some FDR stats on ADNI</td><td><strong>no cross-cohort replication, no provenance/reproducibility</strong>, 4–8 h/subject</td></tr><tr><td><strong>NEURA</strong> (bioRxiv 2026)</td><td>2026</td><td>autonomous <strong>workflow planning</strong> (89.5% planning acc)</td><td>evaluated on planning, not scientific output</td></tr><tr><td><strong>AD-reproducibility agent</strong> (2505.23852)</td><td>2025</td><td>autonomously reproduces AD stats (NACC)</td><td><strong>53.2% fidelity</strong>, single dataset, primitive</td></tr><tr><td>TissueLab / MACRO / AURA / RadA-Bench / Medical-AI-Consensus</td><td>2024–26</td><td>pathology/CXR/radiology seg+report</td><td>wrong modality / no stats</td></tr><tr><td>BrainGPT (Nat Hum Behav 2025) / fMRI-LM (2511.21760)</td><td>2024–25</td><td>literature prediction / fMRI decoding</td><td>no data analysis / not agentic</td></tr><tr><td>GPT normative sMRI (Imaging Neuro 2024); GenBrain (medRxiv 2025)</td><td>2024–25</td><td>normative modeling / generative augmentation</td><td>not agentic; manual setup</td></tr></tbody></table>
+<p><strong>Read:</strong> Five sub-clusters (radiology-diagnosis agents · preprocessing agents · medical co-evolution agents · neuro-language models · reproducibility agents). The <strong>analysis/discovery + replication + provenance</strong> corner is essentially unoccupied; NeuroAgent and the AD-repro agent are the only neighbors and both stop short of it.</p>
+<h3 id="12-general-autonomous-data-science--ai-scientist-agents--strong-machinery-no-scientific-rigor">1.2 General autonomous data-science / "AI scientist" agents — <em>strong machinery, no scientific rigor</em></h3>
+<ul><li><strong>Transferable machinery:</strong> hierarchical task decomposition (Data Interpreter 2402.18679, DS-Agent 2402.17453), executable-code actions (CodeAct 2402.01030, ReAct 2210.03629), self-critique/episodic reflection (Reflexion 2303.11366), automated-reviewer/critic agents (AI Scientist 2408.06292), case-based reasoning, workflow provenance (2509.13978).</li><li><strong>Cautionary tale:</strong> The AI Scientist (Sakana) was independently audited (Beel et al. 2502.14297) — <strong>42% experiment failure, hallucinated numbers, ~8% code change/iteration, 5 median citations.</strong> Autonomy <em>without enforced rigor</em> produces confident garbage.</li><li><strong>What ALL of them systematically lack</strong> (directly relevant): (1) statistical-validity enforcement (assumptions, FWE/FDR), (2) domain priors (BOLD/HRF, autocorrelation, smoothing), (3) dataset-specific QC as a first-class step, (4) <em>scientific</em>-error self-verification (not just runtime errors), (5) reproducibility across seeds/environments, (6) multiple-comparison / p-hacking / forking-paths guards, (7) <strong>replication / out-of-sample validation</strong>, (8) deep machine-readable provenance, (9) confound modeling, (10) structured human checkpoints.</li></ul>
+<blockquote><p><strong>Implication:</strong> our contribution is not "another autonomous agent" — it is <strong>rigor-as-architecture</strong>. The list above is effectively our design spec; each lacked item is a feature.</p></blockquote>
+<h3 id="13-reproducibility--replication-science--the-field-is-asking-for-exactly-this-but-has-no-enforcer">1.3 Reproducibility &amp; replication science — <em>the field is asking for exactly this, but has no enforcer</em></h3>
+<table><thead><tr><th>Work</th><th>Finding → why it matters for us</th></tr></thead><tbody><tr><td><strong>NARPS</strong> (Botvinik-Nezer, Nature 2020)</td><td>70 teams, same data → divergent conclusions. NARPS OpenNeuro set = ready <strong>binary benchmark</strong></td></tr><tr><td>Bowring/Nichols (HBM 2019/21)</td><td>FSL vs SPM vs AFNI → Dice <strong>0.00–0.74</strong>. Gives pipeline-stability metrics</td></tr><tr><td>Multiverse / spec-curve (Steegen 2016; Simonsohn NHB 2020)</td><td>report effect across all defensible specs → <strong>specification-curve stability score</strong></td></tr><tr><td><strong>Marek et al.</strong> (Nature 2022/2024)</td><td>BWAS need <strong>N≈thousands</strong>; published effects inflated <strong>&gt;5×</strong>. Cross-cohort replication = our headline metric</td></tr><tr><td>ComBat / harmonization (Fortin 2018; Pomponio 2020)</td><td>site/scanner batch removal → <strong>precondition</strong> for cross-cohort pooling</td></tr><tr><td>Known robust effects (Jack 2018; BrainAGE; Marek)</td><td>AD hippocampal atrophy <strong>d≈1.5–2.0</strong>, FDG hypometabolism, brain-age gap → <strong>known-effect recovery</strong> ground truth</td></tr></tbody></table>
+<p><strong>The gap (verbatim from the search):</strong> <em>"No existing tool compels a researcher to demonstrate cross-cohort replication as a precondition for claiming a discovery."</em> Multiverse/spec-curve are post-hoc reporting; fMRIPrep/BIDS standardize but enforce no analytic policy; Marek quantified the problem but proposed no automated workflow. <strong>An agent that gates findings on replication would be the first end-to-end implementation of what this literature has demanded since 2013.</strong></p>
+<h3 id="14-existing-automation-tooling--preprocessing-is-solved-the-decision-layer-is-not">1.4 Existing automation tooling — <em>preprocessing is solved; the "decision layer" is not</em></h3>
+<ul><li><strong>Solved / turnkey:</strong> BIDS conversion+validation (HeuDiConv, CuBIDS), preprocessing (fMRIPrep, QSIPrep, FastSurfer/SynthSeg), IQMs (MRIQC), confound generation (fMRIPrep→<code>load_confounds</code>), GLM fit (Nilearn, FitLins via BIDS-Stats-Models), connectivity (C-PAC), tractometry (pyAFQ), normative modeling (PCNtoolkit), UKB phenotypes (FUNPACK), meta-analysis (NiMARE).</li><li><p><strong>NOT automated — expert judgment still required (= the agent's job):</strong></p>
+<ol><li>QC pass/fail <strong>thresholding</strong> (study-/analysis-dependent; MRIQC only ~76% on unseen sites)</li><li><strong>Confound strategy</strong> selection (which <code>load_confounds</code> recipe, scrubbing thresholds, GSR on/off)</li><li><strong>Pipeline/parameter</strong> config (atlas, parcellation, HRF, recon algorithm)</li><li><strong>Inclusion/exclusion</strong> decisions (auditable, study-specific, with reasons)</li><li><strong>Covariate/model</strong> selection (which IDPs, age/sex/site terms, normative vs mass-univariate vs multivariate)</li><li><strong>Multiple-comparison</strong> strategy (FWE vs FDR, cluster-forming threshold)</li><li><strong>Interpretation</strong> (which clusters are meaningful; link to literature via NiMARE/Neurosynth)</li><li><strong>Cross-cohort harmonization</strong> decisions (ComBat/CovBat/site-as-covariate; discovery vs replication split)</li></ol></li><li><strong>Integration seams for a research-backed tool:</strong> consume <strong>BIDS-Derivatives</strong> natively; drive Nilearn <code>load_confounds</code> + BIDS-Stats-Models/FitLins; ingest MRIQC IQMs; emit BIDS-Derivatives exclusion lists; context via NiMARE; deviations via PCNtoolkit; provenance via <strong>DataLad + BIDS</strong>. <em>Reimplement nothing; own the decisions between tools.</em></li></ul>
+<hr />
+<h2 id="2-synthesis--the-white-space-convergence-of-all-four-searches">2. Synthesis — The White Space (convergence of all four searches)</h2>
+<p>All four lenses point to the <strong>same unoccupied intersection</strong>:</p>
+<blockquote><p>**An agent that owns the <em>decision layer</em> of neuroimaging analysis — operating over precomputed derivatives via existing tools — with rigor enforced as architecture: specification/multiverse-aware analysis, statistical-assumption &amp; QC-in-the-loop checking, confound/inclusion decisioning, full provenance + re-executability, and — the headline — <em>cross-cohort replication as a gating precondition before any finding is reported as "confirmed."</em> Evaluated by known-effect recovery + cross-cohort/cross-modal replication + reproducibility.**</p></blockquote>
+<p><strong>Why uniquely ours:</strong></p>
+<ul><li>The user's <strong>multi-cohort, multi-modal data (UKB/HCP/ADNI/ABCD/OpenNeuro; fMRI/sMRI/PET; many diseases)</strong> is exactly what a replication-gating agent needs and what no prior system had.</li><li>Preprocessing being solved means the core loop runs on <strong>CPU over derivatives</strong> — feasible without GPUs.</li><li>Ground-truth effects + NARPS + Marek power curves make the evaluation <strong>objective and computable today</strong>.</li></ul>
+<p><strong>Strongest single novelty hook:</strong> <em>"replication-before-reporting" as an enforced gate</em> — absent from both the neuroimaging-agent literature and the general DS-agent literature.</p>
+<p><strong>Candidate idea seeds for Phase 2</strong> (to be expanded, filtered, novelty-checked, reviewed): the replication-gating discovery agent; the multiverse-native analysis agent; the QC-in-the-loop / assumption-checking layer; the auditable inclusion/exclusion decision engine; the confound-strategy recommender; cross-modal triangulation (does an effect hold across fMRI/sMRI/PET?); a benchmark of <em>agentic analysis-decision quality</em> vs. expert decisions; a provenance/"re-executable finding" layer.</p>
+<hr />
+<h2 id="3-key-references">3. Key References</h2>
+<p>Agentic neuro: 2604.16729 · NeuroAgent 2605.06584 · NEURA (bioRxiv 2026.04.27.721217) · AD-repro 2505.23852 · TissueLab 2509.20279 · BrainGPT 2403.03230 · fMRI-LM 2511.21760 · GPT-normative (imag_a_00204) · GenBrain (medRxiv 2025.12.19). DS agents: AI-Scientist 2408.06292 · Beel critique 2502.14297 · Jr-AI-Scientist 2511.04583 · DS-Agent 2402.17453 · InfiAgent-DABench 2401.05507 · MLAgentBench 2310.03302 · CodeAct 2402.01030 · Data-Interpreter 2402.18679 · Reflexion 2303.11366 · ReAct 2210.03629 · Coscientist 2304.05332. Reproducibility: NARPS (Nature 2020) · Bowring (HBM 2019/21) · Marek (Nature 2022/2024) · Multiverse (Steegen 2016) · Spec-curve (Simonsohn 2020) · Poldrack "Scanning the horizon" (NRN 2017) · Button (NRN 2013) · ComBat (Fortin 2018; Pomponio 2020). Tooling: fMRIPrep · MRIQC · Nilearn/<code>load_confounds</code> · FitLins/BIDS-Stats-Models · CuBIDS · NiMARE · PCNtoolkit · FUNPACK · pyAFQ · QSIPrep · DataLad.</p>
+<div class="callout callout-warn"><div class="callout-title">Warning</div><p>Closest competitors to verify in Phase 3 before finalizing any differentiation claim: <strong>NeuroAgent 2605.06584</strong>, <strong>NIAgent 2605.09366</strong> (surfaced by the cross-model jury; claims closed-loop QC + workflow automation), <strong>AD-repro 2505.23852</strong>, <strong>NEURA</strong> (bioRxiv 2026).</p></div>
+<hr />
+<h2 id="4-phase-2--ranked--filtered-ideas-cross-model-jury-codex-gpt-55-xhigh">4. Phase 2 — Ranked &amp; Filtered Ideas (cross-model jury: Codex <code>gpt-5.5</code>, xhigh)</h2>
+<p>10 candidates generated across the white space, then scored by an independent cross-model jury (N=Novelty, F=Feasibility on CPU/derivatives ~3–6mo, I=Impact/Usefulness, D=Data-fit; /10).</p>
+<table><thead><tr><th>#</th><th>Idea</th><th>N/F/I/D</th><th>Status</th><th>Closest prior → delta</th></tr></thead><tbody><tr><td><strong>1</strong></td><td><strong>Replication-Gated Discovery Agent</strong></td><td><strong>8.5/7/9.5/9.5</strong></td><td><strong>CORE</strong></td><td>NeuroAgent/NIAgent automate workflows; Marek shows BWAS replication failure → <em>delta: no "confirmed" claim without independent replication</em></td></tr><tr><td><strong>9</strong></td><td><strong>Power-Aware Honest Discovery</strong> (winner's-curse shrinkage, abstention)</td><td>6.5/8.5/8.5/9</td><td><strong>merge into #1</strong></td><td>Button 2013 / Marek → <em>delta: agent refuses/shrinks under-powered claims</em></td></tr><tr><td><strong>2</strong></td><td><strong>Multiverse-Native Robustness</strong> (do plausible forks flip the claim?)</td><td>6.5/6.5/8.5/8</td><td><strong>core module</strong></td><td>NARPS, spec-curve → <em>delta: agent auto-enumerates forks + explains conclusion flips</em></td></tr><tr><td><strong>7</strong></td><td><strong>NeuroDecide-Bench</strong> (benchmark of <em>analysis-decision</em> quality)</td><td>8.5/5.5/9/8</td><td><strong>companion / backbone</strong></td><td>InfiAgent-DABench (shallow) → <em>delta: benchmark claim-validity decisions, not task accuracy</em></td></tr><tr><td><strong>8</strong></td><td>Re-Executable Finding / Provenance "receipts"</td><td>4.5/8/8/8.5</td><td>infra module</td><td>DataLad/ReproNim/BIDS-Stats-Models → <em>delta: automatic finding receipt</em></td></tr><tr><td><strong>3</strong></td><td>QC-in-the-Analysis-Loop (statistical-assumption checks)</td><td>6/8/8/8</td><td>module (NIAgent threatens novelty)</td><td>MRIQC/AFNI-QC → <em>delta: statistical/collider/confound diagnostics, not visual/runtime</em></td></tr><tr><td><strong>4</strong></td><td>Auditable Inclusion/Exclusion engine</td><td>5.5/7.5/7.5/8</td><td>module / bench subtask</td><td>MRIQC labels → <em>delta: study-specific, downstream-sensitivity-justified</em></td></tr><tr><td><strong>6</strong></td><td>Confound-Strategy Recommender</td><td>4.5/8.5/7.5/8</td><td>module</td><td>load_confounds recipes → <em>delta: chooser + sensitivity</em> (weak as a paper)</td></tr><tr><td><strong>5</strong></td><td>Cross-Modal Triangulation (fMRI↔sMRI↔PET)</td><td>5.5/5.5/7/6.5</td><td>later demo/module</td><td>ADNI multimodal lit (heavily worked) → <em>delta: evidence-grading by cross-modal consistency</em></td></tr><tr><td><strong>10</strong></td><td>Full Hypothesis→Report orchestrator</td><td>6.5/4.5/9/9</td><td><strong>tool wrapper, NOT the paper</strong></td><td>NeuroAgent/NEURA/AI-Scientist → delta only if gating+replication+bench are central</td></tr></tbody></table>
+<h3 id="converged-contribution-what-advances">Converged contribution (what advances)</h3>
+<p><strong>🏆 CORE — "CONFIRM" (working name): a claim-contract-governed, replication-gated, power-aware reproducible-analysis agent.</strong> The unifying mechanism (from the jury's best missed idea): a **machine-checkable *claim contract*** declared <em>before</em> any code runs — estimand, cohort, exclusions, confounds, multiplicity rule, <strong>power rule (Marek-aware)</strong>, <strong>cross-cohort replication rule</strong>, <strong>multiverse-robustness rule</strong>, allowed reporting language. The agent may only emit a finding as <strong>"confirmed"</strong> if executed, schema-validated results satisfy the contract; otherwise it <strong>abstains</strong> or labels (<em>cohort-specific / non-replicated / under-powered / fragile</em>). <strong>Numbers never come from the LLM — only from executed code + provenance bundle.</strong> Folds in #1+#9+#2+#8+#3.</p>
+<p><strong>🤝 COMPANION — NeuroDecide-Bench + adversarial error-injection suite.</strong> A tightly-scoped benchmark of <em>claim-validity decisions</em>, including <strong>injected-artifact tasks</strong> (site imbalance, motion leakage, age/diagnosis confounding, collider bias, label leakage, bad multiplicity) that give <strong>ground-truth nulls</strong>. Doubles as the agent's evaluation <em>and</em> a standalone community asset (adoption/usefulness).</p>
+<p><strong>🔌 ADOPTION MOAT (enabling layer, in the tool) — cross-cohort phenotype/derivative alignment.</strong> A semantic mapper from "clinical question" → comparable variables/features across UKB/HCP/ADNI/ABCD/ OpenNeuro. "Boring but likely the adoption moat" — and a precondition for replication-gating to work.</p>
+<h3 id="headline-claim-the-paper">Headline claim (the paper)</h3>
+<blockquote><p><em>On precomputed neuroimaging derivatives, a replication-gated, claim-contract analysis agent substantially reduces false "confirmed" findings and effect-size inflation versus single-cohort and generic data-science agents, while preserving recovery of established neuroimaging effects.</em></p></blockquote>
+<p><strong>The defensible delta (jury's brutal-honesty verdict):</strong> NOT "first autonomous neuroimaging agent" (that's taken). YES — <em>"first neuroimaging analysis agent whose architecture treats replication, power, multiverse robustness, and provenance as <strong>gates</strong> before a scientific claim is allowed."</em></p>
+<h3 id="minimum-viable-evaluation">Minimum viable evaluation</h3>
+<p>8–15 tasks across ADNI/UKB/HCP/ABCD/OpenNeuro: known-positives (AD hippocampal atrophy d≈1.5–2.0, FDG hypometabolism, age/sex/ICV effects), motion-confounded FC, NARPS-style fragile effects, and <strong>injected null/confound tasks</strong>. Metrics: third-cohort <strong>confirmation rate</strong>, <strong>false-confirmed rate</strong>, <strong>effect-size calibration error</strong>, <strong>abstention quality</strong>, <strong>bundle reproducibility</strong>. Baselines: single-cohort agent · generic DS agent · NeuroAgent/NIAgent-style workflow runner.</p>
+<h3 id="pilots-status-needs-manual-pilot--paper-only-this-session">Pilots (status: NEEDS MANUAL PILOT — paper-only this session)</h3>
+<p>No confirmed GPU and no data mounted in-session; core loop is CPU/derivatives so pilots are cheap to run later. Designed cheap pilots: <strong>(P1)</strong> ADNI→(2nd cohort) replication gate on AD hippocampal atrophy (known strong effect — must confirm); <strong>(P2)</strong> an injected-null task (must abstain, not confirm — the winner's-curse trap); <strong>(P3)</strong> a NARPS-fragile effect through the multiverse module (must label fragile). To execute these, confirm data access + a small compute env.</p>
+<h3 id="top-reviewer-attacks--preemptions">Top reviewer attacks → preemptions</h3>
+<ol><li><em>"Just glue around tools."</em> → formal claim contract + deterministic validators + ablation showing  replication gating <strong>changes scientific conclusions</strong>.</li><li><em>"No ground truth."</em> → known-positives + injected nulls + NARPS consensus + held-out-cohort  confirmation, scored separately.</li><li><em>"LLMs hallucinate science."</em> → LLM never emits numbers; all claims from executed, schema-validated  artifacts + abstention (cite AI-Scientist failure evidence, 2502.14297).</li></ol>
+<hr />
+<h2 id="5-phase-3--deep-novelty-verification-both-contributions-verified-proceed-with-caution">5. Phase 3 — Deep Novelty Verification (both contributions VERIFIED; PROCEED-WITH-CAUTION)</h2>
+<p>Two parallel novelty tracks, every paper WebFetch-verified (anti-hallucination). The field moved fast (≈5 neuroimaging agents in Apr–May 2026) and surfaced new competitors — but the deltas hold.</p>
+<h3 id="51-core--newly-found-competitors--per-claim-verdict">5.1 CORE — newly-found competitors &amp; per-claim verdict</h3>
+<p>New closest works (beyond NeuroAgent/NIAgent/NEURA/AD-repro):</p>
+<ul><li><strong>NeuroClaw</strong> (2604.24696) — multi-agent neuroimaging on ADNI/HCP/UKB, code-execution w/ checksum/schema validation. <em>Shares "no-LLM-numbers"; lacks claim contracts, replication gate, abstention, power, multiverse.</em></li><li><strong>EviBound</strong> (2511.05524) — pre-execution Approval Gate + post-execution Verification Gate, a "contract." <em>But governs EXECUTION INTEGRITY (artifact exists, run_id valid), NOT statistical validity.</em> ← key boundary.</li><li><strong>Many AI Analysts</strong> (2602.18710) — AI analysts run multiverse-style analyses + an AI auditor. <em>OBSERVES analytic diversity; does NOT enforce it as a gate or abstain.</em> ← enforcement-vs-observation delta.</li><li><strong>From Fluent to Verifiable</strong> (2602.13855) — claim-level <em>post-hoc</em> auditability for research agents.</li><li><strong>Bayesian Hybrid Shrinkage</strong> (2511.06318) — winner's-curse shrinkage (A/B testing; a stats method, not an agent).</li></ul>
+<table><thead><tr><th>Mechanism</th><th>Novelty</th><th>Closest threat</th></tr></thead><tbody><tr><td>Cross-cohort replication as a <strong>hard confirmation gate</strong></td><td><strong>HIGH</strong></td><td>AD-repro (measures post-hoc, doesn't gate)</td></tr><tr><td>Domain-rigor <strong>abstention</strong> (underpowered/non-replicated/fragile)</td><td><strong>HIGH</strong></td><td>general LLM-abstention only</td></tr><tr><td>Machine-checkable <strong>statistical claim contract</strong></td><td><strong>MED-HIGH</strong></td><td>EviBound (execution-integrity, not stats)</td></tr><tr><td><strong>Power-aware</strong> winner's-curse gate</td><td><strong>MED-HIGH</strong></td><td>Bayesian shrinkage (not an agent)</td></tr><tr><td><strong>Multiverse robustness as a mandatory gate</strong></td><td><strong>MED-HIGH</strong></td><td>Many AI Analysts (observes, doesn't enforce)</td></tr><tr><td>"LLM never emits numbers"</td><td><strong>LOW</strong> → <strong>DROP as a contribution</strong> (now baseline: NeuroClaw/EviBound)</td><td>NeuroClaw</td></tr></tbody></table>
+<p><strong>Biggest attack:</strong> <em>"NeuroClaw + EviBound repackaged."</em> <strong>Does NOT kill us</strong> if we hold the line: EviBound asks <em>"did the artifact get created?"</em>; we ask <em>"is this scientific claim epistemically permissible?"</em> (estimand + power + multiplicity + confounds + replication + multiverse). No prior work combines all six. <strong>Must-win experiment:</strong> a case where NeuroClaw/NeuroAgent label a finding "confirmed" that we correctly <strong>abstain</strong> on (e.g. N=200, uncorrected p=0.04, fails 2nd-cohort replication).</p>
+<h3 id="52-companion--neurodecide-bench-score-710">5.2 COMPANION — NeuroDecide-Bench (score 7/10)</h3>
+<p>Closest = <strong>BLADE</strong> (2408.09667): benchmarks LLM agents on expert-labeled analytical decisions (variable/transform/model choice, unjustifiable-choice MCQs, decision <em>diversity</em>). Also surveyed: DiscoveryBench, ScienceAgentBench, DSBench, DABstep, InfiAgent-DABench, QRData, StatQA, MLE-bench, AbstentionBench, RadA-BenchPlat — <strong>none</strong> cover injected-null validity traps or neuroimaging decisions.</p>
+<table><thead><tr><th>Distinctive feature</th><th>Novelty</th></tr></thead><tbody><tr><td><strong>Injected-artifact ground-truth NULLS</strong> (motion leakage, site imbalance, collider bias, label leakage)</td><td><strong>HIGH</strong></td></tr><tr><td><strong>Neuroimaging-specific</strong> decision points + domain</td><td><strong>HIGH</strong></td></tr><tr><td>Abstention-on-traps as a first-class metric</td><td><strong>MED-HIGH</strong></td></tr><tr><td>Analysis-decision-<em>quality</em> framing</td><td><strong>MED</strong> (BLADE owns "decision quality")</td></tr></tbody></table>
+<p><strong>Boundary vs BLADE (must articulate):</strong> BLADE measures decision <em>diversity/plausibility</em> on social-science data; NeuroDecide-Bench measures analytic <em>validity under adversarial conditions</em> — ground-truth invalidity, injected neuroimaging confound traps, calibrated <strong>abstention</strong> scoring. <strong>Lead with injected-nulls + abstention, NOT "decision quality."</strong></p>
+<h3 id="53-net-novelty-actions-carried-into-refinement">5.3 Net novelty actions (carried into refinement)</h3>
+<ol><li><strong>Drop</strong> "LLM-no-numbers" as a contribution (frame as a prerequisite).</li><li><strong>Position explicitly vs EviBound</strong> (execution-integrity) and <strong>vs BLADE</strong> (decision-diversity) — one paragraph each.</li><li><strong>Release the claim-contract JSON schema as an open standard</strong> (community-infrastructure angle, hard to dismiss).</li><li><strong>Headline ablation:</strong> rigor-gated agent vs NeuroClaw/NIAgent-style runner on <strong>known non-replicable</strong> findings → false-confirmed rate.</li><li>⚠️ <strong>Verify NEURA full text</strong> (bioRxiv 403'd) before any submission — only unverified concurrent work.</li></ol>
+<blockquote><p>Verified prior-work traces: <code>.aris/traces/novelty-check/2026-06-01_run01/</code>.</p></blockquote>
+<hr />
+<h2 id="6-phase-4--external-critical-review-codex-gpt-55-xhigh-same-thread-multi-round">6. Phase 4 — External Critical Review (Codex <code>gpt-5.5</code>, xhigh; same thread, multi-round)</h2>
+<p><strong>Score: 7.5/10 now → 8.5/10 if tightly scoped + the must-win experiment lands.</strong> Core CONFIRM is stronger than the companion benchmark. Paired story is coherent but <em>risky if it sprawls</em> into "framework + benchmark + many demos."</p>
+<p><strong>Novelty language tightened (reviewer):</strong></p>
+<ul><li>Don't claim generic "claim contracts" → claim **"machine-checkable statistical claim <em>admissibility</em> for neuroimaging."<strong> The six gates aren't individually novel; the novelty is making them </strong>blocking conditions for the <em>claim label</em>.**</li><li><strong>Cross-cohort replication gate = strongest delta</strong> (not seen in NeuroClaw/NeuroAgent/NIAgent).</li><li>Multiverse gate defensible <strong>only if it gates/abstains</strong> (vs Many-AI-Analysts which only <em>reports</em>).</li><li>EviBound boundary is <strong>real, not cosmetic — iff</strong> the gate can reject a <em>perfectly executed</em> analysis because the claim is statistically inadmissible (underpowered/unreplicated/fragile/confounded).</li><li>Benchmark: claim <strong>"first neuroimaging benchmark for validity under adversarial nulls + abstention,"</strong> not "decision quality" (BLADE owns that).</li></ul>
+<p><strong>3 most damaging weaknesses → required preemptions:</strong></p>
+<ol><li><strong>Gate arbitrariness</strong> ("why these 6 / these thresholds? did you build an abstain-everything machine?")  → report <strong>selective-risk curves</strong>: false-confirmed rate vs known-positive confirmation rate.</li><li><strong>Benchmark construct validity</strong> (injected nulls become toy traps detectable by trivial heuristics)  → trivial baselines, <strong>mask trap structure in realistic derived variables</strong>, real cohort covariance,  don't reveal trap type in prompts.</li><li><strong>Straw-man baselines</strong> (NeuroClaw/NIAgent aren't designed to label "confirmed")  → <strong>fair baselines</strong>: same data/prompt/tool-budget/execution-validation + a <strong>blinded claim extractor</strong>  mapping every system's report into {confirmed / qualified / abstained}.</li></ol>
+<p><strong>Minimum experiments to reach "accept":</strong></p>
+<ul><li><strong>Must-win:</strong> realistic discovery-cohort traps where an execution-valid runner reports a significant finding that <strong>fails replication / collapses under confound+multiverse</strong>, and CONFIRM <strong>abstains / labels non-replicated</strong>. Primary metric = <strong>false-confirmed rate</strong>.</li><li><strong>Known positives</strong> so abstain-all fails (AD hippocampal atrophy, FDG hypometabolism, age/sex/ICV).</li><li><strong>Real fragile cases</strong> (NARPS-style; split/cohort-unstable brain-behavior associations), not only injected.</li><li><strong>Gate-ablation ladder</strong>: execution-only → +confounds → +power → +multiverse → +replication; the replication gate must <strong>visibly</strong> reduce false confirmation.</li><li><strong>Selective metric</strong>: false-confirmed rate <strong>@ fixed known-positive recall</strong>, or area under the <strong>risk-coverage curve</strong> (plain accuracy rewards dumb refusal).</li><li>Construct-validity: separate <em>"non-replicated because false"</em> from <em>"non-replicated because cohort mismatch"</em> via <strong>predeclared phenotype/feature harmonization</strong>.</li></ul>
+<p><strong>Scope cut → what to ship (the refined proposal):</strong> <strong>CONFIRM-lite</strong> (see <code>refine-logs/FINAL_PROPOSAL.md</code>).</p>
+<hr />
+<h2 id="7-phase-45--refined-proposal--experiment-plan-links">7. Phase 4.5 — Refined Proposal &amp; Experiment Plan (links)</h2>
+<p>The top idea was refined into a problem-anchored proposal + claim-driven experiment roadmap:</p>
+<ul><li><strong>Proposal:</strong> <code>refine-logs/FINAL_PROPOSAL.md</code> — Problem Anchor, method thesis, dominant contribution, smallest mechanism (CONFIRM-lite), key claims C1–C4, rejected complexity, risks.</li><li><strong>Experiment plan:</strong> <code>refine-logs/EXPERIMENT_PLAN.md</code> — datasets, NeuroDecide-Bench-lite task suite, selective metrics, fair baselines + blinded claim extractor, blocks B0–B6, run order + decision gates.</li><li><strong>Tracker:</strong> <code>refine-logs/EXPERIMENT_TRACKER.md</code> · <strong>Review:</strong> <code>refine-logs/REVIEW_SUMMARY.md</code> · <strong>Summary:</strong> <code>refine-logs/PIPELINE_SUMMARY.md</code>.</li></ul>
+<p><strong>Method thesis:</strong> <em>CONFIRM governs the claim, not just the run — "confirmed" only if executed results pass multiplicity + confound + power + cross-cohort-replication + multiverse gates, else abstain/label.</em></p>
+<h2 id="8-eliminated--demoted-ideas-audit-trail">8. Eliminated / demoted ideas (audit trail)</h2>
+<ul><li><strong>#5 Cross-modal triangulation</strong> — demoted (ADNI multimodal heavily worked; later demo only).</li><li><strong>#6 Confound-strategy recommender</strong>, <strong>#4 inclusion engine</strong> — demoted to <em>modules</em> of CONFIRM (weak as standalone papers).</li><li><strong>#10 Full "AI neuroscientist" orchestrator</strong> — demoted to <em>tool wrapper</em>, not the paper claim (too broad; NeuroAgent/NEURA occupy it).</li><li><strong>"LLM-never-emits-numbers"</strong> — dropped as a <em>contribution</em> (now baseline; kept as a prerequisite).</li><li><strong>"Decision-quality" benchmark framing</strong> — dropped in favor of <em>validity-under-adversarial-nulls + abstention</em> (BLADE owns "decision quality").</li></ul>
+<h2 id="9-next-steps">9. Next Steps</h2>
+<ul><li>[ ] Build <strong>B0 infra</strong>: claim-contract JSON/YAML schema (release as open standard) → analysis executor +     provenance bundle → ComBat + cross-cohort replication harness.</li><li>[ ] Mount cohort derivatives; run <strong>pilots P1–P3</strong> (AD-atrophy → confirm · injected-null → abstain · NARPS → fragile).</li><li>[ ] Run <strong>B1 must-win</strong> (false-confirmed rate vs execution-valid runner) → decision gate before scaling.</li><li>[ ] Verify <strong>NEURA</strong> full text (only unverified concurrent work) before any submission.</li><li>[ ] Then <code>/run-experiment</code> to deploy the plan, and <code>/auto-review-loop</code> to iterate toward submission.</li></ul>
+
+<footer class="aris-footer">
+  Generated by <a href="https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/main/skills/render-html/SKILL.md">ARIS <code>/render-html</code></a> ·
+  source path <code>idea-stage/IDEA_REPORT.md</code> ·
+  SHA256 <code>0c8feef4f810</code> ·
+  generated at 2026-06-01 23:46 UTC.
+  This is a generated view — edit the source Markdown, then re-render.
+</footer>
+</main>
+
+</div>
+
+<!-- P0 polish: paper popover host (populated by IIFE below) -->
+<div id="cite-pop" hidden role="dialog" aria-labelledby="cite-pop-title">
+  <button class="cp-close" type="button" aria-label="Close">×</button>
+  <div class="cp-content"></div>
+</div>
+
+<!-- P0 polish: figure lightbox (native <dialog>, graceful fallback) -->
+<dialog class="lightbox" id="figure-lightbox" aria-label="Figure detail">
+  <div class="lb-inner">
+    <button class="lb-close" type="button" aria-label="Close">×</button>
+    <img alt="" />
+    <figcaption></figcaption>
+  </div>
+</dialog>
+
+<!-- P0 polish: paper registry sidecar, embedded by render_html.py (--papers) -->
+<script>window.PAPER_REGISTRY = {};</script>
+
+<!-- P0 polish: interactive enhancements (TOC scrollspy, code-card auto-collapse,
+     paper popovers, figure lightbox, print-restore for <details>, blog-mode H2). -->
+<script>
+(function () {
+  "use strict";
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c];
+    });
+  }
+
+  // --- Feature 5: Print degradation fix ---------------------------------
+  // Force every <details> open during print, restore the pre-print state after.
+  var _stashOpen = [];
+  var _printing = false;
+  window.addEventListener("beforeprint", function () {
+    if (_printing) return;  // guard against multi-fire (Chrome print preview)
+    _printing = true;
+    _stashOpen = [];
+    document.querySelectorAll("details:not([open])").forEach(function (d) {
+      _stashOpen.push(d);
+      d.open = true;
+    });
+  });
+  window.addEventListener("afterprint", function () {
+    _stashOpen.forEach(function (d) { if (d.isConnected) d.open = false; });
+    _stashOpen = [];
+    _printing = false;
+  });
+
+  // --- Feature 3: TOC scrollspy -----------------------------------------
+  var tocLinks = [].slice.call(document.querySelectorAll("nav.toc a"));
+  var headings = tocLinks.map(function (a) {
+    var id = a.getAttribute("href").replace(/^#/, "");
+    return document.getElementById(id);
+  }).filter(Boolean);
+  if (headings.length && typeof IntersectionObserver !== "undefined") {
+    var linkById = new Map();
+    headings.forEach(function (h, i) { linkById.set(h.id, tocLinks[i]); });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        tocLinks.forEach(function (l) { l.classList.remove("active"); });
+        var lk = linkById.get(en.target.id);
+        if (lk) lk.classList.add("active");
+      });
+    }, { rootMargin: "-15% 0px -75% 0px" });
+    headings.forEach(function (h) { io.observe(h); });
+  }
+
+  // --- Feature 1: Long-code auto-collapse -------------------------------
+  var COLLAPSE_THRESHOLD = 30;
+
+  function wrapCodeCard(pre, openByDefault) {
+    if (!pre || pre.closest("details.code-card")) return;
+    var code = pre.querySelector("code");
+    if (!code) return;
+    var lines = code.textContent.replace(/\n+$/, "").split("\n").length;
+    var det = document.createElement("details");
+    det.className = "code-card";
+    det.open = openByDefault;
+    var sum = document.createElement("summary");
+    function updateSummary() {
+      sum.textContent = (det.open ? "▾ Collapse code · " : "▸ Expand code · ") + lines + " lines";
+    }
+    updateSummary();
+    det.addEventListener("toggle", updateSummary);
+    pre.parentNode.insertBefore(det, pre);
+    det.appendChild(sum);
+    det.appendChild(pre);
+  }
+
+  // Honor explicit per-block flags first.
+  document.querySelectorAll("pre[data-collapse]").forEach(function (pre) {
+    var flag = pre.getAttribute("data-collapse");
+    if (flag === "collapsed") wrapCodeCard(pre, false);
+    // "open" → leave fully expanded, do not wrap.
+  });
+  // Then auto-wrap long unflagged blocks.
+  document.querySelectorAll("pre > code").forEach(function (code) {
+    var pre = code.closest("pre");
+    if (!pre || pre.closest("details") || pre.hasAttribute("data-collapse")) return;
+    var lines = code.textContent.replace(/\n+$/, "").split("\n").length;
+    if (lines >= COLLAPSE_THRESHOLD) wrapCodeCard(pre, false);
+  });
+
+  // --- Feature 10: Figure lightbox --------------------------------------
+  var lightbox = document.getElementById("figure-lightbox");
+  if (lightbox) {
+    var lbImg = lightbox.querySelector("img");
+    var lbCap = lightbox.querySelector("figcaption");
+    var lbClose = lightbox.querySelector(".lb-close");
+    function openLightbox(srcImg) {
+      lbImg.src = srcImg.src;
+      lbImg.alt = srcImg.alt || "";
+      var cap = srcImg.closest("figure") ? srcImg.closest("figure").querySelector("figcaption") : null;
+      lbCap.textContent = cap ? cap.textContent : "";
+      lbCap.hidden = !cap;
+      if (typeof lightbox.showModal === "function") lightbox.showModal();
+      else lightbox.hidden = false;
+    }
+    function closeLightbox() {
+      if (typeof lightbox.close === "function") lightbox.close();
+      else lightbox.hidden = true;
+    }
+    document.querySelectorAll("main figure img, main > p > img").forEach(function (img) {
+      if (img.closest("dialog")) return;
+      img.style.cursor = "zoom-in";
+      img.addEventListener("click", function () { openLightbox(img); });
+    });
+    if (lbClose) lbClose.addEventListener("click", closeLightbox);
+    lightbox.addEventListener("click", function (e) {
+      // Backdrop click closes; clicks inside .lb-inner do not bubble here.
+      if (e.target === lightbox) closeLightbox();
+    });
+  }
+
+  // --- Feature 2: Paper popover -----------------------------------------
+  var PAPERS = window.PAPER_REGISTRY || {};
+  var pop = document.getElementById("cite-pop");
+  var popContent = pop ? pop.querySelector(".cp-content") : null;
+  var popClose = pop ? pop.querySelector(".cp-close") : null;
+  var popTrigger = null;
+
+  function showPopover(el) {
+    var key = el.dataset.ref;
+    var info = PAPERS[key];
+    if (!info || !pop || !popContent) return;
+    popContent.innerHTML =
+      '<div class="cp-title" id="cite-pop-title">' + escapeHtml(info.title || key) + '</div>' +
+      (info.authors
+        ? '<div class="cp-meta">' + escapeHtml(info.authors) +
+            (info.date ? ' · ' + escapeHtml(info.date) : '') +
+            (info.inst ? ' · ' + escapeHtml(info.inst) : '') + '</div>'
+        : '') +
+      (info.key ? '<div class="cp-key">' + escapeHtml(info.key) + '</div>' : '') +
+      (info.arxiv
+        ? '<a class="cp-link" href="https://arxiv.org/abs/' + encodeURIComponent(info.arxiv) +
+          '" target="_blank" rel="noopener">arXiv ' + escapeHtml(info.arxiv) + ' ↗</a>'
+        : '');
+    var r = el.getBoundingClientRect();
+    pop.hidden = false;  // unhide first so offsetHeight is measurable
+    var margin = 16;
+    var popWidth = Math.min(360, Math.max(0, window.innerWidth - margin * 2));
+    var popHeight = Math.min(pop.offsetHeight || 200, Math.max(0, window.innerHeight - margin * 2));
+    pop.style.left = Math.max(margin, Math.min(r.left, window.innerWidth - popWidth - margin)) + "px";
+    pop.style.top = Math.max(margin, Math.min(r.bottom + 8, window.innerHeight - popHeight - margin)) + "px";
+    popTrigger = el;
+    if (popClose) popClose.focus();
+  }
+  function hidePopover() {
+    if (pop) pop.hidden = true;
+    if (popTrigger) popTrigger.focus();
+    popTrigger = null;
+  }
+  document.querySelectorAll("[data-ref]").forEach(function (el) {
+    el.setAttribute("tabindex", "0");
+    el.setAttribute("role", "button");
+    el.addEventListener("click", function (e) { e.stopPropagation(); showPopover(el); });
+    el.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); showPopover(el); }
+    });
+  });
+  if (popClose) popClose.addEventListener("click", hidePopover);
+  document.addEventListener("click", function (e) {
+    if (pop && !pop.hidden && !pop.contains(e.target) && !e.target.matches("[data-ref]")) hidePopover();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && pop && !pop.hidden) hidePopover();
+  });
+
+  // --- Feature 7: Blog-mode active-H2 highlight (opt-in) ----------------
+  if (document.body.classList.contains("aris-blog")) {
+    var h2s = [].slice.call(document.querySelectorAll("main h2"));
+    if (h2s.length && typeof IntersectionObserver !== "undefined") {
+      var io2 = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) {
+            h2s.forEach(function (h) { h.classList.remove("aris-active-h2"); });
+            en.target.classList.add("aris-active-h2");
+          }
+        });
+      }, { rootMargin: "-15% 0px -75% 0px" });
+      h2s.forEach(function (h) { io2.observe(h); });
+    }
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "verdict": "WARN",
+  "checks": {
+    "source_hash_match": "pass",
+    "information_fidelity": "pass",
+    "structure": "warn",
+    "math_code_tables": "pass",
+    "callouts": "not_applicable",
+    "safety_escaping": "pass",
+    "placeholder_leak": "pass"
+  },
+  "blocking_issues": [],
+  "warnings": [
+    {
+      "severity": "warn",
+      "issue": "The generated TOC shows raw Markdown emphasis markers in two heading labels, e.g. `**LOOP TERMINATED**` and `**4 → 6 (almost)**`. The actual headings render correctly.",
+      "suggested_fix": "Render inline Markdown formatting before extracting TOC text, or strip emphasis markers from TOC labels."
+    }
+  ],
+  "summary": "The HTML matches the current source Markdown hash, preserves the main sections, details blocks, lists, tables, inline code, and embedded REVIEW_STATE.json sidecar, and does not leak unsafe source HTML or template placeholders. The only issue found is cosmetic TOC label degradation from raw Markdown emphasis markers; the body content remains faithful and readable."
+}
+
+Note: I did not judge the research claims. This is a render-fidelity warning only, not a content-quality finding.

@@ -1,0 +1,9 @@
+{
+  "call_number": 1,
+  "purpose": "wacv-readiness-review",
+  "timestamp": "2026-06-20T16:49:47Z",
+  "thread_id": "019ee37d-ad9a-7cb3-ad24-1e2ae464effb",
+  "model": "gpt-5.5",
+  "duration_ms": 29591,
+  "status": "ok"
+}

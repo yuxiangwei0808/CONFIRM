@@ -1,0 +1,28 @@
+{
+  "created_at": "2026-06-16T15:29:55-07:00",
+  "target_agent": "019ed27e-4b29-7a71-b50e-33c0bda61637",
+  "purpose": "Round 2 reassessment after benchmark-ready hardening experiments",
+  "artifacts": {
+    "no_harmonization_results": "review-stage/benchmark-ready-hardened-none/benchmark_ready_results.json",
+    "combat_results": "review-stage/benchmark-ready-hardened-combat/benchmark_ready_results.json",
+    "hardening_controls": "review-stage/hardening-controls/hardening_controls_results.json"
+  },
+  "summary_sent": {
+    "implemented": [
+      "real bounded brain-wide multiverse",
+      "exact beta-binomial CIs",
+      "machine-readable audit and lockfile",
+      "ComBat/no-harmonization comparison",
+      "targeted FDR and power/MDE controls"
+    ],
+    "no_harmonization_final": {
+      "TPR": "4/4 = 1.0, CI [0.3976, 1.0]",
+      "FCR": "3/16 = 0.1875, CI [0.0405, 0.4565]"
+    },
+    "combat_final": {
+      "TPR": "4/4 = 1.0, CI [0.3976, 1.0]",
+      "FCR": "2/16 = 0.125, CI [0.0155, 0.3835]"
+    },
+    "verification": "PYTHONPATH=src ./.venv/bin/pytest -q => 10 passed"
+  }
+}

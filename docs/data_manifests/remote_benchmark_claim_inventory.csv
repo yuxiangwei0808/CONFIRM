@@ -1,0 +1,33 @@
+claim_id,modality,claim_type,discovery_cohort,replication_cohort,predictor_or_group,outcome_family,expected_label,prepared_status,notes
+age_fc_ukb_hcpaging,fMRI-FC,known_positive_or_stability,UKB,HCP_Aging,age,fc_self_descriptors,positive_candidate,prepared,Large aging cohorts; use network FC summaries and require same effect direction/pattern replication.
+age_fc_hcpa_hcp,fMRI-FC,known_positive_or_stability,HCP_Aging,HCP,age,fc_self_descriptors,positive_candidate,prepared,HCP age range is narrower; likely weaker replication than UKB/HCP-Aging.
+age_region_ukb_hcpa,fMRI-region,known_positive_or_stability,UKB,HCP_Aging,age,region_self_descriptors,positive_candidate,prepared,Use regional fMRI-derived descriptors.
+age_dyno_ukb_hcpa,fMRI-dynamics,known_positive_or_stability,UKB,HCP_Aging,age,ica_dyno_descriptors,positive_candidate,prepared,Dynamic/autocorrelation descriptors.
+sex_fc_ukb_hcp,fMRI-FC,known_positive_or_stability,UKB,HCP,sex,fc_self_descriptors,positive_candidate,prepared,Useful non-disease biological benchmark; interpret cautiously.
+sex_fc_abcd_hcp,fMRI-FC,known_positive_or_stability,ABCD,HCP,sex,fc_self_descriptors,positive_candidate,prepared,Cross-age generalization stress test.
+cognition_fc_ukb_abcd,fMRI-FC,brain_behavior,UKB,ABCD,fluid intelligence/fluid_composite,fc_self_descriptors,fragile_or_small_effect,prepared,Marek-style small brain-behavior effect; likely fragile despite large N depending feature.
+cognition_fc_hcp_hcpa,fMRI-FC,brain_behavior,HCP,HCP_Aging,fluid_composite,fc_self_descriptors,fragile_or_small_effect,prepared,Cognition available in both; use as fragile/small-effect test.
+cognition_dyno_ukb_abcd,fMRI-dynamics,brain_behavior,UKB,ABCD,fluid intelligence/fluid_composite,ica_dyno_descriptors,fragile_or_small_effect,prepared,Good for testing p-hacking/specification sensitivity.
+adhd_fc_adhd200_abcd,fMRI-FC,disease,ADHD200,ABCD,ADHD/had_adhd,fc_self_descriptors,fragile_or_positive_candidate,prepared,ABCD has had_adhd phenotype; definitions differ.
+adhd_region_adhd200_abcd,fMRI-region,disease,ADHD200,ABCD,ADHD/had_adhd,region_self_descriptors,fragile_or_positive_candidate,prepared,Good cross-cohort diagnostic generalization test.
+asd_fc_abide2_abcd,fMRI-FC,disease,ABIDE2,ABCD,diagnosis/had_asd,fc_self_descriptors,fragile_or_positive_candidate,prepared,ABCD ASD flag is not equivalent to ABIDE diagnosis; likely fragile.
+asd_region_abide2_abcd,fMRI-region,disease,ABIDE2,ABCD,diagnosis/had_asd,region_self_descriptors,fragile_or_positive_candidate,prepared,Cross-cohort ASD diagnostic mismatch stress test.
+ad_fc_adni_oasis3,fMRI-FC,disease,ADNI_fMRI,OASIS3_fMRI,diagnosis,fc_self_descriptors,positive_or_fragile_candidate,prepared,Functional AD effect; less canonical than sMRI.
+ad_region_adni_oasis3,fMRI-region,disease,ADNI_fMRI,OASIS3_fMRI,diagnosis,region_self_descriptors,positive_or_fragile_candidate,prepared,AD fMRI regional descriptor replication.
+ad_dyno_adni_oasis3,fMRI-dynamics,disease,ADNI_fMRI,OASIS3_fMRI,diagnosis,ica_dyno_descriptors,positive_or_fragile_candidate,prepared,AD dynamic fMRI descriptors.
+injected_null_site_abcd,fMRI-FC,injected_null,ABCD,ABCD,site-confounded synthetic label,fc_self_descriptors,null_expected,prepared,Create fake group tied to acquisition/site/metadata; should abstain after confound/replication.
+injected_null_site_ukb,fMRI-FC,injected_null,UKB,UKB,site/session synthetic label,fc_self_descriptors,null_expected,prepared,Large-scale false-positive stress test.
+injected_null_random_hcp,fMRI-FC,injected_null,HCP,HCP,random label,fc_self_descriptors,null_expected,prepared,Should not confirm; useful reproducibility check.
+injected_null_fishing_abide2,fMRI-FC,injected_null,ABIDE2,ABIDE2,selected random label,fc_self_descriptors,null_expected,prepared,Discovery-significant selected null that should fail replication.
+injected_null_fishing_adhd200,fMRI-FC,injected_null,ADHD200,ADHD200,selected random label,fc_self_descriptors,null_expected,prepared,Stress replication gate.
+underpowered_asd_site_abide2,fMRI-FC,underpowered_or_fragile,ABIDE2,ABIDE2,ASD vs control within small site,fc_self_descriptors,underpowered_or_fragile,prepared,Downsample/site split to force low power.
+underpowered_adhd_site_adhd200,fMRI-FC,underpowered_or_fragile,ADHD200,ADHD200,ADHD vs control within small site,fc_self_descriptors,underpowered_or_fragile,prepared,Downsample/site split to force low power.
+ad_smri_adni_oasis3,sMRI,known_positive,ADNI,OASIS3,Dementia vs CN,FreeSurfer AD signature,positive,already_working,Existing local ADNI/OASIS3 result.
+ad_brainwide_smri_adni_oasis3,sMRI,known_positive,ADNI,OASIS3,Dementia vs CN,brainwide FreeSurfer AD pattern,positive,already_working,Existing pattern-correlation result.
+fdg_pet_adni,PET,known_positive,ADNI,ADNI split,Dementia vs CN,FDG,positive,already_working_within_adni,Need OASIS3/AIBL PET adapter for true cross-cohort.
+aibl_ad_smri,AIBL/AD,known_positive,AIBL,ADNI/OASIS3,AD vs control,MRI/PET metadata,positive_candidate,needs_adapter,AIBL copied; requires visit/diagnosis harmonization and imaging measures.
+nacc_mri_ad,NACC/sMRI,known_positive,NACC,ADNI/OASIS3,diagnosis/cognitive status,NACC MRI regional measures,positive_candidate,needs_adapter,NACC MRI table copied with many regional columns.
+miriad_ad,MIRIAD/sMRI,known_positive,MIRIAD,ADNI/OASIS3,AD vs control,assessment/scans,positive_candidate,needs_adapter,MIRIAD tables copied; may need imaging-derived measures beyond scan metadata.
+cobre_sz_clinical,psychosis,clinical_anchor,COBRE,FBIRN/SZ_JH,schizophrenia/control,PANSS/diagnosis,needs_imaging_match,needs_imaging_match,Clinical tables copied; need imaging features.
+fbirn_sz_cognition,psychosis,clinical_anchor,FBIRN,COBRE/SZ_JH,diagnosis/cognition,CMINDS cognition,needs_imaging_match,needs_imaging_match,Clinical/cognition table copied; need imaging features.
+szjh_symptom_cognition,psychosis,clinical_anchor,SZ_JH,COBRE/FBIRN,diagnosis/symptoms,neuropsych/SANS-SAPS,needs_imaging_match,needs_imaging_match,Clinical/symptom tables copied; need imaging features.

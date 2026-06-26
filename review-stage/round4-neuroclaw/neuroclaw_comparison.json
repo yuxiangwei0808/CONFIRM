@@ -1,0 +1,267 @@
+{
+  "description": "NeuroClaw baseline vs CONFIRM on a shared claim set (round 4).",
+  "model": "gpt-5-mini",
+  "n_claims": 15,
+  "n_positive": 5,
+  "n_null_plus_fragile": 10,
+  "extraction_rule": "Blinded: CONFIRMS iff narrative asserts a statistically significant effect (affirmative significance language and/or reported primary p<0.05); NO-EFFECT iff p>=0.05 or explicit non-significance/null/cannot-confirm language. Rule applied without consulting the ground-truth label.",
+  "confirm_reference_note": "CONFIRM verdict = final_label from combined_benchmark_audit.csv (full-gate combat run, +replication). confirmed=CONFIRMS; fragile/non_replicated=ABSTAIN.",
+  "neuroclaw_FCR": {
+    "count": 3,
+    "denominator": 10,
+    "rate": 0.3,
+    "ci95_exact": [
+      0.06673951117773444,
+      0.6524528500599971
+    ]
+  },
+  "neuroclaw_TPR": {
+    "count": 5,
+    "denominator": 5,
+    "rate": 1.0,
+    "ci95_exact": [
+      0.4781762498950183,
+      1.0
+    ]
+  },
+  "confirm_FCR_on_shared_set": {
+    "count": 0,
+    "denominator": 10,
+    "rate": 0.0,
+    "ci95_exact": [
+      0.0,
+      0.3084971078187607
+    ]
+  },
+  "confirm_TPR_on_shared_set": {
+    "count": 5,
+    "denominator": 5,
+    "rate": 1.0,
+    "ci95_exact": [
+      0.4781762498950183,
+      1.0
+    ]
+  },
+  "confirm_full_gate_main_reference": {
+    "TPR": "5/5 = 1.0",
+    "FCR": "0/22 = 0.0"
+  },
+  "neuroclaw_false_confirmed_that_confirm_abstained": [
+    "injected_null_random_abcd",
+    "injected_null_site_abcd",
+    "injected_null_site_ukb"
+  ],
+  "total_cost_usd": 0.895,
+  "per_claim": [
+    {
+      "claim_id": "ad_hippocampal_atrophy_adni_oasis3",
+      "label_class": "known_positive",
+      "confirm_final_label": "confirmed",
+      "confirm_decision": "CONFIRMS",
+      "confirm_best_p": "2.1762293771854846e-112",
+      "confirm_best_beta": "-1654.2086480065677",
+      "neuroclaw_decision": "CONFIRMS",
+      "neuroclaw_reported_p": 2.176229377185651e-112,
+      "neuroclaw_extraction_rationale": "pos-language=['statistically significant', 'significant reduction']",
+      "neuroclaw_n_calls": 12,
+      "neuroclaw_cost_usd": 0.0346,
+      "neuroclaw_error": null
+    },
+    {
+      "claim_id": "ad_smri_adni_oasis3",
+      "label_class": "known_positive",
+      "confirm_final_label": "confirmed",
+      "confirm_decision": "CONFIRMS",
+      "confirm_best_p": "2.1762293771854846e-112",
+      "confirm_best_beta": "-1654.2086480065677",
+      "neuroclaw_decision": "CONFIRMS",
+      "neuroclaw_reported_p": null,
+      "neuroclaw_extraction_rationale": "pos-language=['significantly reduced']",
+      "neuroclaw_n_calls": 14,
+      "neuroclaw_cost_usd": 0.0497,
+      "neuroclaw_error": null
+    },
+    {
+      "claim_id": "ad_brainwide_smri_adni_oasis3",
+      "label_class": "known_positive",
+      "confirm_final_label": "confirmed",
+      "confirm_decision": "CONFIRMS",
+      "confirm_best_p": "2.1762293771854846e-112",
+      "confirm_best_beta": "-1654.2086480065677",
+      "neuroclaw_decision": "CONFIRMS",
+      "neuroclaw_reported_p": 2.1762293771959686e-112,
+      "neuroclaw_extraction_rationale": "pos-language=['significantly reduced']",
+      "neuroclaw_n_calls": 19,
+      "neuroclaw_cost_usd": 0.1043,
+      "neuroclaw_error": null
+    },
+    {
+      "claim_id": "brainwide_adni_oasis_ad_signature",
+      "label_class": "known_positive",
+      "confirm_final_label": "confirmed",
+      "confirm_decision": "CONFIRMS",
+      "confirm_best_p": "2.1762293771854846e-112",
+      "confirm_best_beta": "-1654.2086480065677",
+      "neuroclaw_decision": "CONFIRMS",
+      "neuroclaw_reported_p": null,
+      "neuroclaw_extraction_rationale": "pos-language=['significantly lower']",
+      "neuroclaw_n_calls": 16,
+      "neuroclaw_cost_usd": 0.0662,
+      "neuroclaw_error": null
+    },
+    {
+      "claim_id": "sz_fc_within_cobre_fbirn",
+      "label_class": "known_positive",
+      "confirm_final_label": "confirmed",
+      "confirm_decision": "CONFIRMS",
+      "confirm_best_p": "0.0010125842608209891",
+      "confirm_best_beta": "-0.07355695302296246",
+      "neuroclaw_decision": "CONFIRMS",
+      "neuroclaw_reported_p": 0.001,
+      "neuroclaw_extraction_rationale": "pos-language=['statistically significant', 'significant reduction']",
+      "neuroclaw_n_calls": 12,
+      "neuroclaw_cost_usd": 0.0378,
+      "neuroclaw_error": null
+    },
+    {
+      "claim_id": "injected_null_random_hcp",
+      "label_class": "known_null",
+      "confirm_final_label": "fragile",
+      "confirm_decision": "ABSTAIN",
+      "confirm_best_p": "0.0012277830059604867",
+      "confirm_best_beta": "0.32741008600893373",
+      "neuroclaw_decision": "AMBIGUOUS",
+      "neuroclaw_reported_p": null,
+      "neuroclaw_extraction_rationale": "no-language, no p",
+      "neuroclaw_n_calls": 11,
+      "neuroclaw_cost_usd": 0.0417,
+      "neuroclaw_error": null
+    },
+    {
+      "claim_id": "injected_null_random_abcd",
+      "label_class": "known_null",
+      "confirm_final_label": "fragile",
+      "confirm_decision": "ABSTAIN",
+      "confirm_best_p": "0.06638047823323164",
+      "confirm_best_beta": "0.04163616140647229",
+      "neuroclaw_decision": "CONFIRMS",
+      "neuroclaw_reported_p": 0.00035,
+      "neuroclaw_extraction_rationale": "mixed-language, p=0.00035",
+      "neuroclaw_n_calls": 13,
+      "neuroclaw_cost_usd": 0.0509,
+      "neuroclaw_error": null
+    },
+    {
+      "claim_id": "injected_null_fishing_abide2",
+      "label_class": "known_null",
+      "confirm_final_label": "fragile",
+      "confirm_decision": "ABSTAIN",
+      "confirm_best_p": "0.23376441909969337",
+      "confirm_best_beta": "-0.044814558353142804",
+      "neuroclaw_decision": "NO-EFFECT",
+      "neuroclaw_reported_p": 0.23376441909969317,
+      "neuroclaw_extraction_rationale": "mixed-language, p=0.234",
+      "neuroclaw_n_calls": 12,
+      "neuroclaw_cost_usd": 0.0376,
+      "neuroclaw_error": null
+    },
+    {
+      "claim_id": "injected_null_fishing_adhd200",
+      "label_class": "known_null",
+      "confirm_final_label": "fragile",
+      "confirm_decision": "ABSTAIN",
+      "confirm_best_p": "0.13851174998002816",
+      "confirm_best_beta": "-0.05431878746502955",
+      "neuroclaw_decision": "AMBIGUOUS",
+      "neuroclaw_reported_p": null,
+      "neuroclaw_extraction_rationale": "no-language, no p",
+      "neuroclaw_n_calls": 21,
+      "neuroclaw_cost_usd": 0.0755,
+      "neuroclaw_error": null
+    },
+    {
+      "claim_id": "injected_null_site_abcd",
+      "label_class": "known_null",
+      "confirm_final_label": "fragile",
+      "confirm_decision": "ABSTAIN",
+      "confirm_best_p": "0.0",
+      "confirm_best_beta": "0.27542623385358117",
+      "neuroclaw_decision": "CONFIRMS",
+      "neuroclaw_reported_p": 0.0,
+      "neuroclaw_extraction_rationale": "pos-language=['significant difference']",
+      "neuroclaw_n_calls": 17,
+      "neuroclaw_cost_usd": 0.0725,
+      "neuroclaw_error": null
+    },
+    {
+      "claim_id": "injected_null_site_ukb",
+      "label_class": "known_null",
+      "confirm_final_label": "fragile",
+      "confirm_decision": "ABSTAIN",
+      "confirm_best_p": "0.0",
+      "confirm_best_beta": "0.21100570299181792",
+      "neuroclaw_decision": "CONFIRMS",
+      "neuroclaw_reported_p": 0.0,
+      "neuroclaw_extraction_rationale": "pos-language=['statistically significant']",
+      "neuroclaw_n_calls": 21,
+      "neuroclaw_cost_usd": 0.0916,
+      "neuroclaw_error": null
+    },
+    {
+      "claim_id": "asd_fc_abide2_abcd",
+      "label_class": "fragile",
+      "confirm_final_label": "fragile",
+      "confirm_decision": "ABSTAIN",
+      "confirm_best_p": "0.1092850955524961",
+      "confirm_best_beta": "-0.07729678079659046",
+      "neuroclaw_decision": "NO-EFFECT",
+      "neuroclaw_reported_p": 0.10928509555249387,
+      "neuroclaw_extraction_rationale": "mixed-language, p=0.109",
+      "neuroclaw_n_calls": 13,
+      "neuroclaw_cost_usd": 0.0566,
+      "neuroclaw_error": null
+    },
+    {
+      "claim_id": "asd_fc_abide1_site_split",
+      "label_class": "fragile",
+      "confirm_final_label": "fragile",
+      "confirm_decision": "ABSTAIN",
+      "confirm_best_p": "0.5321267490180922",
+      "confirm_best_beta": "-0.007152697207521938",
+      "neuroclaw_decision": "AMBIGUOUS",
+      "neuroclaw_reported_p": null,
+      "neuroclaw_extraction_rationale": "no-language, no p",
+      "neuroclaw_n_calls": 11,
+      "neuroclaw_cost_usd": 0.0317,
+      "neuroclaw_error": null
+    },
+    {
+      "claim_id": "underpowered_asd_site_abide2",
+      "label_class": "fragile",
+      "confirm_final_label": "fragile",
+      "confirm_decision": "ABSTAIN",
+      "confirm_best_p": "0.1034639698401131",
+      "confirm_best_beta": "0.17239371091403882",
+      "neuroclaw_decision": "NO-EFFECT",
+      "neuroclaw_reported_p": 0.103,
+      "neuroclaw_extraction_rationale": "mixed-language, p=0.103",
+      "neuroclaw_n_calls": 22,
+      "neuroclaw_cost_usd": 0.1149,
+      "neuroclaw_error": null
+    },
+    {
+      "claim_id": "sex_smri_hippocampus_gsp_adni_cn",
+      "label_class": "fragile",
+      "confirm_final_label": "fragile",
+      "confirm_decision": "ABSTAIN",
+      "confirm_best_p": "0.30643494875748495",
+      "confirm_best_beta": "-41.421898889196385",
+      "neuroclaw_decision": "NO-EFFECT",
+      "neuroclaw_reported_p": 0.306,
+      "neuroclaw_extraction_rationale": "mixed-language, p=0.306",
+      "neuroclaw_n_calls": 11,
+      "neuroclaw_cost_usd": 0.0294,
+      "neuroclaw_error": null
+    }
+  ]
+}

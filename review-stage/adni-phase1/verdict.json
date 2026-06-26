@@ -1,0 +1,12 @@
+{
+  "abstained": false,
+  "gates": {
+    "confound": true,
+    "multiplicity": true,
+    "multiverse": true,
+    "power": true,
+    "replication": true
+  },
+  "label": "confirmed",
+  "rationale": "All gates passed."
+}

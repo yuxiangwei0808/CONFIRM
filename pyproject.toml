@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "confirm"
+version = "0.1.0"
+description = "CONFIRM: CPU-only statistical claim governance for neuroimaging derivatives."
+readme = "IMPLEMENTATION_NOTES.md"
+requires-python = ">=3.9"
+dependencies = [
+  "numpy",
+  "pandas",
+  "scipy",
+  "statsmodels",
+  "scikit-learn",
+  "nibabel",
+  "nilearn",
+  "neuroHarmonize",
+  "pyyaml",
+  "pydantic>=2",
+  "pyarrow",
+  "python-dotenv",
+  "openai",
+  "anthropic",
+]
+
+[project.scripts]
+confirm = "confirm.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

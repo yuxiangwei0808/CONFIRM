@@ -1,0 +1,251 @@
+{
+  "created_at": "2026-06-18T18:09:22",
+  "description": "CONFIRM post-hoc layer over NeuroClaw blinded decisions.",
+  "source_model": "gpt-5-mini",
+  "n_claims": 25,
+  "neuroclaw_alone_FCR": {
+    "count": 5,
+    "denominator": 15,
+    "rate": 0.3333333333333333,
+    "ci95_exact": [
+      0.11824110336688094,
+      0.6161962674588458
+    ]
+  },
+  "neuroclaw_confirm_layer_FCR": {
+    "count": 0,
+    "denominator": 15,
+    "rate": 0.0,
+    "ci95_exact": [
+      0.0,
+      0.218019360910534
+    ]
+  },
+  "neuroclaw_alone_TPR": {
+    "count": 9,
+    "denominator": 10,
+    "rate": 0.9,
+    "ci95_exact": [
+      0.5549838829718047,
+      0.9974714214555382
+    ]
+  },
+  "neuroclaw_confirm_layer_TPR": {
+    "count": 9,
+    "denominator": 10,
+    "rate": 0.9,
+    "ci95_exact": [
+      0.5549838829718047,
+      0.9974714214555382
+    ]
+  },
+  "neuroclaw_false_confirms_converted_to_abstentions": [
+    "injected_null_random_abcd",
+    "injected_null_site_abcd",
+    "injected_null_site_ukb",
+    "injected_null_site_cobre",
+    "injected_null_site_gsp_smri"
+  ],
+  "claims": [
+    {
+      "claim_id": "ad_hippocampal_atrophy_adni_oasis3",
+      "label_class": "known_positive",
+      "neuroclaw_raw_decision": "CONFIRMS",
+      "neuroclaw_alone_decision": "CONFIRMS",
+      "confirm_final_label": "confirmed",
+      "confirm_layer_decision": "CONFIRMS"
+    },
+    {
+      "claim_id": "ad_smri_adni_oasis3",
+      "label_class": "known_positive",
+      "neuroclaw_raw_decision": "CONFIRMS",
+      "neuroclaw_alone_decision": "CONFIRMS",
+      "confirm_final_label": "confirmed",
+      "confirm_layer_decision": "CONFIRMS"
+    },
+    {
+      "claim_id": "ad_brainwide_smri_adni_oasis3",
+      "label_class": "known_positive",
+      "neuroclaw_raw_decision": "CONFIRMS",
+      "neuroclaw_alone_decision": "CONFIRMS",
+      "confirm_final_label": "confirmed",
+      "confirm_layer_decision": "CONFIRMS"
+    },
+    {
+      "claim_id": "brainwide_adni_oasis_ad_signature",
+      "label_class": "known_positive",
+      "neuroclaw_raw_decision": "CONFIRMS",
+      "neuroclaw_alone_decision": "CONFIRMS",
+      "confirm_final_label": "confirmed",
+      "confirm_layer_decision": "CONFIRMS"
+    },
+    {
+      "claim_id": "sz_fc_within_cobre_fbirn",
+      "label_class": "known_positive",
+      "neuroclaw_raw_decision": "CONFIRMS",
+      "neuroclaw_alone_decision": "CONFIRMS",
+      "confirm_final_label": "confirmed",
+      "confirm_layer_decision": "CONFIRMS"
+    },
+    {
+      "claim_id": "injected_null_random_hcp",
+      "label_class": "known_null",
+      "neuroclaw_raw_decision": "AMBIGUOUS",
+      "neuroclaw_alone_decision": "NO-EFFECT",
+      "confirm_final_label": "fragile",
+      "confirm_layer_decision": "ABSTAIN"
+    },
+    {
+      "claim_id": "injected_null_random_abcd",
+      "label_class": "known_null",
+      "neuroclaw_raw_decision": "CONFIRMS",
+      "neuroclaw_alone_decision": "CONFIRMS",
+      "confirm_final_label": "fragile",
+      "confirm_layer_decision": "ABSTAIN"
+    },
+    {
+      "claim_id": "injected_null_fishing_abide2",
+      "label_class": "known_null",
+      "neuroclaw_raw_decision": "NO-EFFECT",
+      "neuroclaw_alone_decision": "NO-EFFECT",
+      "confirm_final_label": "fragile",
+      "confirm_layer_decision": "ABSTAIN"
+    },
+    {
+      "claim_id": "injected_null_fishing_adhd200",
+      "label_class": "known_null",
+      "neuroclaw_raw_decision": "AMBIGUOUS",
+      "neuroclaw_alone_decision": "NO-EFFECT",
+      "confirm_final_label": "fragile",
+      "confirm_layer_decision": "ABSTAIN"
+    },
+    {
+      "claim_id": "injected_null_site_abcd",
+      "label_class": "known_null",
+      "neuroclaw_raw_decision": "CONFIRMS",
+      "neuroclaw_alone_decision": "CONFIRMS",
+      "confirm_final_label": "fragile",
+      "confirm_layer_decision": "ABSTAIN"
+    },
+    {
+      "claim_id": "injected_null_site_ukb",
+      "label_class": "known_null",
+      "neuroclaw_raw_decision": "CONFIRMS",
+      "neuroclaw_alone_decision": "CONFIRMS",
+      "confirm_final_label": "fragile",
+      "confirm_layer_decision": "ABSTAIN"
+    },
+    {
+      "claim_id": "asd_fc_abide2_abcd",
+      "label_class": "fragile",
+      "neuroclaw_raw_decision": "NO-EFFECT",
+      "neuroclaw_alone_decision": "NO-EFFECT",
+      "confirm_final_label": "fragile",
+      "confirm_layer_decision": "ABSTAIN"
+    },
+    {
+      "claim_id": "asd_fc_abide1_site_split",
+      "label_class": "fragile",
+      "neuroclaw_raw_decision": "AMBIGUOUS",
+      "neuroclaw_alone_decision": "NO-EFFECT",
+      "confirm_final_label": "fragile",
+      "confirm_layer_decision": "ABSTAIN"
+    },
+    {
+      "claim_id": "underpowered_asd_site_abide2",
+      "label_class": "fragile",
+      "neuroclaw_raw_decision": "NO-EFFECT",
+      "neuroclaw_alone_decision": "NO-EFFECT",
+      "confirm_final_label": "fragile",
+      "confirm_layer_decision": "ABSTAIN"
+    },
+    {
+      "claim_id": "sex_smri_hippocampus_gsp_adni_cn",
+      "label_class": "fragile",
+      "neuroclaw_raw_decision": "NO-EFFECT",
+      "neuroclaw_alone_decision": "NO-EFFECT",
+      "confirm_final_label": "fragile",
+      "confirm_layer_decision": "ABSTAIN"
+    },
+    {
+      "claim_id": "ad_entorhinal_atrophy_adni_oasis3",
+      "label_class": "known_positive",
+      "neuroclaw_raw_decision": "CONFIRMS",
+      "neuroclaw_alone_decision": "CONFIRMS",
+      "confirm_final_label": "confirmed",
+      "confirm_layer_decision": "CONFIRMS"
+    },
+    {
+      "claim_id": "ad_midtemp_atrophy_adni_oasis3",
+      "label_class": "known_positive",
+      "neuroclaw_raw_decision": "CONFIRMS",
+      "neuroclaw_alone_decision": "CONFIRMS",
+      "confirm_final_label": "confirmed",
+      "confirm_layer_decision": "CONFIRMS"
+    },
+    {
+      "claim_id": "ad_wholebrain_atrophy_adni_oasis3",
+      "label_class": "known_positive",
+      "neuroclaw_raw_decision": "CONFIRMS",
+      "neuroclaw_alone_decision": "CONFIRMS",
+      "confirm_final_label": "confirmed",
+      "confirm_layer_decision": "CONFIRMS"
+    },
+    {
+      "claim_id": "brain_aging_hippocampus_adni_oasis3_cn",
+      "label_class": "known_positive",
+      "neuroclaw_raw_decision": "AMBIGUOUS",
+      "neuroclaw_alone_decision": "NO-EFFECT",
+      "confirm_final_label": "confirmed",
+      "confirm_layer_decision": "ABSTAIN"
+    },
+    {
+      "claim_id": "sz_fc_mean_abs_cobre_fbirn",
+      "label_class": "known_positive",
+      "neuroclaw_raw_decision": "CONFIRMS",
+      "neuroclaw_alone_decision": "CONFIRMS",
+      "confirm_final_label": "confirmed",
+      "confirm_layer_decision": "CONFIRMS"
+    },
+    {
+      "claim_id": "injected_null_random_cobre",
+      "label_class": "known_null",
+      "neuroclaw_raw_decision": "NO-EFFECT",
+      "neuroclaw_alone_decision": "NO-EFFECT",
+      "confirm_final_label": "fragile",
+      "confirm_layer_decision": "ABSTAIN"
+    },
+    {
+      "claim_id": "injected_null_random_fbirn",
+      "label_class": "known_null",
+      "neuroclaw_raw_decision": "NO-EFFECT",
+      "neuroclaw_alone_decision": "NO-EFFECT",
+      "confirm_final_label": "fragile",
+      "confirm_layer_decision": "ABSTAIN"
+    },
+    {
+      "claim_id": "injected_null_site_cobre",
+      "label_class": "known_null",
+      "neuroclaw_raw_decision": "CONFIRMS",
+      "neuroclaw_alone_decision": "CONFIRMS",
+      "confirm_final_label": "fragile",
+      "confirm_layer_decision": "ABSTAIN"
+    },
+    {
+      "claim_id": "injected_null_site_gsp_smri",
+      "label_class": "known_null",
+      "neuroclaw_raw_decision": "CONFIRMS",
+      "neuroclaw_alone_decision": "CONFIRMS",
+      "confirm_final_label": "fragile",
+      "confirm_layer_decision": "ABSTAIN"
+    },
+    {
+      "claim_id": "asd_fc_mean_abs_abide1_site_split",
+      "label_class": "fragile",
+      "neuroclaw_raw_decision": "NO-EFFECT",
+      "neuroclaw_alone_decision": "NO-EFFECT",
+      "confirm_final_label": "fragile",
+      "confirm_layer_decision": "ABSTAIN"
+    }
+  ]
+}

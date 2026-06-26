@@ -1,0 +1,502 @@
+{
+  "created_at": "2026-06-18T18:18:35",
+  "run_id": "full_sweep",
+  "command": {
+    "models": [
+      "openai:gpt-5-mini",
+      "openai:gpt-4o",
+      "anthropic:claude-sonnet-4-6",
+      "anthropic:claude-haiku-4-5-20251001",
+      "openrouter:deepseek/deepseek-chat",
+      "openrouter:qwen/qwen-2.5-72b-instruct"
+    ],
+    "smri_root": "data/prepared_data/smri_disease",
+    "cluster_root": "data/prepared_data/cluster_recovered",
+    "limit": null,
+    "claim_id": null,
+    "max_workers": 6
+  },
+  "model_outputs": [
+    {
+      "model_spec": "openai:gpt-5-mini",
+      "path": "review-stage/agentic-multillm/openai_gpt-5-mini.json",
+      "run_path": "review-stage/agentic-multillm/agentic_multillm_full_sweep_openai_gpt-5-mini.json"
+    },
+    {
+      "model_spec": "openai:gpt-4o",
+      "path": "review-stage/agentic-multillm/openai_gpt-4o.json",
+      "run_path": "review-stage/agentic-multillm/agentic_multillm_full_sweep_openai_gpt-4o.json"
+    },
+    {
+      "model_spec": "anthropic:claude-sonnet-4-6",
+      "path": "review-stage/agentic-multillm/anthropic_claude-sonnet-4-6.json",
+      "run_path": "review-stage/agentic-multillm/agentic_multillm_full_sweep_anthropic_claude-sonnet-4-6.json"
+    },
+    {
+      "model_spec": "anthropic:claude-haiku-4-5-20251001",
+      "path": "review-stage/agentic-multillm/anthropic_claude-haiku-4-5-20251001.json",
+      "run_path": "review-stage/agentic-multillm/agentic_multillm_full_sweep_anthropic_claude-haiku-4-5-20251001.json"
+    },
+    {
+      "model_spec": "openrouter:deepseek/deepseek-chat",
+      "path": "review-stage/agentic-multillm/openrouter_deepseek_deepseek-chat.json",
+      "run_path": "review-stage/agentic-multillm/agentic_multillm_full_sweep_openrouter_deepseek_deepseek-chat.json"
+    },
+    {
+      "model_spec": "openrouter:qwen/qwen-2.5-72b-instruct",
+      "path": "review-stage/agentic-multillm/openrouter_qwen_qwen-2.5-72b-instruct.json",
+      "run_path": "review-stage/agentic-multillm/agentic_multillm_full_sweep_openrouter_qwen_qwen-2.5-72b-instruct.json"
+    }
+  ],
+  "catalog": {
+    "data_roots": [
+      "data/prepared_data/smri_disease",
+      "data/prepared_data/cluster_recovered"
+    ],
+    "cohorts": [
+      {
+        "cohort": "ADNI",
+        "n": 1831,
+        "data_root": "data/prepared_data/smri_disease"
+      },
+      {
+        "cohort": "OASIS3",
+        "n": 1316,
+        "data_root": "data/prepared_data/smri_disease"
+      },
+      {
+        "cohort": "ABIDE1",
+        "n": 799,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "BSNIP",
+        "n": 83,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "BSNIP2",
+        "n": 588,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "COBRE",
+        "n": 157,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "ChineseSZ",
+        "n": 738,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "FBIRN",
+        "n": 281,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "GSP",
+        "n": 1570,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "JH",
+        "n": 142,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "Olin_SZ",
+        "n": 419,
+        "data_root": "data/prepared_data/cluster_recovered"
+      }
+    ]
+  },
+  "per_model": {
+    "openai:gpt-5-mini": {
+      "model_spec": "openai:gpt-5-mini",
+      "n_claims": 9,
+      "draft_success_count": 9,
+      "draft_success_rate": 1.0,
+      "estimand_match_count": 7,
+      "estimand_match_rate": 0.7777777777777778,
+      "gate_success_count": 7,
+      "gate_success_rate": 0.7777777777777778,
+      "anti_hallucination_catch_count": 7
+    },
+    "openai:gpt-4o": {
+      "model_spec": "openai:gpt-4o",
+      "n_claims": 9,
+      "draft_success_count": 8,
+      "draft_success_rate": 0.8888888888888888,
+      "estimand_match_count": 6,
+      "estimand_match_rate": 0.75,
+      "gate_success_count": 7,
+      "gate_success_rate": 0.875,
+      "anti_hallucination_catch_count": 7
+    },
+    "anthropic:claude-sonnet-4-6": {
+      "model_spec": "anthropic:claude-sonnet-4-6",
+      "n_claims": 9,
+      "draft_success_count": 9,
+      "draft_success_rate": 1.0,
+      "estimand_match_count": 8,
+      "estimand_match_rate": 0.8888888888888888,
+      "gate_success_count": 7,
+      "gate_success_rate": 0.7777777777777778,
+      "anti_hallucination_catch_count": 7
+    },
+    "anthropic:claude-haiku-4-5-20251001": {
+      "model_spec": "anthropic:claude-haiku-4-5-20251001",
+      "n_claims": 9,
+      "draft_success_count": 9,
+      "draft_success_rate": 1.0,
+      "estimand_match_count": 8,
+      "estimand_match_rate": 0.8888888888888888,
+      "gate_success_count": 7,
+      "gate_success_rate": 0.7777777777777778,
+      "anti_hallucination_catch_count": 7
+    },
+    "openrouter:deepseek/deepseek-chat": {
+      "model_spec": "openrouter:deepseek/deepseek-chat",
+      "n_claims": 9,
+      "draft_success_count": 9,
+      "draft_success_rate": 1.0,
+      "estimand_match_count": 8,
+      "estimand_match_rate": 0.8888888888888888,
+      "gate_success_count": 8,
+      "gate_success_rate": 0.8888888888888888,
+      "anti_hallucination_catch_count": 8
+    },
+    "openrouter:qwen/qwen-2.5-72b-instruct": {
+      "model_spec": "openrouter:qwen/qwen-2.5-72b-instruct",
+      "n_claims": 9,
+      "draft_success_count": 9,
+      "draft_success_rate": 1.0,
+      "estimand_match_count": 8,
+      "estimand_match_rate": 0.8888888888888888,
+      "gate_success_count": 6,
+      "gate_success_rate": 0.6666666666666666,
+      "anti_hallucination_catch_count": 6
+    }
+  },
+  "per_claim": {
+    "ad_hippocampal_atrophy_adni_oasis3": {
+      "label_class": "known_positive",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_hippocampus",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "Dementia",
+          "control": "CN"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ]
+      },
+      "verdicts": {
+        "openai:gpt-5-mini": "confirmed",
+        "openai:gpt-4o": "confirmed",
+        "anthropic:claude-sonnet-4-6": "confirmed",
+        "anthropic:claude-haiku-4-5-20251001": "confirmed",
+        "openrouter:deepseek/deepseek-chat": "confirmed",
+        "openrouter:qwen/qwen-2.5-72b-instruct": "confirmed"
+      },
+      "valid_gate_verdicts": {
+        "openai:gpt-5-mini": "confirmed",
+        "openai:gpt-4o": "confirmed",
+        "anthropic:claude-sonnet-4-6": "confirmed",
+        "anthropic:claude-haiku-4-5-20251001": "confirmed",
+        "openrouter:deepseek/deepseek-chat": "confirmed",
+        "openrouter:qwen/qwen-2.5-72b-instruct": "confirmed"
+      },
+      "agreement": true
+    },
+    "ad_entorhinal_atrophy_adni_oasis3": {
+      "label_class": "known_positive",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_entorhinal",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "Dementia",
+          "control": "CN"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ]
+      },
+      "verdicts": {
+        "openai:gpt-5-mini": "confirmed",
+        "openai:gpt-4o": "confirmed",
+        "anthropic:claude-sonnet-4-6": "confirmed",
+        "anthropic:claude-haiku-4-5-20251001": "confirmed",
+        "openrouter:deepseek/deepseek-chat": "confirmed",
+        "openrouter:qwen/qwen-2.5-72b-instruct": "confirmed"
+      },
+      "valid_gate_verdicts": {
+        "openai:gpt-5-mini": "confirmed",
+        "openai:gpt-4o": "confirmed",
+        "anthropic:claude-sonnet-4-6": "confirmed",
+        "anthropic:claude-haiku-4-5-20251001": "confirmed",
+        "openrouter:deepseek/deepseek-chat": "confirmed",
+        "openrouter:qwen/qwen-2.5-72b-instruct": "confirmed"
+      },
+      "agreement": true
+    },
+    "ad_wholebrain_atrophy_adni_oasis3": {
+      "label_class": "known_positive",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_wholebrain",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "Dementia",
+          "control": "CN"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ]
+      },
+      "verdicts": {
+        "openai:gpt-5-mini": "confirmed",
+        "openai:gpt-4o": "confirmed",
+        "anthropic:claude-sonnet-4-6": "confirmed",
+        "anthropic:claude-haiku-4-5-20251001": "confirmed",
+        "openrouter:deepseek/deepseek-chat": "confirmed",
+        "openrouter:qwen/qwen-2.5-72b-instruct": "confirmed"
+      },
+      "valid_gate_verdicts": {
+        "openai:gpt-5-mini": "confirmed",
+        "openai:gpt-4o": "confirmed",
+        "anthropic:claude-sonnet-4-6": "confirmed",
+        "anthropic:claude-haiku-4-5-20251001": "confirmed",
+        "openrouter:deepseek/deepseek-chat": "confirmed",
+        "openrouter:qwen/qwen-2.5-72b-instruct": "confirmed"
+      },
+      "agreement": true
+    },
+    "ad_brainwide_smri_adni_oasis3": {
+      "label_class": "known_positive",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_",
+        "outcome_aliases": [
+          "smri_",
+          "smri",
+          "smri_*"
+        ],
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "Dementia",
+          "control": "CN"
+        },
+        "direction": "negative",
+        "unit": "brainwide",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ]
+      },
+      "verdicts": {
+        "openai:gpt-5-mini": "confirmed",
+        "openai:gpt-4o": "confirmed",
+        "anthropic:claude-sonnet-4-6": "confirmed",
+        "anthropic:claude-haiku-4-5-20251001": "confirmed",
+        "openrouter:deepseek/deepseek-chat": "confirmed",
+        "openrouter:qwen/qwen-2.5-72b-instruct": "confirmed"
+      },
+      "valid_gate_verdicts": {
+        "openai:gpt-5-mini": "confirmed",
+        "openai:gpt-4o": "confirmed",
+        "anthropic:claude-sonnet-4-6": "confirmed",
+        "anthropic:claude-haiku-4-5-20251001": "confirmed",
+        "openrouter:deepseek/deepseek-chat": "confirmed",
+        "openrouter:qwen/qwen-2.5-72b-instruct": "confirmed"
+      },
+      "agreement": true
+    },
+    "sz_fc_within_cobre_fbirn": {
+      "label_class": "known_positive",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "fc_within_network",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "SZ",
+          "control": "HC"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "COBRE",
+        "replication_cohorts": [
+          "FBIRN"
+        ]
+      },
+      "verdicts": {
+        "openai:gpt-5-mini": "confirmed",
+        "openai:gpt-4o": "confirmed",
+        "anthropic:claude-sonnet-4-6": "confirmed",
+        "anthropic:claude-haiku-4-5-20251001": "confirmed",
+        "openrouter:deepseek/deepseek-chat": "confirmed",
+        "openrouter:qwen/qwen-2.5-72b-instruct": "execute_contract"
+      },
+      "valid_gate_verdicts": {
+        "openai:gpt-5-mini": "confirmed",
+        "openai:gpt-4o": "confirmed",
+        "anthropic:claude-sonnet-4-6": "confirmed",
+        "anthropic:claude-haiku-4-5-20251001": "confirmed",
+        "openrouter:deepseek/deepseek-chat": "confirmed"
+      },
+      "agreement": true
+    },
+    "brain_aging_hippocampus_adni_oasis3_cn": {
+      "label_class": "known_positive",
+      "intended_estimand": {
+        "type": "association",
+        "outcome": "smri_hippocampus",
+        "predictor": "age",
+        "group": null,
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ],
+        "inclusion": "dx == \"CN\""
+      },
+      "verdicts": {
+        "openai:gpt-5-mini": "execute_contract",
+        "openai:gpt-4o": "draft_contract",
+        "anthropic:claude-sonnet-4-6": "confirmed",
+        "anthropic:claude-haiku-4-5-20251001": "execute_contract",
+        "openrouter:deepseek/deepseek-chat": "confirmed",
+        "openrouter:qwen/qwen-2.5-72b-instruct": "confirmed"
+      },
+      "valid_gate_verdicts": {
+        "anthropic:claude-sonnet-4-6": "confirmed",
+        "openrouter:deepseek/deepseek-chat": "confirmed",
+        "openrouter:qwen/qwen-2.5-72b-instruct": "confirmed"
+      },
+      "agreement": true
+    },
+    "injected_null_site_abide1": {
+      "label_class": "known_null",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "fc_mean_abs",
+        "predictor": "site",
+        "group": {
+          "var": "site",
+          "case": "NYU",
+          "control": "UCLA_1"
+        },
+        "direction": "two_sided",
+        "unit": "scalar",
+        "discovery_cohort": "ABIDE1",
+        "replication_cohorts": [
+          "ABIDE1"
+        ]
+      },
+      "verdicts": {
+        "openai:gpt-5-mini": "non_replicated",
+        "openai:gpt-4o": "non_replicated",
+        "anthropic:claude-sonnet-4-6": "execute_contract",
+        "anthropic:claude-haiku-4-5-20251001": "confirmed",
+        "openrouter:deepseek/deepseek-chat": "non_replicated",
+        "openrouter:qwen/qwen-2.5-72b-instruct": "non_replicated"
+      },
+      "valid_gate_verdicts": {
+        "openai:gpt-5-mini": "non_replicated",
+        "openai:gpt-4o": "non_replicated",
+        "anthropic:claude-haiku-4-5-20251001": "confirmed",
+        "openrouter:deepseek/deepseek-chat": "non_replicated",
+        "openrouter:qwen/qwen-2.5-72b-instruct": "non_replicated"
+      },
+      "agreement": false
+    },
+    "asd_fc_mean_abs_abide1": {
+      "label_class": "fragile",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "fc_mean_abs",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "ASD",
+          "control": "HC"
+        },
+        "direction": "two_sided",
+        "unit": "scalar",
+        "discovery_cohort": "ABIDE1",
+        "replication_cohorts": [
+          "ABIDE1"
+        ]
+      },
+      "verdicts": {
+        "openai:gpt-5-mini": "fragile",
+        "openai:gpt-4o": "fragile",
+        "anthropic:claude-sonnet-4-6": "fragile",
+        "anthropic:claude-haiku-4-5-20251001": "fragile",
+        "openrouter:deepseek/deepseek-chat": "fragile",
+        "openrouter:qwen/qwen-2.5-72b-instruct": "execute_contract"
+      },
+      "valid_gate_verdicts": {
+        "openai:gpt-5-mini": "fragile",
+        "openai:gpt-4o": "fragile",
+        "anthropic:claude-sonnet-4-6": "fragile",
+        "anthropic:claude-haiku-4-5-20251001": "fragile",
+        "openrouter:deepseek/deepseek-chat": "fragile"
+      },
+      "agreement": true
+    },
+    "sex_smri_hippocampus_adni_oasis3_cn": {
+      "label_class": "fragile",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_hippocampus",
+        "predictor": "sex",
+        "group": {
+          "var": "sex",
+          "case": "F",
+          "control": "M"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ],
+        "inclusion": "dx == \"CN\""
+      },
+      "verdicts": {
+        "openai:gpt-5-mini": "execute_contract",
+        "openai:gpt-4o": "execute_contract",
+        "anthropic:claude-sonnet-4-6": "execute_contract",
+        "anthropic:claude-haiku-4-5-20251001": "execute_contract",
+        "openrouter:deepseek/deepseek-chat": "execute_contract",
+        "openrouter:qwen/qwen-2.5-72b-instruct": "execute_contract"
+      },
+      "valid_gate_verdicts": {},
+      "agreement": null
+    }
+  },
+  "cross_model_verdict_agreement": 0.875,
+  "cross_model_verdict_agreement_count": 7,
+  "cross_model_verdict_agreement_denominator": 8,
+  "anti_hallucination_catch_count": 42
+}

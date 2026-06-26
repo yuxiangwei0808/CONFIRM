@@ -1,0 +1,35 @@
+# TODO(confirm): Fill this template for credentialed or oddly formatted cohorts
+# such as ADNI, UKB, ABCD, OASIS-3, AIBL, PPMI, and CamCAN.
+#
+# This file documents the GenericCsvAdapter mapping schema.
+cohort: EXAMPLE
+defaults:
+  session: ses-01
+  site: unknown
+  dx: null
+  field_strength: null
+  fs_version: null
+columns:
+  subject_id: raw_subject_column
+  age: raw_age_years
+  sex: raw_sex
+  eTIV: raw_intracranial_volume
+  # Optional canonical columns:
+  # session: raw_session
+  # site: raw_site
+  # dx: raw_diagnosis
+  # field_strength: raw_field_strength
+  # fs_version: raw_freesurfer_version
+idps:
+  smri_meanthickness: raw_mean_cortical_thickness
+  # smri_hippocampus_lh: raw_left_hippocampus
+  # pet_fdg_suvr: raw_fdg_suvr
+behavioral:
+  # beh_mmse: raw_mmse
+sex_map:
+  # 1: M
+  # 2: F
+dx_map:
+  # 1: CASE
+  # 2: CONTROL
+

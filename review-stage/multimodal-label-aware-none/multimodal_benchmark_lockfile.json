@@ -1,0 +1,127 @@
+{
+  "created_at": "2026-06-17T13:36:41",
+  "seed": 20260616,
+  "harmonize": "none",
+  "feature_limit": null,
+  "source_files": [
+    {
+      "path": "data/prepared_data/benchmark_ready/misc_table_manifest.csv",
+      "sha256": "771937edd51eeada5fc61e7e74adcf7db54dd9777bfd334bedeeb7123a8eb599"
+    },
+    {
+      "path": "docs/data_manifests/remote_peek_20260616.md",
+      "sha256": "22c8be3c951f70ad0ef58b3934f3610ee20fcb8f62393d0f300db26f41a3c1bd"
+    },
+    {
+      "path": "docs/literature_labels/fmri_claim_label_ledger.md",
+      "sha256": "b8e173dd30fbcc06b5cda503f0f08cefded3db9526ff44be66545860a295adae"
+    }
+  ],
+  "code_files": [
+    {
+      "path": "src/bench/labels.py",
+      "sha256": "b7d521afea2d1e214d7351a8bad2556f631c6a884bd3ba68350ce56bf6d925d7"
+    },
+    {
+      "path": "src/bench/run_multimodal_benchmark.py",
+      "sha256": "e4678bbae93856a32e074bd4b9b81354daa260eb3729af2c079b01aba5ad3f6c"
+    },
+    {
+      "path": "src/confirm/brainwide.py",
+      "sha256": "7d60bd303d5f095175fb3faeb9d970832de80317b72e16335336d2cfd3bb88f2"
+    },
+    {
+      "path": "src/confirm/multiverse.py",
+      "sha256": "af8ea065ef265d9ccef546fb5f75aacca77dbe63a3c8c22945bcc0f965312d6f"
+    },
+    {
+      "path": "src/confirm/replication.py",
+      "sha256": "99fe2a55a1b947cef36e68ba8bcce1afe5f39751d9e18ba15795e5e97be02f1e"
+    },
+    {
+      "path": "src/confirm/power.py",
+      "sha256": "d1eb6e113c8e059fbf4fa70d2ffa8ce3a6285e45035c927d0a6c1490270d47f7"
+    },
+    {
+      "path": "src/confirm/verdict.py",
+      "sha256": "ef5ef7d464b115c55f9de1827fa5d42a981b532b764b09c0165fdd5085084bd7"
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "nacc_age_smri_split",
+      "scoring_label": "positive_stability",
+      "scoring_bucket": "positive",
+      "label_provenance": "Biological/stability positive-control label; not a disease-biomarker claim.",
+      "modality": "NACC/sMRI",
+      "discovery_cohort": "NACC_DISC",
+      "replication_cohort": "NACC_REP",
+      "n_features": 10,
+      "covariates_full": [
+        "site",
+        "eTIV"
+      ],
+      "covariates_min": [
+        "eTIV"
+      ]
+    },
+    {
+      "claim_id": "nacc_csf_ptau_smri",
+      "scoring_label": "small_positive_candidate",
+      "scoring_bucket": "small_positive",
+      "label_provenance": "Plausible small-effect candidate; scored separately from FCR and TPR.",
+      "modality": "NACC/sMRI+CSF",
+      "discovery_cohort": "NACC_CSF_DISC",
+      "replication_cohort": "NACC_CSF_REP",
+      "n_features": 10,
+      "covariates_full": [
+        "age",
+        "site",
+        "eTIV"
+      ],
+      "covariates_min": [
+        "age",
+        "eTIV"
+      ]
+    },
+    {
+      "claim_id": "nacc_csf_ttau_smri",
+      "scoring_label": "small_positive_candidate",
+      "scoring_bucket": "small_positive",
+      "label_provenance": "Plausible small-effect candidate; scored separately from FCR and TPR.",
+      "modality": "NACC/sMRI+CSF",
+      "discovery_cohort": "NACC_CSF_DISC",
+      "replication_cohort": "NACC_CSF_REP",
+      "n_features": 10,
+      "covariates_full": [
+        "age",
+        "site",
+        "eTIV"
+      ],
+      "covariates_min": [
+        "age",
+        "eTIV"
+      ]
+    },
+    {
+      "claim_id": "nacc_csf_abeta_smri",
+      "scoring_label": "small_positive_candidate",
+      "scoring_bucket": "small_positive",
+      "label_provenance": "Plausible small-effect candidate; scored separately from FCR and TPR.",
+      "modality": "NACC/sMRI+CSF",
+      "discovery_cohort": "NACC_CSF_DISC",
+      "replication_cohort": "NACC_CSF_REP",
+      "n_features": 10,
+      "covariates_full": [
+        "age",
+        "site",
+        "eTIV"
+      ],
+      "covariates_min": [
+        "age",
+        "eTIV"
+      ]
+    }
+  ],
+  "skipped": []
+}

@@ -1,0 +1,340 @@
+{
+  "created_at": "2026-06-18T18:53:46",
+  "run_id": "fix_smoke",
+  "command": {
+    "models": [
+      "standin"
+    ],
+    "smri_root": "data/prepared_data/smri_disease",
+    "cluster_root": "data/prepared_data/cluster_recovered",
+    "limit": null,
+    "claim_id": null,
+    "max_workers": 6
+  },
+  "model_outputs": [
+    {
+      "model_spec": "standin",
+      "path": "review-stage/agentic-multillm/standin.json",
+      "run_path": "review-stage/agentic-multillm/agentic_multillm_fix_smoke_standin.json"
+    }
+  ],
+  "catalog": {
+    "data_roots": [
+      "data/prepared_data/smri_disease",
+      "data/prepared_data/cluster_recovered"
+    ],
+    "cohorts": [
+      {
+        "cohort": "ADNI",
+        "n": 1831,
+        "data_root": "data/prepared_data/smri_disease"
+      },
+      {
+        "cohort": "OASIS3",
+        "n": 1316,
+        "data_root": "data/prepared_data/smri_disease"
+      },
+      {
+        "cohort": "ABIDE1",
+        "n": 799,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "BSNIP",
+        "n": 83,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "BSNIP2",
+        "n": 588,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "COBRE",
+        "n": 157,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "ChineseSZ",
+        "n": 738,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "FBIRN",
+        "n": 281,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "GSP",
+        "n": 1570,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "JH",
+        "n": 142,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "Olin_SZ",
+        "n": 419,
+        "data_root": "data/prepared_data/cluster_recovered"
+      }
+    ]
+  },
+  "per_model": {
+    "standin": {
+      "model_spec": "standin",
+      "n_claims": 9,
+      "draft_success_count": 9,
+      "draft_success_rate": 1.0,
+      "estimand_match_count": 3,
+      "estimand_match_rate": 0.3333333333333333,
+      "gate_success_count": 9,
+      "gate_success_rate": 1.0,
+      "anti_hallucination_catch_count": 0
+    }
+  },
+  "per_claim": {
+    "ad_hippocampal_atrophy_adni_oasis3": {
+      "label_class": "known_positive",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_hippocampus",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "Dementia",
+          "control": "CN"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ]
+      },
+      "verdicts": {
+        "standin": "confirmed"
+      },
+      "valid_gate_verdicts": {
+        "standin": "confirmed"
+      },
+      "agreement": null
+    },
+    "ad_entorhinal_atrophy_adni_oasis3": {
+      "label_class": "known_positive",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_entorhinal",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "Dementia",
+          "control": "CN"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ]
+      },
+      "verdicts": {
+        "standin": "confirmed"
+      },
+      "valid_gate_verdicts": {
+        "standin": "confirmed"
+      },
+      "agreement": null
+    },
+    "ad_wholebrain_atrophy_adni_oasis3": {
+      "label_class": "known_positive",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_wholebrain",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "Dementia",
+          "control": "CN"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ]
+      },
+      "verdicts": {
+        "standin": "confirmed"
+      },
+      "valid_gate_verdicts": {
+        "standin": "confirmed"
+      },
+      "agreement": null
+    },
+    "ad_brainwide_smri_adni_oasis3": {
+      "label_class": "known_positive",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_",
+        "outcome_aliases": [
+          "smri_",
+          "smri",
+          "smri_*"
+        ],
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "Dementia",
+          "control": "CN"
+        },
+        "direction": "negative",
+        "unit": "brainwide",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ]
+      },
+      "verdicts": {
+        "standin": "confirmed"
+      },
+      "valid_gate_verdicts": {
+        "standin": "confirmed"
+      },
+      "agreement": null
+    },
+    "sz_fc_within_cobre_fbirn": {
+      "label_class": "known_positive",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "fc_within_network",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "SZ",
+          "control": "HC"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "COBRE",
+        "replication_cohorts": [
+          "FBIRN"
+        ]
+      },
+      "verdicts": {
+        "standin": "confirmed"
+      },
+      "valid_gate_verdicts": {
+        "standin": "confirmed"
+      },
+      "agreement": null
+    },
+    "brain_aging_hippocampus_adni_oasis3_cn": {
+      "label_class": "known_positive",
+      "intended_estimand": {
+        "type": "association",
+        "outcome": "smri_hippocampus",
+        "predictor": "age",
+        "group": null,
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ],
+        "inclusion": "dx == \"CN\""
+      },
+      "verdicts": {
+        "standin": "confirmed"
+      },
+      "valid_gate_verdicts": {
+        "standin": "confirmed"
+      },
+      "agreement": null
+    },
+    "injected_null_site_abide1": {
+      "label_class": "known_null",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "fc_mean_abs",
+        "predictor": "site",
+        "group": {
+          "var": "site",
+          "case": "NYU",
+          "control": "UCLA_1"
+        },
+        "direction": "two_sided",
+        "unit": "scalar",
+        "discovery_cohort": "ABIDE1",
+        "replication_cohorts": [
+          "ABIDE1"
+        ]
+      },
+      "verdicts": {
+        "standin": "fragile"
+      },
+      "valid_gate_verdicts": {
+        "standin": "fragile"
+      },
+      "agreement": null
+    },
+    "asd_fc_mean_abs_abide1": {
+      "label_class": "fragile",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "fc_mean_abs",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "ASD",
+          "control": "HC"
+        },
+        "direction": "two_sided",
+        "unit": "scalar",
+        "discovery_cohort": "ABIDE1",
+        "replication_cohorts": [
+          "ABIDE1"
+        ]
+      },
+      "verdicts": {
+        "standin": "confirmed"
+      },
+      "valid_gate_verdicts": {
+        "standin": "confirmed"
+      },
+      "agreement": null
+    },
+    "sex_smri_hippocampus_adni_oasis3_cn": {
+      "label_class": "fragile",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_hippocampus",
+        "predictor": "sex",
+        "group": {
+          "var": "sex",
+          "case": "F",
+          "control": "M"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ],
+        "inclusion": "dx == \"CN\""
+      },
+      "verdicts": {
+        "standin": "fragile"
+      },
+      "valid_gate_verdicts": {
+        "standin": "fragile"
+      },
+      "agreement": null
+    }
+  },
+  "cross_model_verdict_agreement": null,
+  "cross_model_verdict_agreement_count": 0,
+  "cross_model_verdict_agreement_denominator": 0,
+  "anti_hallucination_catch_count": 0
+}

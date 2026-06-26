@@ -1,0 +1,1188 @@
+{
+  "created_at": "2026-06-18T18:13:03",
+  "run_id": "net_test",
+  "model_spec": "openai:gpt-5-mini",
+  "summary": {
+    "model_spec": "openai:gpt-5-mini",
+    "n_claims": 2,
+    "draft_success_count": 2,
+    "draft_success_rate": 1.0,
+    "estimand_match_count": 2,
+    "estimand_match_rate": 1.0,
+    "gate_success_count": 2,
+    "gate_success_rate": 1.0,
+    "anti_hallucination_catch_count": 2
+  },
+  "claims": [
+    {
+      "model_spec": "openai:gpt-5-mini",
+      "claim_id": "ad_hippocampal_atrophy_adni_oasis3",
+      "label_class": "known_positive",
+      "question": "In ADNI as discovery and OASIS3 as replication, are Dementia participants lower than CN in smri_hippocampus after age, sex, and eTIV adjustment?",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_hippocampus",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "Dementia",
+          "control": "CN"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ]
+      },
+      "draft_success": true,
+      "estimand_match": true,
+      "gate_success": true,
+      "gate_verdict_label": "confirmed",
+      "anti_hallucination_ok": false,
+      "anti_hallucination_removed_number": true,
+      "drafted_contract": {
+        "claim_id": "adni_dementia_hippocampus_reduction",
+        "question": "In ADNI as discovery and OASIS3 as replication, are Dementia participants lower than CN in smri_hippocampus after age, sex, and eTIV adjustment?",
+        "estimand": {
+          "type": "group_diff",
+          "outcome": "smri_hippocampus",
+          "predictor": "dx",
+          "group": {
+            "var": "dx",
+            "case": "Dementia",
+            "control": "CN"
+          },
+          "direction": "negative",
+          "unit": "scalar",
+          "region_set": null
+        },
+        "covariates": [
+          "age",
+          "sex",
+          "eTIV"
+        ],
+        "inclusion": null,
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ],
+        "search_provenance": {
+          "declared": true,
+          "family_size": 1,
+          "selection": "preregistered"
+        },
+        "gates": {
+          "multiplicity": {
+            "method": "fdr_bh",
+            "alpha": 0.05,
+            "family_size": 1
+          },
+          "confound": {
+            "require_covariates": [
+              "age",
+              "sex",
+              "eTIV"
+            ],
+            "motion_check": false
+          },
+          "power": {
+            "min_power": 0.8,
+            "ref_effect": null
+          },
+          "multiverse": {
+            "min_fraction_consistent": 0.6
+          },
+          "replication": {
+            "alpha": 0.05,
+            "require_same_sign": true,
+            "require_ci_overlap": false,
+            "harmonize": "combat",
+            "pattern_corr_min": 0.5,
+            "region_replication_frac_min": 0.5,
+            "dice_min": 0.0
+          }
+        },
+        "reporting_language_allowed": [
+          "confirmed",
+          "non_replicated",
+          "under_powered",
+          "fragile"
+        ]
+      },
+      "estimand_mismatches": {},
+      "gate_verdict": {
+        "label": "confirmed",
+        "abstained": false,
+        "rationale": "All gates passed.; confirmation_subtype=direction_confirmed; heterogeneity_i2=95.0",
+        "gates": {
+          "search_provenance": true,
+          "confound": true,
+          "multiplicity": true,
+          "power": true,
+          "multiverse": true,
+          "replication": true,
+          "multiplicity_effective_family_size": 1,
+          "confirmation_subtype": "direction_confirmed",
+          "heterogeneity_i2": 94.99538783162565
+        },
+        "confirmation_subtype": "direction_confirmed",
+        "heterogeneity_i2": 94.99538783162565
+      },
+      "cohort_paths": [
+        "data/prepared_data/smri_disease/ADNI.parquet",
+        "data/prepared_data/smri_disease/OASIS3.parquet"
+      ],
+      "gate_results": {
+        "contract": {
+          "claim_id": "adni_dementia_hippocampus_reduction",
+          "question": "In ADNI as discovery and OASIS3 as replication, are Dementia participants lower than CN in smri_hippocampus after age, sex, and eTIV adjustment?",
+          "estimand": {
+            "type": "group_diff",
+            "outcome": "smri_hippocampus",
+            "predictor": "dx",
+            "group": {
+              "var": "dx",
+              "case": "Dementia",
+              "control": "CN"
+            },
+            "direction": "negative",
+            "unit": "scalar",
+            "region_set": null
+          },
+          "covariates": [
+            "age",
+            "sex",
+            "eTIV"
+          ],
+          "inclusion": null,
+          "discovery_cohort": "ADNI",
+          "replication_cohorts": [
+            "OASIS3"
+          ],
+          "search_provenance": {
+            "declared": true,
+            "family_size": 1,
+            "selection": "preregistered"
+          },
+          "gates": {
+            "multiplicity": {
+              "method": "fdr_bh",
+              "alpha": 0.05,
+              "family_size": 1
+            },
+            "confound": {
+              "require_covariates": [
+                "age",
+                "sex",
+                "eTIV"
+              ],
+              "motion_check": false
+            },
+            "power": {
+              "min_power": 0.8,
+              "ref_effect": null
+            },
+            "multiverse": {
+              "min_fraction_consistent": 0.6
+            },
+            "replication": {
+              "alpha": 0.05,
+              "require_same_sign": true,
+              "require_ci_overlap": false,
+              "harmonize": "combat",
+              "pattern_corr_min": 0.5,
+              "region_replication_frac_min": 0.5,
+              "dice_min": 0.0
+            }
+          },
+          "reporting_language_allowed": [
+            "confirmed",
+            "non_replicated",
+            "under_powered",
+            "fragile"
+          ]
+        },
+        "primary": {
+          "beta": -1654.2086480065677,
+          "se": 61.292188687238095,
+          "ci_low": -1774.5348756657286,
+          "ci_high": -1533.8824203474069,
+          "p": 2.1762293771854846e-112,
+          "n": 749,
+          "dof": 744.0,
+          "standardized_effect": -1.7156409590131518,
+          "diagnostics": {
+            "residual_mean": 5.905513123370389e-07,
+            "residual_sd": 803.7019171857888,
+            "normality_p": 0.15544753500136974,
+            "homoscedasticity_p": 0.06590876133368172,
+            "cooks_distance_top": [
+              {
+                "row": "52",
+                "value": 0.05650549584755375
+              },
+              {
+                "row": "1110",
+                "value": 0.01905462672852507
+              },
+              {
+                "row": "1597",
+                "value": 0.017396392316476113
+              },
+              {
+                "row": "380",
+                "value": 0.016937639062785663
+              },
+              {
+                "row": "148",
+                "value": 0.015436256879185926
+              }
+            ]
+          }
+        },
+        "multiverse": {
+          "fraction_consistent": 1.0,
+          "passed": true,
+          "specs": [
+            {
+              "spec_id": "etiv=True,site=True,outliers=none,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1654.2086480065677,
+              "p": 2.1762293771854846e-112,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=True,outliers=none,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1701.9520488268822,
+              "p": 3.8862711689336216e-163,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=True,outliers=drop_z3,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1629.717527444554,
+              "p": 4.1033999829920005e-112,
+              "n": 745,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=True,outliers=drop_z3,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1686.4740209394731,
+              "p": 1.827592804714991e-162,
+              "n": 745,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=True,outliers=winsorize,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1627.2663515375987,
+              "p": 7.546309434924862e-114,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=True,outliers=winsorize,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1685.8280334705719,
+              "p": 1.133682150661788e-166,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=False,outliers=none,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1654.2086480065677,
+              "p": 2.1762293771854846e-112,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=False,outliers=none,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1701.9520488268822,
+              "p": 3.8862711689336216e-163,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=False,outliers=drop_z3,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1629.717527444554,
+              "p": 4.1033999829920005e-112,
+              "n": 745,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=False,outliers=drop_z3,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1686.4740209394731,
+              "p": 1.827592804714991e-162,
+              "n": 745,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=False,outliers=winsorize,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1627.2663515375987,
+              "p": 7.546309434924862e-114,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=False,outliers=winsorize,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1685.8280334705719,
+              "p": 1.133682150661788e-166,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=True,outliers=none,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1638.858610470867,
+              "p": 9.192878267516552e-103,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=True,outliers=none,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1679.7768834328317,
+              "p": 1.7465690480835e-143,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=True,outliers=drop_z3,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1612.2604521210278,
+              "p": 1.0127101517271684e-102,
+              "n": 745,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=True,outliers=drop_z3,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1663.552177721469,
+              "p": 4.760181595100482e-143,
+              "n": 745,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=True,outliers=winsorize,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1612.4783020764003,
+              "p": 2.4155896920330814e-104,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=True,outliers=winsorize,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1667.698374727526,
+              "p": 4.492267230812777e-146,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=False,outliers=none,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1638.858610470867,
+              "p": 9.192878267516552e-103,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=False,outliers=none,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1679.7768834328317,
+              "p": 1.7465690480835e-143,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=False,outliers=drop_z3,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1612.2604521210278,
+              "p": 1.0127101517271684e-102,
+              "n": 745,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=False,outliers=drop_z3,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1663.552177721469,
+              "p": 4.760181595100482e-143,
+              "n": 745,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=False,outliers=winsorize,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1612.4783020764003,
+              "p": 2.4155896920330814e-104,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=False,outliers=winsorize,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1667.698374727526,
+              "p": 4.492267230812777e-146,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            }
+          ]
+        },
+        "power": {
+          "achieved_power": 1.0,
+          "n_needed_80": 4.896662095626574,
+          "shrinkage_factor": 0.9986271291433765,
+          "shrunken_effect": -1651.9376331629448,
+          "under_powered": false,
+          "ref_effect": null,
+          "rationale": "power=1.000, n_needed_80=4.9, ref_effect=none"
+        },
+        "replication": {
+          "passed": true,
+          "reason": "passed",
+          "cohort_results": [
+            {
+              "cohort": "OASIS3",
+              "passed": true,
+              "reason": "passed",
+              "effect": {
+                "beta": -1097.5642218159192,
+                "se": 59.04665411715849,
+                "ci_low": -1213.4005617110643,
+                "ci_high": -981.727881920774,
+                "p": 1.2398977107468674e-68,
+                "n": 1315,
+                "dof": 1310.0,
+                "standardized_effect": -1.2942040264045607,
+                "diagnostics": {
+                  "residual_mean": -5.0422928504957445e-08,
+                  "residual_sd": 896.7617426944628,
+                  "normality_p": 0.0008304540338245234,
+                  "homoscedasticity_p": 2.948215802415591e-11,
+                  "cooks_distance_top": [
+                    {
+                      "row": "2609",
+                      "value": 0.03483930912040754
+                    },
+                    {
+                      "row": "2051",
+                      "value": 0.03293738933583971
+                    },
+                    {
+                      "row": "2522",
+                      "value": 0.023590227390179904
+                    },
+                    {
+                      "row": "2428",
+                      "value": 0.011738035768238026
+                    },
+                    {
+                      "row": "1973",
+                      "value": 0.011021108749353135
+                    }
+                  ]
+                }
+              },
+              "feature_coverage": 1.0
+            }
+          ],
+          "harmonized": true,
+          "heterogeneity": {
+            "cohort_effects": [
+              {
+                "cohort": "ADNI",
+                "standardized_effect": -1.7156409590131518,
+                "se_standardized_effect": 0.06356839538114344,
+                "sign": "negative",
+                "p": 2.1762293771854846e-112,
+                "n": 749
+              },
+              {
+                "cohort": "OASIS3",
+                "standardized_effect": -1.2942040264045607,
+                "se_standardized_effect": 0.06962546335348808,
+                "sign": "negative",
+                "p": 1.2398977107468674e-68,
+                "n": 1315
+              }
+            ],
+            "random_effect": -1.5058796516494135,
+            "random_effect_se": 0.2107162924132756,
+            "ci_low": -1.9188835847794337,
+            "ci_high": -1.0928757185193934,
+            "q": 19.981568328497097,
+            "tau2": 0.08436022106400846,
+            "i2": 94.99538783162565,
+            "high_i2": true
+          },
+          "replicated_but_heterogeneous": true,
+          "confirmation_subtype": "direction_confirmed",
+          "confirmation_i2": 94.99538783162565
+        },
+        "verdict": {
+          "label": "confirmed",
+          "abstained": false,
+          "rationale": "All gates passed.; confirmation_subtype=direction_confirmed; heterogeneity_i2=95.0",
+          "gates": {
+            "search_provenance": true,
+            "confound": true,
+            "multiplicity": true,
+            "power": true,
+            "multiverse": true,
+            "replication": true,
+            "multiplicity_effective_family_size": 1,
+            "confirmation_subtype": "direction_confirmed",
+            "heterogeneity_i2": 94.99538783162565
+          },
+          "confirmation_subtype": "direction_confirmed",
+          "heterogeneity_i2": 94.99538783162565
+        }
+      },
+      "interpretation": "Numeric statements not present in the computed result bundle were removed."
+    },
+    {
+      "model_spec": "openai:gpt-5-mini",
+      "claim_id": "ad_entorhinal_atrophy_adni_oasis3",
+      "label_class": "known_positive",
+      "question": "In ADNI as discovery and OASIS3 as replication, are Dementia participants lower than CN in smri_entorhinal after age, sex, and eTIV adjustment?",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_entorhinal",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "Dementia",
+          "control": "CN"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ]
+      },
+      "draft_success": true,
+      "estimand_match": true,
+      "gate_success": true,
+      "gate_verdict_label": "confirmed",
+      "anti_hallucination_ok": false,
+      "anti_hallucination_removed_number": true,
+      "drafted_contract": {
+        "claim_id": "ad_entorhinal_atrophy",
+        "question": "Are Dementia participants lower than CN in smri_entorhinal after age, sex, and eTIV adjustment?",
+        "estimand": {
+          "type": "group_diff",
+          "outcome": "smri_entorhinal",
+          "predictor": "dx",
+          "group": {
+            "var": "dx",
+            "case": "Dementia",
+            "control": "CN"
+          },
+          "direction": "negative",
+          "unit": "scalar",
+          "region_set": null
+        },
+        "covariates": [
+          "age",
+          "sex",
+          "eTIV"
+        ],
+        "inclusion": null,
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ],
+        "search_provenance": {
+          "declared": true,
+          "family_size": 1,
+          "selection": "preregistered"
+        },
+        "gates": {
+          "multiplicity": {
+            "method": "fdr_bh",
+            "alpha": 0.05,
+            "family_size": 1
+          },
+          "confound": {
+            "require_covariates": [
+              "age",
+              "sex",
+              "eTIV"
+            ],
+            "motion_check": false
+          },
+          "power": {
+            "min_power": 0.8,
+            "ref_effect": null
+          },
+          "multiverse": {
+            "min_fraction_consistent": 0.6
+          },
+          "replication": {
+            "alpha": 0.05,
+            "require_same_sign": true,
+            "require_ci_overlap": false,
+            "harmonize": "combat",
+            "pattern_corr_min": 0.5,
+            "region_replication_frac_min": 0.5,
+            "dice_min": 0.0
+          }
+        },
+        "reporting_language_allowed": [
+          "confirmed",
+          "non_replicated",
+          "under_powered",
+          "fragile"
+        ]
+      },
+      "estimand_mismatches": {},
+      "gate_verdict": {
+        "label": "confirmed",
+        "abstained": false,
+        "rationale": "All gates passed.; confirmation_subtype=direction_confirmed; heterogeneity_i2=99.0",
+        "gates": {
+          "search_provenance": true,
+          "confound": true,
+          "multiplicity": true,
+          "power": true,
+          "multiverse": true,
+          "replication": true,
+          "multiplicity_effective_family_size": 1,
+          "confirmation_subtype": "direction_confirmed",
+          "heterogeneity_i2": 98.96859556029774
+        },
+        "confirmation_subtype": "direction_confirmed",
+        "heterogeneity_i2": 98.96859556029774
+      },
+      "cohort_paths": [
+        "data/prepared_data/smri_disease/ADNI.parquet",
+        "data/prepared_data/smri_disease/OASIS3.parquet"
+      ],
+      "gate_results": {
+        "contract": {
+          "claim_id": "ad_entorhinal_atrophy",
+          "question": "Are Dementia participants lower than CN in smri_entorhinal after age, sex, and eTIV adjustment?",
+          "estimand": {
+            "type": "group_diff",
+            "outcome": "smri_entorhinal",
+            "predictor": "dx",
+            "group": {
+              "var": "dx",
+              "case": "Dementia",
+              "control": "CN"
+            },
+            "direction": "negative",
+            "unit": "scalar",
+            "region_set": null
+          },
+          "covariates": [
+            "age",
+            "sex",
+            "eTIV"
+          ],
+          "inclusion": null,
+          "discovery_cohort": "ADNI",
+          "replication_cohorts": [
+            "OASIS3"
+          ],
+          "search_provenance": {
+            "declared": true,
+            "family_size": 1,
+            "selection": "preregistered"
+          },
+          "gates": {
+            "multiplicity": {
+              "method": "fdr_bh",
+              "alpha": 0.05,
+              "family_size": 1
+            },
+            "confound": {
+              "require_covariates": [
+                "age",
+                "sex",
+                "eTIV"
+              ],
+              "motion_check": false
+            },
+            "power": {
+              "min_power": 0.8,
+              "ref_effect": null
+            },
+            "multiverse": {
+              "min_fraction_consistent": 0.6
+            },
+            "replication": {
+              "alpha": 0.05,
+              "require_same_sign": true,
+              "require_ci_overlap": false,
+              "harmonize": "combat",
+              "pattern_corr_min": 0.5,
+              "region_replication_frac_min": 0.5,
+              "dice_min": 0.0
+            }
+          },
+          "reporting_language_allowed": [
+            "confirmed",
+            "non_replicated",
+            "under_powered",
+            "fragile"
+          ]
+        },
+        "primary": {
+          "beta": -1048.8402411083093,
+          "se": 45.36375788019751,
+          "ci_low": -1137.9008701251205,
+          "ci_high": -959.779612091498,
+          "p": 6.073615546545957e-89,
+          "n": 727,
+          "dof": 722.0,
+          "standardized_effect": -1.5816033476477465,
+          "diagnostics": {
+            "residual_mean": 2.527642304393523e-07,
+            "residual_sd": 581.438983044764,
+            "normality_p": 0.003296379532338245,
+            "homoscedasticity_p": 0.1338247713808139,
+            "cooks_distance_top": [
+              {
+                "row": "179",
+                "value": 0.02818133667660947
+              },
+              {
+                "row": "145",
+                "value": 0.01805760235004628
+              },
+              {
+                "row": "905",
+                "value": 0.01801110124945347
+              },
+              {
+                "row": "1",
+                "value": 0.01553704492792469
+              },
+              {
+                "row": "448",
+                "value": 0.014903391234933498
+              }
+            ]
+          }
+        },
+        "multiverse": {
+          "fraction_consistent": 1.0,
+          "passed": true,
+          "specs": [
+            {
+              "spec_id": "etiv=True,site=True,outliers=none,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1048.8402411083093,
+              "p": 6.073615546545957e-89,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=True,outliers=none,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1058.7454863408573,
+              "p": 2.1485543226425432e-123,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=True,outliers=drop_z3,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1048.8402411083093,
+              "p": 6.073615546545957e-89,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=True,outliers=drop_z3,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1058.7454863408573,
+              "p": 2.1485543226425432e-123,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=True,outliers=winsorize,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1040.6405408808484,
+              "p": 8.996212383341112e-90,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=True,outliers=winsorize,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1055.2875641743162,
+              "p": 1.3099900533616245e-123,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=False,outliers=none,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1048.8402411083093,
+              "p": 6.073615546545957e-89,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=False,outliers=none,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1058.7454863408573,
+              "p": 2.1485543226425432e-123,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=False,outliers=drop_z3,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1048.8402411083093,
+              "p": 6.073615546545957e-89,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=False,outliers=drop_z3,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1058.7454863408573,
+              "p": 2.1485543226425432e-123,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=False,outliers=winsorize,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1040.6405408808484,
+              "p": 8.996212383341112e-90,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=True,site=False,outliers=winsorize,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1055.2875641743162,
+              "p": 1.3099900533616245e-123,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=True,outliers=none,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1037.2934739675302,
+              "p": 7.870024825479474e-84,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=True,outliers=none,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1047.3628314219372,
+              "p": 1.891038633346668e-111,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=True,outliers=drop_z3,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1037.2934739675302,
+              "p": 7.870024825479474e-84,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=True,outliers=drop_z3,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1047.3628314219372,
+              "p": 1.891038633346668e-111,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=True,outliers=winsorize,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1029.2976304567524,
+              "p": 1.1508873880549052e-84,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=True,outliers=winsorize,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1044.411264570624,
+              "p": 2.3496635806284887e-112,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=False,outliers=none,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1037.2934739675302,
+              "p": 7.870024825479474e-84,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=False,outliers=none,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1047.3628314219372,
+              "p": 1.891038633346668e-111,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=False,outliers=drop_z3,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1037.2934739675302,
+              "p": 7.870024825479474e-84,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=False,outliers=drop_z3,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1047.3628314219372,
+              "p": 1.891038633346668e-111,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=False,outliers=winsorize,model=ols",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1029.2976304567524,
+              "p": 1.1508873880549052e-84,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "etiv=False,site=False,outliers=winsorize,model=robust",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1044.411264570624,
+              "p": 2.3496635806284887e-112,
+              "n": 727,
+              "status": "ok",
+              "error": null
+            }
+          ]
+        },
+        "power": {
+          "achieved_power": 1.0,
+          "n_needed_80": 5.348840977757274,
+          "shrinkage_factor": 0.9981293205979862,
+          "shrunken_effect": -1046.8781972732647,
+          "under_powered": false,
+          "ref_effect": null,
+          "rationale": "power=1.000, n_needed_80=5.3, ref_effect=none"
+        },
+        "replication": {
+          "passed": true,
+          "reason": "passed",
+          "cohort_results": [
+            {
+              "cohort": "OASIS3",
+              "passed": true,
+              "reason": "passed",
+              "effect": {
+                "beta": -467.84957180982485,
+                "se": 38.29456709348127,
+                "ci_low": -542.9749545483007,
+                "ci_high": -392.724189071349,
+                "p": 1.3855090596493296e-32,
+                "n": 1315,
+                "dof": 1310.0,
+                "standardized_effect": -0.7019586987449427,
+                "diagnostics": {
+                  "residual_mean": -4.977372772867717e-08,
+                  "residual_sd": 581.5926954022115,
+                  "normality_p": 0.00016680640651223682,
+                  "homoscedasticity_p": 1.728999914141046e-14,
+                  "cooks_distance_top": [
+                    {
+                      "row": "2609",
+                      "value": 0.025986924621275293
+                    },
+                    {
+                      "row": "2416",
+                      "value": 0.016959853459857854
+                    },
+                    {
+                      "row": "1839",
+                      "value": 0.010600862489817165
+                    },
+                    {
+                      "row": "2349",
+                      "value": 0.010390538877579372
+                    },
+                    {
+                      "row": "2051",
+                      "value": 0.00864045514259732
+                    }
+                  ]
+                }
+              },
+              "feature_coverage": 1.0
+            }
+          ],
+          "harmonized": true,
+          "heterogeneity": {
+            "cohort_effects": [
+              {
+                "cohort": "ADNI",
+                "standardized_effect": -1.5816033476477465,
+                "se_standardized_effect": 0.06840648223926524,
+                "sign": "negative",
+                "p": 6.073615546545957e-89,
+                "n": 727
+              },
+              {
+                "cohort": "OASIS3",
+                "standardized_effect": -0.7019586987449427,
+                "se_standardized_effect": 0.057456939378941856,
+                "sign": "negative",
+                "p": 1.3855090596493296e-32,
+                "n": 1315
+              }
+            ],
+            "random_effect": -1.1409976688433825,
+            "random_effect_se": 0.439821626846375,
+            "ci_low": -2.0030480574622773,
+            "ci_high": -0.27894728022448756,
+            "q": 96.95517699038456,
+            "tau2": 0.3828969808240953,
+            "i2": 98.96859556029774,
+            "high_i2": true
+          },
+          "replicated_but_heterogeneous": true,
+          "confirmation_subtype": "direction_confirmed",
+          "confirmation_i2": 98.96859556029774
+        },
+        "verdict": {
+          "label": "confirmed",
+          "abstained": false,
+          "rationale": "All gates passed.; confirmation_subtype=direction_confirmed; heterogeneity_i2=99.0",
+          "gates": {
+            "search_provenance": true,
+            "confound": true,
+            "multiplicity": true,
+            "power": true,
+            "multiverse": true,
+            "replication": true,
+            "multiplicity_effective_family_size": 1,
+            "confirmation_subtype": "direction_confirmed",
+            "heterogeneity_i2": 98.96859556029774
+          },
+          "confirmation_subtype": "direction_confirmed",
+          "heterogeneity_i2": 98.96859556029774
+        }
+      },
+      "interpretation": "Numeric statements not present in the computed result bundle were removed."
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+# Single-cohort ADNI FDG claim: no second local FDG cohort was identified for replication in Phase 1.
+claim_id: ad_fdg_hypometabolism_adni
+question: "Is FDG PET SUVR reduced in Alzheimer's disease dementia compared with cognitively normal controls?"
+estimand:
+  type: group_diff
+  outcome: pet_fdg_suvr
+  predictor: dx
+  group: {var: dx, case: Dementia, control: CN}
+  direction: negative
+covariates: [age, sex]
+inclusion: null
+discovery_cohort: ADNI
+replication_cohorts: []
+gates:
+  multiplicity: {method: fdr_bh, alpha: 0.05, family_size: 1}
+  confound:     {require_covariates: [age, sex], motion_check: false}
+  power:        {min_power: 0.8, ref_effect: null}
+  multiverse:   {min_fraction_consistent: 0.6}
+  replication:  {alpha: 0.05, require_same_sign: true, require_ci_overlap: false, harmonize: combat}
+reporting_language_allowed: [confirmed, non_replicated, under_powered, fragile]

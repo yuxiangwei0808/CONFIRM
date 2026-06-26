@@ -1,0 +1,135 @@
+{
+  "created_at": "2026-06-17T15:16:51",
+  "seed": 20260616,
+  "harmonize": "combat",
+  "feature_limit": null,
+  "source_files": [
+    {
+      "path": "data/prepared_data/benchmark_ready/misc_table_manifest.csv",
+      "sha256": "771937edd51eeada5fc61e7e74adcf7db54dd9777bfd334bedeeb7123a8eb599"
+    },
+    {
+      "path": "data/labels/claim_label_table.csv",
+      "sha256": "116e5f9290fb2d75b52561ecc738dd21a55425c6d9ce0c714dfbbf7337c49512"
+    },
+    {
+      "path": "docs/data_manifests/remote_peek_20260616.md",
+      "sha256": "22c8be3c951f70ad0ef58b3934f3610ee20fcb8f62393d0f300db26f41a3c1bd"
+    },
+    {
+      "path": "docs/literature_labels/fmri_claim_label_ledger.md",
+      "sha256": "b8e173dd30fbcc06b5cda503f0f08cefded3db9526ff44be66545860a295adae"
+    }
+  ],
+  "code_files": [
+    {
+      "path": "src/bench/labels.py",
+      "sha256": "3f1081906962799d4f03a0245ec604c6ea26b926d4339e56fd8762f268b80a04"
+    },
+    {
+      "path": "src/bench/metrics.py",
+      "sha256": "6a4a18bf50ad2d0fcad06744fd1c840b506d52014610f75d821d5865ef83fe8d"
+    },
+    {
+      "path": "src/bench/run_multimodal_benchmark.py",
+      "sha256": "e2ea311c1f30336f99e95b21d9faccbdd70401180a6441a2cd9a299963cbfe21"
+    },
+    {
+      "path": "src/confirm/brainwide.py",
+      "sha256": "7d60bd303d5f095175fb3faeb9d970832de80317b72e16335336d2cfd3bb88f2"
+    },
+    {
+      "path": "src/confirm/multiverse.py",
+      "sha256": "af8ea065ef265d9ccef546fb5f75aacca77dbe63a3c8c22945bcc0f965312d6f"
+    },
+    {
+      "path": "src/confirm/replication.py",
+      "sha256": "52e4d86a75e0a84d5ac76a5b21b60811da81db3972e5cd61ac3658979466b412"
+    },
+    {
+      "path": "src/confirm/power.py",
+      "sha256": "d1eb6e113c8e059fbf4fa70d2ffa8ce3a6285e45035c927d0a6c1490270d47f7"
+    },
+    {
+      "path": "src/confirm/verdict.py",
+      "sha256": "ef5ef7d464b115c55f9de1827fa5d42a981b532b764b09c0165fdd5085084bd7"
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "nacc_age_smri_split",
+      "scoring_label": "known_positive",
+      "scoring_bucket": "positive",
+      "label_provenance": "Externally established positive-control label from canonical biomarker or stability literature.",
+      "modality": "NACC/sMRI",
+      "discovery_cohort": "NACC_DISC",
+      "replication_cohort": "NACC_REP",
+      "n_features": 10,
+      "covariates_full": [
+        "site",
+        "eTIV"
+      ],
+      "covariates_min": [
+        "eTIV"
+      ]
+    },
+    {
+      "claim_id": "nacc_csf_ptau_smri",
+      "scoring_label": "candidate_unknown",
+      "scoring_bucket": "candidate",
+      "label_provenance": "Candidate/provisional claim not scored as known positive or known negative.",
+      "modality": "NACC/sMRI+CSF",
+      "discovery_cohort": "NACC_CSF_DISC",
+      "replication_cohort": "NACC_CSF_REP",
+      "n_features": 10,
+      "covariates_full": [
+        "age",
+        "site",
+        "eTIV"
+      ],
+      "covariates_min": [
+        "age",
+        "eTIV"
+      ]
+    },
+    {
+      "claim_id": "nacc_csf_ttau_smri",
+      "scoring_label": "candidate_unknown",
+      "scoring_bucket": "candidate",
+      "label_provenance": "Candidate/provisional claim not scored as known positive or known negative.",
+      "modality": "NACC/sMRI+CSF",
+      "discovery_cohort": "NACC_CSF_DISC",
+      "replication_cohort": "NACC_CSF_REP",
+      "n_features": 10,
+      "covariates_full": [
+        "age",
+        "site",
+        "eTIV"
+      ],
+      "covariates_min": [
+        "age",
+        "eTIV"
+      ]
+    },
+    {
+      "claim_id": "nacc_csf_abeta_smri",
+      "scoring_label": "candidate_unknown",
+      "scoring_bucket": "candidate",
+      "label_provenance": "Candidate/provisional claim not scored as known positive or known negative.",
+      "modality": "NACC/sMRI+CSF",
+      "discovery_cohort": "NACC_CSF_DISC",
+      "replication_cohort": "NACC_CSF_REP",
+      "n_features": 10,
+      "covariates_full": [
+        "age",
+        "site",
+        "eTIV"
+      ],
+      "covariates_min": [
+        "age",
+        "eTIV"
+      ]
+    }
+  ],
+  "skipped": []
+}

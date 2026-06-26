@@ -1,0 +1,18 @@
+{
+  "call_number": 1,
+  "purpose": "round-1-review",
+  "timestamp": "2026-06-16T22:18:43Z",
+  "tool": "multi_agent_v1.spawn_agent",
+  "model": "inherited",
+  "config": {
+    "reasoning_effort": "xhigh"
+  },
+  "files_referenced": [
+    "refine-logs/FINAL_PROPOSAL.md",
+    "refine-logs/EXPERIMENT_PLAN.md",
+    "refine-logs/EXPERIMENT_RESULTS.md",
+    "review-stage/benchmark-ready-full/benchmark_ready_results.json",
+    "src/bench/run_benchmark_ready.py"
+  ],
+  "prompt": "[Round 1/4 of autonomous review loop]\n\nPlease act as a senior ML/neuroimaging systems reviewer. Review the current CONFIRM project for whether it is ready to proceed to larger experiments / paper-level claims. Be adversarial but constructive.\n\nProject objective:\nCONFIRM is a CPU-only, claim-contract-governed agentic neuroimaging analysis framework over precomputed derivatives. It labels a claim confirmed only if machine-checkable gates pass: multiplicity/FDR, confound handling, power/winner's-curse risk, multiverse robustness, and cross-cohort replication. Otherwise it abstains with non_replicated / under_powered / fragile.\n\nRelevant files to inspect:\n- refine-logs/FINAL_PROPOSAL.md\n- refine-logs/EXPERIMENT_PLAN.md\n- refine-logs/EXPERIMENT_RESULTS.md\n- refine-logs/EXPERIMENT_RESULTS_20260616_150502.md\n- refine-logs/EXPERIMENT_TRACKER.md\n- refine-logs/DATA_READINESS_CHECK_20260616.md\n- review-stage/AUTO_REVIEW.md (prior completed review loop from 2026-06-15)\n- review-stage/benchmark-ready-full/benchmark_ready_results.json\n- review-stage/benchmark-ready-full/benchmark_ready_claims.csv\n- src/bench/run_benchmark_ready.py\n- src/bench/run_benchmark.py\n- src/confirm/*.py, especially analysis.py, brainwide.py, replication.py, power.py, verdict.py\n\nCurrent latest result:\n- Prepared fMRI benchmark-ready wave completed locally on CPU.\n- 20 runnable claims, 3 skipped for no shared feature family, 0 errors.\n- Ground truth classes in CSV: fragile=11, known_null=5, positive=4.\n- Gate ladder: exec_only TPR=1.0/FCR=0.5625; +confound TPR=1.0/FCR=0.4375; +power 1.0/0.4375; +multiverse 1.0/0.4375; +replication 1.0/0.1875.\n- Existing tests pass: 10/10.\n\nPrior reviewer from 2026-06-15 said score 6/10 almost after the earlier 16-claim lite benchmark, but required hardening: expand benchmark, freeze manifest/lockfile, per-claim numeric audit table, binomial CIs, FDR adversarial task, power-gate reframing, and brain-wide multiverse honesty.\n\nYour task:\n1. Score this work 1-10 for a top ML/neuroimaging systems venue.\n2. Verdict exactly one of: ready, almost, not ready.\n3. List remaining critical weaknesses ranked by severity.\n4. For each weakness, specify the MINIMUM fix: experiment, analysis, code change, data/resource need, or reframing.\n5. Say whether more CPU/GPU resources are needed now, and for what.\n6. Identify the highest-value next experiments to run immediately.\n\nBe concrete and file-grounded. If the current result contains misleading metrics, leakage, weak labels, skipped-claim problems, post-hoc thresholding, or overstated conclusions, call that out. If work is ready to proceed to larger experiments but not ready for submission, say so clearly.\n"
+}

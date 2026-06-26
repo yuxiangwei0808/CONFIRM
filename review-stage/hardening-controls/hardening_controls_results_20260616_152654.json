@@ -1,0 +1,43 @@
+{
+  "created_at": "2026-06-16T15:26:53",
+  "seed": 20260615,
+  "controls": [
+    {
+      "control_id": "fdr_random_label_hcp_fc",
+      "passed": true,
+      "attempt": 3,
+      "n_features": 84,
+      "uncorrected_hits_p_lt_0_05": 2,
+      "fdr_hits_q_lt_0_05": 0,
+      "best_feature": {
+        "feature": "fc_fc_DorsAttn_SalVentAttn_z_z",
+        "beta": -0.13741578929592016,
+        "se": 0.05910349500923723,
+        "p": 0.020257278680351844,
+        "n": 1079,
+        "standardized_effect": -0.07073429881412063,
+        "q_bh": 0.9790332680068747
+      },
+      "interpretation": "Uncorrected execution would report a hit; BH-FDR correctly removes it."
+    },
+    {
+      "control_id": "power_mde_selected_null",
+      "passed": true,
+      "n": 36,
+      "n_features_searched": 256,
+      "predeclared_ref_effect": 0.2,
+      "best_selected_feature": {
+        "feature": "y_073",
+        "beta": 1.2114577912972189,
+        "se": 0.32840561055432466,
+        "p": 0.0008319389510665608,
+        "n": 36,
+        "standardized_effect": 0.5462318699773152
+      },
+      "achieved_power_at_ref_effect": 0.2148501618537479,
+      "exec_only_significant": true,
+      "power_gate_passed": false,
+      "interpretation": "A selected discovery hit is significant but underpowered for the predeclared MDE."
+    }
+  ]
+}

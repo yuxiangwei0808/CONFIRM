@@ -1,0 +1,21 @@
+# Placeholder seed contract for injected-null benchmarks; benchmark builders
+# generate concrete contracts for the selected synthetic/canonical table.
+claim_id: injected_random_label
+question: "Does a masked random grouping variable differ on the selected neuroimaging phenotype?"
+estimand:
+  type: group_diff
+  outcome: smri_meanthickness
+  predictor: arm_code
+  group: {var: arm_code, case: A, control: B}
+  direction: two_sided
+covariates: [age, sex, eTIV, site]
+inclusion: null
+discovery_cohort: SYNTH_DISC
+replication_cohorts: [SYNTH_REP]
+gates:
+  multiplicity: {method: fdr_bh, alpha: 0.05, family_size: 1}
+  confound: {require_covariates: [sex, site], motion_check: true}
+  power: {min_power: 0.8, ref_effect: null}
+  multiverse: {min_fraction_consistent: 0.6}
+  replication: {alpha: 0.05, require_same_sign: true, require_ci_overlap: false, harmonize: combat}
+reporting_language_allowed: [confirmed, non_replicated, under_powered, fragile]

@@ -1,0 +1,20 @@
+# ADNI discovery with OASIS3 sMRI replication.
+claim_id: ad_hippocampal_atrophy_adni_oasis3
+question: "Is hippocampal volume reduced in Alzheimer's disease dementia compared with cognitively normal controls?"
+estimand:
+  type: group_diff
+  outcome: smri_hippocampus
+  predictor: dx
+  group: {var: dx, case: Dementia, control: CN}
+  direction: negative
+covariates: [age, sex, eTIV]
+inclusion: null
+discovery_cohort: ADNI
+replication_cohorts: [OASIS3]
+gates:
+  multiplicity: {method: fdr_bh, alpha: 0.05, family_size: 1}
+  confound:     {require_covariates: [age, sex, eTIV], motion_check: false}
+  power:        {min_power: 0.8, ref_effect: null}
+  multiverse:   {min_fraction_consistent: 0.6}
+  replication:  {alpha: 0.05, require_same_sign: true, require_ci_overlap: false, harmonize: combat}
+reporting_language_allowed: [confirmed, non_replicated, under_powered, fragile]

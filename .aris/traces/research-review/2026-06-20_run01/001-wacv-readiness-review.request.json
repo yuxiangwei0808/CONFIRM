@@ -1,0 +1,27 @@
+{
+  "call_number": 1,
+  "purpose": "wacv-readiness-review",
+  "timestamp": "2026-06-20T16:49:47Z",
+  "tool": "mcp__codex__codex",
+  "model": "gpt-5.5",
+  "config": {
+    "model_reasoning_effort": "xhigh"
+  },
+  "files_referenced": [
+    "paper/sec/00_abstract.tex",
+    "paper/sec/01_intro.tex",
+    "paper/sec/03_method.tex",
+    "paper/sec/04_benchmark.tex",
+    "paper/sec/05_experiments.tex",
+    "paper/sec/06_limitations.tex",
+    "review-stage/round5-combat/combined_benchmark_results.json",
+    "review-stage/negatives-expansion/negatives_expansion_results.json",
+    "review-stage/round5-neuroclaw/neuroclaw_comparison.json",
+    "review-stage/confirm-layer/confirm_layer_result.json",
+    "review-stage/external-nacc/nacc_external_results.json",
+    "review-stage/external-cnp/CNP_external_results.json",
+    "EXTERNAL_BENCHMARK_PREREG.md",
+    "EXTERNAL_BENCHMARK_RESULTS.md"
+  ],
+  "prompt": "Act as a senior WACV/ML-for-health reviewer. Be brutally honest and concise.\n\nPaper: CONFIRM, a statistical claim-governance layer for agentic neuroimaging. LLM drafts frozen ClaimContract; code computes all numbers; gate ladder = multiplicity/search provenance, confound + confound-completeness, power, multiverse, cross-cohort replication; verdict confirmed/non_replicated/under_powered/fragile; numeric guard strips unauthorized numbers.\n\nEvidence:\n- Internal round5: 55 claims; MAIN 40 claims = 10 positives, 27 negative/fragile, 3 small positives. Full ladder MAIN TPR 10/10, FCR 0/27, coverage 12/40. Exec-only FCR 11/27; +confound 3/27; +replication 0/27.\n- Synthetic stress: 150 generated negatives (42 random-label, 42 site-confound, 42 p-fishing, 21 underpowered, 3 cross-cohort nonreplication). Full ladder FCR 1/150. Combined with main negatives: 1/177, exact upper 95% about 3.1%. One false confirm is likely misconstructed underpowered negative with large replicated effect, but counted.\n- NeuroClaw baseline: shared 25 claims. NeuroClaw TPR 9/10, FCR 5/15. CONFIRM TPR 10/10, FCR 0/15. CONFIRM as post-hoc layer over NeuroClaw changes FCR 5/15 to 0/15 and preserves NeuroClaw TPR 9/10.\n- Multi-LLM: 6 models, 9 shared claims, verdict agreement 7/9; no false confirm on confounded null; numeric guard catches 40 numbers.\n- External NACC unseen: 9/9 AD/MCI atrophy positives, 0/28 random null controls; significance-only FCR 2/28. But upper CI still 12.3% and prereg target upper<10% fails. AD-spared controls are not clean nulls.\n- External CNP/ds000030: 0/14 psychiatric positives, 0/16 random nulls, significance-only also 0/16; authors frame as correct underpowered abstention.\n- Important inconsistency: EXTERNAL_BENCHMARK_PREREG.md says DRAFT/not frozen and repo is not git, but paper/results call NACC/CNP preregistered frozen run-once. Staged result index is stale. Some related citations (NEXUS/NEURA) need verification. Power gate uses external ref_effect if available, otherwise observed standardized effect.\n\nLiterature context: NeuroClaw/NeuroAgent/NIAgent focus on executable workflows/QC/predictive analyses. CONFIRM's novelty is post-execution statistical claim admissibility for agentic neuroimaging; gates themselves are conventional.\n\nDeliver exactly five sections: Fatal issues, Major issues, Method/baseline/novelty assessment, Required fixes before submission, Score/readiness. Keep it under 1200 words.\n"
+}

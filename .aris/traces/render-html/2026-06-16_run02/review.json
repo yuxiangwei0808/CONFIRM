@@ -1,0 +1,11 @@
+{
+  "artifact": "review-stage/AUTO_REVIEW.html",
+  "source": "review-stage/AUTO_REVIEW.md",
+  "sidecar": "review-stage/REVIEW_STATE.json",
+  "reviewer_agent": "019ed2aa-c167-7e70-b631-32eb5a5af1b8",
+  "verdict": "WARN",
+  "blocking_issues": [],
+  "warnings": [
+    "Generated TOC shows raw Markdown emphasis markers in two heading labels."
+  ]
+}

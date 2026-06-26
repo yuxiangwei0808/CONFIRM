@@ -1,0 +1,155 @@
+{
+  "created_at": "2026-06-18T18:13:03",
+  "run_id": "net_test",
+  "command": {
+    "models": [
+      "openai:gpt-5-mini"
+    ],
+    "smri_root": "data/prepared_data/smri_disease",
+    "cluster_root": "data/prepared_data/cluster_recovered",
+    "limit": 2,
+    "claim_id": null,
+    "max_workers": 1
+  },
+  "model_outputs": [
+    {
+      "model_spec": "openai:gpt-5-mini",
+      "path": "review-stage/agentic-multillm/openai_gpt-5-mini.json",
+      "run_path": "review-stage/agentic-multillm/agentic_multillm_net_test_openai_gpt-5-mini.json"
+    }
+  ],
+  "catalog": {
+    "data_roots": [
+      "data/prepared_data/smri_disease",
+      "data/prepared_data/cluster_recovered"
+    ],
+    "cohorts": [
+      {
+        "cohort": "ADNI",
+        "n": 1831,
+        "data_root": "data/prepared_data/smri_disease"
+      },
+      {
+        "cohort": "OASIS3",
+        "n": 1316,
+        "data_root": "data/prepared_data/smri_disease"
+      },
+      {
+        "cohort": "ABIDE1",
+        "n": 799,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "BSNIP",
+        "n": 83,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "BSNIP2",
+        "n": 588,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "COBRE",
+        "n": 157,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "ChineseSZ",
+        "n": 738,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "FBIRN",
+        "n": 281,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "GSP",
+        "n": 1570,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "JH",
+        "n": 142,
+        "data_root": "data/prepared_data/cluster_recovered"
+      },
+      {
+        "cohort": "Olin_SZ",
+        "n": 419,
+        "data_root": "data/prepared_data/cluster_recovered"
+      }
+    ]
+  },
+  "per_model": {
+    "openai:gpt-5-mini": {
+      "model_spec": "openai:gpt-5-mini",
+      "n_claims": 2,
+      "draft_success_count": 2,
+      "draft_success_rate": 1.0,
+      "estimand_match_count": 2,
+      "estimand_match_rate": 1.0,
+      "gate_success_count": 2,
+      "gate_success_rate": 1.0,
+      "anti_hallucination_catch_count": 2
+    }
+  },
+  "per_claim": {
+    "ad_hippocampal_atrophy_adni_oasis3": {
+      "label_class": "known_positive",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_hippocampus",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "Dementia",
+          "control": "CN"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ]
+      },
+      "verdicts": {
+        "openai:gpt-5-mini": "confirmed"
+      },
+      "valid_gate_verdicts": {
+        "openai:gpt-5-mini": "confirmed"
+      },
+      "agreement": null
+    },
+    "ad_entorhinal_atrophy_adni_oasis3": {
+      "label_class": "known_positive",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_entorhinal",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "Dementia",
+          "control": "CN"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ]
+      },
+      "verdicts": {
+        "openai:gpt-5-mini": "confirmed"
+      },
+      "valid_gate_verdicts": {
+        "openai:gpt-5-mini": "confirmed"
+      },
+      "agreement": null
+    }
+  },
+  "cross_model_verdict_agreement": null,
+  "cross_model_verdict_agreement_count": 0,
+  "cross_model_verdict_agreement_denominator": 0,
+  "anti_hallucination_catch_count": 2
+}

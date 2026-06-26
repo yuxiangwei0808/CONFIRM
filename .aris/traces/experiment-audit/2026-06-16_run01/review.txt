@@ -1,0 +1,14 @@
+Overall verdict: WARN
+
+The independent reviewer found no evidence of fake ground truth derived from model outputs, no model-output
+self-normalization, and no mismatch in the main benchmark-ready numbers. The main warnings were proxy/stability
+labels, observed-effect power fallback, stale paths/skipped claims, duplicated multiverse code, and scope language.
+
+Post-review executor fixes:
+- demoted no-shared-feature claims via feature-aware benchmark-ready builder
+- reran no-harmonization and ComBat hardened benchmarks with n_skipped=0
+- replaced benchmark-private brain-wide multiverse with shared confirm.multiverse.run_brainwide_multiverse
+- wired the generic agent brain-wide path to the shared multiverse
+- removed unused _raw_effect_map
+- removed stale generated src/confirm.egg-info metadata
+- fixed stale tracker paths/status text

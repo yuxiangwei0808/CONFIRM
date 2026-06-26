@@ -1,0 +1,2859 @@
+{
+  "created_at": "2026-06-17T13:36:41",
+  "command": {
+    "data_root": "data/prepared_data/benchmark_ready",
+    "feature_limit": null,
+    "limit": null,
+    "claim_id": null,
+    "seed": 20260616,
+    "harmonize": "none"
+  },
+  "n_claims": 4,
+  "n_positive": 1,
+  "n_negative_or_fragile": 0,
+  "n_small_positive": 3,
+  "n_candidate": 0,
+  "summary": {
+    "exec_only": {
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR": null,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": 0.6666666666666666,
+      "small_positive_recovery_ci95": [
+        0.09429932405024609,
+        0.9915962413403874
+      ],
+      "small_positive_count": 2,
+      "small_positive_denominator": 3,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    },
+    "+confound": {
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR": null,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": 0.6666666666666666,
+      "small_positive_recovery_ci95": [
+        0.09429932405024609,
+        0.9915962413403874
+      ],
+      "small_positive_count": 2,
+      "small_positive_denominator": 3,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    },
+    "+power": {
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR": null,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": 0.6666666666666666,
+      "small_positive_recovery_ci95": [
+        0.09429932405024609,
+        0.9915962413403874
+      ],
+      "small_positive_count": 2,
+      "small_positive_denominator": 3,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    },
+    "+multiverse": {
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR": null,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": 0.3333333333333333,
+      "small_positive_recovery_ci95": [
+        0.008403758659612636,
+        0.9057006759497539
+      ],
+      "small_positive_count": 1,
+      "small_positive_denominator": 3,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    },
+    "+replication": {
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR": null,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": 0.0,
+      "small_positive_recovery_ci95": [
+        0.0,
+        0.7075982261787133
+      ],
+      "small_positive_count": 0,
+      "small_positive_denominator": 3,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    }
+  },
+  "claims": [
+    {
+      "claim_id": "nacc_age_smri_split",
+      "modality": "NACC/sMRI",
+      "claim_type": "multimodal_adapter",
+      "ground_truth": "positive_stability",
+      "scoring_label": "positive_stability",
+      "scoring_bucket": "positive",
+      "label_provenance": "Biological/stability positive-control label; not a disease-biomarker claim.",
+      "expected_label": "positive_stability",
+      "outcome_family": "NACC/sMRI",
+      "source_kind": "NACC/sMRI",
+      "discovery_cohort": "NACC_DISC",
+      "replication_cohort": "NACC_REP",
+      "n_discovery": 1207,
+      "n_replication": 1245,
+      "label_counts_discovery": {},
+      "label_counts_replication": {},
+      "n_features": 10,
+      "covariates_full": [
+        "site",
+        "eTIV"
+      ],
+      "covariates_min": [
+        "eTIV"
+      ],
+      "best_region": "smri_nacc_brain_volume",
+      "best_beta": -3.2538167121084793,
+      "best_p": 1.6574993882153447e-120,
+      "best_standardized_effect": -0.6064034142374265,
+      "primary_sig_regions": 10,
+      "confound_valid": true,
+      "multiverse_fraction_consistent": 1.0,
+      "multiverse_specs": [
+        {
+          "spec_id": "covariates=full,outliers=none",
+          "same_sign": true,
+          "significant": true,
+          "beta": -3.2538167121084793,
+          "p": 1.6574993882153447e-120,
+          "n": 1207,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=full,outliers=winsorize",
+          "same_sign": true,
+          "significant": true,
+          "beta": -3.283315204540427,
+          "p": 3.9660072290233685e-121,
+          "n": 1207,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=full,outliers=drop_z3",
+          "same_sign": true,
+          "significant": true,
+          "beta": -3.266179867713883,
+          "p": 1.1136527654530403e-118,
+          "n": 1182,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=min,outliers=none",
+          "same_sign": true,
+          "significant": true,
+          "beta": -3.3272018863383863,
+          "p": 7.356877600257227e-146,
+          "n": 1207,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=min,outliers=winsorize",
+          "same_sign": true,
+          "significant": true,
+          "beta": -3.3378190827272936,
+          "p": 3.0931855991774767e-146,
+          "n": 1207,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=min,outliers=drop_z3",
+          "same_sign": true,
+          "significant": true,
+          "beta": -3.3232075495533038,
+          "p": 7.55647697810168e-143,
+          "n": 1182,
+          "status": "ok",
+          "error": null
+        }
+      ],
+      "exec_only": true,
+      "+confound": true,
+      "+power": true,
+      "+multiverse": true,
+      "+replication": true,
+      "final_label": "confirmed",
+      "abstained": false,
+      "rationale": "All brain-wide gates passed.; pattern_corr=0.924; dice=1.000; region_replication_fraction=1.000",
+      "power": {
+        "achieved_power": 1.0,
+        "n_needed_80": 23.33788483148718,
+        "shrinkage_factor": 0.9985538917268392,
+        "shrunken_effect": -3.2491113408417505,
+        "under_powered": false,
+        "ref_effect": null,
+        "rationale": "power=1.000, n_needed_80=23.3, ref_effect=none"
+      },
+      "replication": {
+        "passed": true,
+        "reason": "passed",
+        "cohort_results": [
+          {
+            "cohort": "NACC_REP",
+            "passed": true,
+            "reason": "passed",
+            "pattern_corr": 0.9235628723684186,
+            "dice": 1.0,
+            "region_replication_fraction": 1.0,
+            "region_table": {
+              "regions": [
+                {
+                  "region": "smri_nacc_brain_volume",
+                  "effect": {
+                    "beta": -3.241148775949303,
+                    "se": 0.11462127476678975,
+                    "ci_low": -3.466024169185057,
+                    "ci_high": -3.016273382713549,
+                    "p": 7.312629588075887e-136,
+                    "n": 1245,
+                    "dof": 1227.0,
+                    "standardized_effect": -0.6281317742288327,
+                    "diagnostics": {
+                      "residual_mean": -6.850430976606935e-13,
+                      "residual_sd": 35.219281559837654,
+                      "normality_p": 7.666920075667808e-10,
+                      "homoscedasticity_p": 1.5928028772184636e-07,
+                      "cooks_distance_top": [
+                        {
+                          "row": "5293",
+                          "value": 0.06933751988149271
+                        },
+                        {
+                          "row": "7646",
+                          "value": 0.03122525398862536
+                        },
+                        {
+                          "row": "2327",
+                          "value": 0.028419614691946884
+                        },
+                        {
+                          "row": "5310",
+                          "value": 0.024358893624152105
+                        },
+                        {
+                          "row": "2421",
+                          "value": 0.022064725522426394
+                        }
+                      ]
+                    }
+                  },
+                  "q": 7.312629588075887e-135,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_frontal_cortex",
+                  "effect": {
+                    "beta": -0.4373368041489075,
+                    "se": 0.034181114232737966,
+                    "ci_low": -0.5043967065968802,
+                    "ci_high": -0.3702769017009349,
+                    "p": 2.8250876079331705e-35,
+                    "n": 1245,
+                    "dof": 1227.0,
+                    "standardized_effect": -0.34309346017937575,
+                    "diagnostics": {
+                      "residual_mean": -3.056418126176418e-13,
+                      "residual_sd": 10.502712420893179,
+                      "normality_p": 6.8435603376441336e-12,
+                      "homoscedasticity_p": 0.0011123570781160336,
+                      "cooks_distance_top": [
+                        {
+                          "row": "5475",
+                          "value": 0.04349634179001992
+                        },
+                        {
+                          "row": "5971",
+                          "value": 0.02985339789107785
+                        },
+                        {
+                          "row": "5293",
+                          "value": 0.028408492291362074
+                        },
+                        {
+                          "row": "2707",
+                          "value": 0.0269755119639782
+                        },
+                        {
+                          "row": "894",
+                          "value": 0.025996753061236888
+                        }
+                      ]
+                    }
+                  },
+                  "q": 7.062719019832926e-35,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_gray_volume",
+                  "effect": {
+                    "beta": -1.0422060059542881,
+                    "se": 0.07925858526484661,
+                    "ci_low": -1.197703365105157,
+                    "ci_high": -0.8867086468034192,
+                    "p": 4.8221615886164e-37,
+                    "n": 1245,
+                    "dof": 1227.0,
+                    "standardized_effect": -0.3514451411205896,
+                    "diagnostics": {
+                      "residual_mean": -2.6851096089992925e-13,
+                      "residual_sd": 24.353510604000178,
+                      "normality_p": 0.000545685086169312,
+                      "homoscedasticity_p": 3.610703384844558e-07,
+                      "cooks_distance_top": [
+                        {
+                          "row": "4687",
+                          "value": 0.036586730812087964
+                        },
+                        {
+                          "row": "3108",
+                          "value": 0.02471046379462535
+                        },
+                        {
+                          "row": "5971",
+                          "value": 0.02286178921018939
+                        },
+                        {
+                          "row": "5293",
+                          "value": 0.02247321471271147
+                        },
+                        {
+                          "row": "7646",
+                          "value": 0.02224717626241376
+                        }
+                      ]
+                    }
+                  },
+                  "q": 1.6073871962054668e-36,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_hippocampus_lh",
+                  "effect": {
+                    "beta": -0.012576313403640231,
+                    "se": 0.0012561862265829764,
+                    "ci_low": -0.015040824222028303,
+                    "ci_high": -0.010111802585252159,
+                    "p": 9.835333597375694e-23,
+                    "n": 1245,
+                    "dof": 1227.0,
+                    "standardized_effect": -0.27480598988995486,
+                    "diagnostics": {
+                      "residual_mean": 2.6349293117770383e-15,
+                      "residual_sd": 0.3859839850466791,
+                      "normality_p": 6.714327267240936e-11,
+                      "homoscedasticity_p": 1.5865214018128559e-10,
+                      "cooks_distance_top": [
+                        {
+                          "row": "469",
+                          "value": 0.038981064142729484
+                        },
+                        {
+                          "row": "2259",
+                          "value": 0.023360314251400664
+                        },
+                        {
+                          "row": "5971",
+                          "value": 0.02321718374396641
+                        },
+                        {
+                          "row": "3240",
+                          "value": 0.02143305389800372
+                        },
+                        {
+                          "row": "1134",
+                          "value": 0.021289896645141918
+                        }
+                      ]
+                    }
+                  },
+                  "q": 1.2294166996719617e-22,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_hippocampus_rh",
+                  "effect": {
+                    "beta": -0.011859128868119632,
+                    "se": 0.0012447897343552778,
+                    "ci_low": -0.014301280916930012,
+                    "ci_high": -0.009416976819309251,
+                    "p": 8.307847240785762e-21,
+                    "n": 1245,
+                    "dof": 1227.0,
+                    "standardized_effect": -0.2624448001510496,
+                    "diagnostics": {
+                      "residual_mean": 2.078836879523024e-15,
+                      "residual_sd": 0.3824822244060086,
+                      "normality_p": 1.5908412080679784e-12,
+                      "homoscedasticity_p": 1.5622007736447927e-08,
+                      "cooks_distance_top": [
+                        {
+                          "row": "7646",
+                          "value": 0.0702501633415951
+                        },
+                        {
+                          "row": "4980",
+                          "value": 0.05222392994207044
+                        },
+                        {
+                          "row": "5293",
+                          "value": 0.028449429391085083
+                        },
+                        {
+                          "row": "5085",
+                          "value": 0.022257128145173527
+                        },
+                        {
+                          "row": "2259",
+                          "value": 0.02215981218266924
+                        }
+                      ]
+                    }
+                  },
+                  "q": 9.230941378650847e-21,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_hippocampus_total",
+                  "effect": {
+                    "beta": -0.024440719256100016,
+                    "se": 0.0023686645290470387,
+                    "ci_low": -0.029087800424031383,
+                    "ci_high": -0.01979363808816865,
+                    "p": 5.3896207825118645e-24,
+                    "n": 1245,
+                    "dof": 1227.0,
+                    "standardized_effect": -0.2825654488970795,
+                    "diagnostics": {
+                      "residual_mean": 4.270390377771044e-15,
+                      "residual_sd": 0.7278113346675036,
+                      "normality_p": 5.559830773889631e-11,
+                      "homoscedasticity_p": 2.4034470593884523e-10,
+                      "cooks_distance_top": [
+                        {
+                          "row": "7646",
+                          "value": 0.04511566103331347
+                        },
+                        {
+                          "row": "469",
+                          "value": 0.030745834466886612
+                        },
+                        {
+                          "row": "2259",
+                          "value": 0.02534604387960271
+                        },
+                        {
+                          "row": "5971",
+                          "value": 0.023774725169822524
+                        },
+                        {
+                          "row": "5085",
+                          "value": 0.02191714750055391
+                        }
+                      ]
+                    }
+                  },
+                  "q": 8.98270130418644e-24,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_occipital_cortex",
+                  "effect": {
+                    "beta": -0.16840888575647883,
+                    "se": 0.01883143493975707,
+                    "ci_low": -0.20535426388010758,
+                    "ci_high": -0.13146350763285009,
+                    "p": 1.3634746175848469e-18,
+                    "n": 1245,
+                    "dof": 1227.0,
+                    "standardized_effect": -0.24737036787552313,
+                    "diagnostics": {
+                      "residual_mean": -5.0108957590150036e-14,
+                      "residual_sd": 5.786269701401297,
+                      "normality_p": 0.000565760423646921,
+                      "homoscedasticity_p": 8.936538156368963e-05,
+                      "cooks_distance_top": [
+                        {
+                          "row": "5293",
+                          "value": 0.0968709420014797
+                        },
+                        {
+                          "row": "2913",
+                          "value": 0.030674281033879994
+                        },
+                        {
+                          "row": "1451",
+                          "value": 0.026230673750316527
+                        },
+                        {
+                          "row": "4687",
+                          "value": 0.024260687664631575
+                        },
+                        {
+                          "row": "6167",
+                          "value": 0.024196870277838567
+                        }
+                      ]
+                    }
+                  },
+                  "q": 1.3634746175848469e-18,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_parietal_cortex",
+                  "effect": {
+                    "beta": -0.23451290824883064,
+                    "se": 0.022382578827672445,
+                    "ci_low": -0.27842527291013736,
+                    "ci_high": -0.1906005435875239,
+                    "p": 1.1620023229404962e-24,
+                    "n": 1245,
+                    "dof": 1227.0,
+                    "standardized_effect": -0.28656758872658933,
+                    "diagnostics": {
+                      "residual_mean": -9.831172021046976e-14,
+                      "residual_sd": 6.877417367508266,
+                      "normality_p": 6.3416676312565246e-06,
+                      "homoscedasticity_p": 0.00017736208020600487,
+                      "cooks_distance_top": [
+                        {
+                          "row": "3108",
+                          "value": 0.056791738834939556
+                        },
+                        {
+                          "row": "469",
+                          "value": 0.021422478591222264
+                        },
+                        {
+                          "row": "5629",
+                          "value": 0.018933132429765458
+                        },
+                        {
+                          "row": "2456",
+                          "value": 0.018230628596501073
+                        },
+                        {
+                          "row": "1075",
+                          "value": 0.01789327749322676
+                        }
+                      ]
+                    }
+                  },
+                  "q": 2.3240046458809924e-24,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_temporal_cortex",
+                  "effect": {
+                    "beta": -0.2736526014258811,
+                    "se": 0.027256313513453034,
+                    "ci_low": -0.32712674252198626,
+                    "ci_high": -0.22017846032977595,
+                    "p": 7.535433019355772e-23,
+                    "n": 1245,
+                    "dof": 1227.0,
+                    "standardized_effect": -0.27552814347799753,
+                    "diagnostics": {
+                      "residual_mean": -1.0706651986232513e-14,
+                      "residual_sd": 8.374952920970692,
+                      "normality_p": 1.3532180787119949e-08,
+                      "homoscedasticity_p": 2.696720609490453e-06,
+                      "cooks_distance_top": [
+                        {
+                          "row": "7646",
+                          "value": 0.14270810798719058
+                        },
+                        {
+                          "row": "7507",
+                          "value": 0.026747579975540718
+                        },
+                        {
+                          "row": "4503",
+                          "value": 0.02040137430781189
+                        },
+                        {
+                          "row": "3320",
+                          "value": 0.020097296242810533
+                        },
+                        {
+                          "row": "1075",
+                          "value": 0.017751628620294148
+                        }
+                      ]
+                    }
+                  },
+                  "q": 1.076490431336539e-22,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_white_volume",
+                  "effect": {
+                    "beta": -2.198942769995015,
+                    "se": 0.10574945769070054,
+                    "ci_low": -2.406412551944728,
+                    "ci_high": -1.991472988045302,
+                    "p": 1.647696142427701e-82,
+                    "n": 1245,
+                    "dof": 1227.0,
+                    "standardized_effect": -0.510460422608816,
+                    "diagnostics": {
+                      "residual_mean": -1.6893224882328487e-13,
+                      "residual_sd": 32.49326909674216,
+                      "normality_p": 1.5701620040004757e-05,
+                      "homoscedasticity_p": 8.924873954159441e-13,
+                      "cooks_distance_top": [
+                        {
+                          "row": "2327",
+                          "value": 0.043335405567135735
+                        },
+                        {
+                          "row": "5293",
+                          "value": 0.029947750741181913
+                        },
+                        {
+                          "row": "266",
+                          "value": 0.028976931957109677
+                        },
+                        {
+                          "row": "5719",
+                          "value": 0.019829932013892375
+                        },
+                        {
+                          "row": "2707",
+                          "value": 0.018576269152636778
+                        }
+                      ]
+                    }
+                  },
+                  "q": 8.238480712138504e-82,
+                  "significant": true
+                }
+              ],
+              "alpha": 0.05,
+              "method": "fdr_bh",
+              "region_set": "NACC/sMRI"
+            },
+            "feature_coverage": 1.0
+          }
+        ],
+        "harmonized": false,
+        "pattern_corr": 0.9235628723684186,
+        "dice": 1.0,
+        "region_replication_fraction": 1.0
+      },
+      "contract": {
+        "claim_id": "nacc_age_smri_split",
+        "question": "NACC MRI regional volume aging association; diagnosis labels not required.",
+        "estimand": {
+          "type": "association",
+          "outcome": [
+            "smri_nacc_brain_volume",
+            "smri_nacc_gray_volume",
+            "smri_nacc_white_volume",
+            "smri_nacc_hippocampus_total",
+            "smri_nacc_hippocampus_lh",
+            "smri_nacc_hippocampus_rh",
+            "smri_nacc_frontal_cortex",
+            "smri_nacc_temporal_cortex",
+            "smri_nacc_parietal_cortex",
+            "smri_nacc_occipital_cortex"
+          ],
+          "predictor": "age",
+          "group": null,
+          "direction": "negative",
+          "unit": "brainwide",
+          "region_set": "NACC/sMRI"
+        },
+        "covariates": [
+          "site",
+          "eTIV"
+        ],
+        "inclusion": null,
+        "discovery_cohort": "NACC_DISC",
+        "replication_cohorts": [
+          "NACC_REP"
+        ],
+        "gates": {
+          "multiplicity": {
+            "method": "fdr_bh",
+            "alpha": 0.05,
+            "family_size": 10
+          },
+          "confound": {
+            "require_covariates": [
+              "site",
+              "eTIV"
+            ],
+            "motion_check": false
+          },
+          "power": {
+            "min_power": 0.8,
+            "ref_effect": 0.1
+          },
+          "multiverse": {
+            "min_fraction_consistent": 0.6
+          },
+          "replication": {
+            "alpha": 0.05,
+            "require_same_sign": true,
+            "require_ci_overlap": false,
+            "harmonize": "none",
+            "pattern_corr_min": 0.25,
+            "region_replication_frac_min": 0.05,
+            "dice_min": 0.0
+          }
+        },
+        "reporting_language_allowed": [
+          "confirmed",
+          "non_replicated",
+          "under_powered",
+          "fragile"
+        ]
+      }
+    },
+    {
+      "claim_id": "nacc_csf_ptau_smri",
+      "modality": "NACC/sMRI+CSF",
+      "claim_type": "multimodal_adapter",
+      "ground_truth": "small_positive_candidate",
+      "scoring_label": "small_positive_candidate",
+      "scoring_bucket": "small_positive",
+      "label_provenance": "Plausible small-effect candidate; scored separately from FCR and TPR.",
+      "expected_label": "small_positive_candidate",
+      "outcome_family": "NACC/sMRI+CSF",
+      "source_kind": "NACC/sMRI+CSF",
+      "discovery_cohort": "NACC_CSF_DISC",
+      "replication_cohort": "NACC_CSF_REP",
+      "n_discovery": 132,
+      "n_replication": 132,
+      "label_counts_discovery": {},
+      "label_counts_replication": {},
+      "n_features": 10,
+      "covariates_full": [
+        "age",
+        "site",
+        "eTIV"
+      ],
+      "covariates_min": [
+        "age",
+        "eTIV"
+      ],
+      "best_region": "smri_nacc_temporal_cortex",
+      "best_beta": -2.2281773914702576,
+      "best_p": 0.13194925911678784,
+      "best_standardized_effect": -0.13386659394726233,
+      "primary_sig_regions": 0,
+      "confound_valid": true,
+      "multiverse_fraction_consistent": 0.0,
+      "multiverse_specs": [
+        {
+          "spec_id": "covariates=full,outliers=none",
+          "same_sign": false,
+          "significant": false,
+          "beta": -2.2281773914702576,
+          "p": 0.13194925911678784,
+          "n": 132,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=full,outliers=winsorize",
+          "same_sign": false,
+          "significant": false,
+          "beta": -2.550407021464755,
+          "p": 0.0925022091440967,
+          "n": 132,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=full,outliers=drop_z3",
+          "same_sign": false,
+          "significant": false,
+          "beta": -4.107558749032557,
+          "p": 0.01089910763492265,
+          "n": 127,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=min,outliers=none",
+          "same_sign": false,
+          "significant": false,
+          "beta": 4.72341206162988,
+          "p": 0.3157577345028029,
+          "n": 132,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=min,outliers=winsorize",
+          "same_sign": false,
+          "significant": false,
+          "beta": -1.3459498797361409,
+          "p": 0.27844523824080003,
+          "n": 132,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=min,outliers=drop_z3",
+          "same_sign": false,
+          "significant": false,
+          "beta": -2.877358232574565,
+          "p": 0.03556657421541173,
+          "n": 127,
+          "status": "ok",
+          "error": null
+        }
+      ],
+      "exec_only": false,
+      "+confound": false,
+      "+power": false,
+      "+multiverse": false,
+      "+replication": false,
+      "final_label": "fragile",
+      "abstained": true,
+      "rationale": "Failed gates: multiplicity, power, multiverse, replication, region_replication_fraction; replication=non_replicated_effect_absent; power=0.333, n_needed_80=439.9, ref_effect=none; pattern_corr=0.254; dice=1.000; region_replication_fraction=0.000",
+      "power": {
+        "achieved_power": 0.332670293623221,
+        "n_needed_80": 439.91257151466726,
+        "shrinkage_factor": 0.5650575690613484,
+        "shrunken_effect": -1.2590485002616403,
+        "under_powered": true,
+        "ref_effect": null,
+        "rationale": "power=0.333, n_needed_80=439.9, ref_effect=none"
+      },
+      "replication": {
+        "passed": false,
+        "reason": "non_replicated_effect_absent",
+        "cohort_results": [
+          {
+            "cohort": "NACC_CSF_REP",
+            "passed": false,
+            "reason": "non_replicated_effect_absent:region_replication_fraction",
+            "pattern_corr": 0.25386250665449944,
+            "dice": 1.0,
+            "region_replication_fraction": 0.0,
+            "region_table": {
+              "regions": [
+                {
+                  "region": "smri_nacc_brain_volume",
+                  "effect": {
+                    "beta": -13.297595013001455,
+                    "se": 6.430338799687804,
+                    "ci_low": -26.023046458273914,
+                    "ci_high": -0.5721435677289968,
+                    "p": 0.040691301862847695,
+                    "n": 132,
+                    "dof": 126.0,
+                    "standardized_effect": -0.1811783788216237,
+                    "diagnostics": {
+                      "residual_mean": 6.536993168992922e-13,
+                      "residual_sd": 35.630410599479234,
+                      "normality_p": 0.010297093947609614,
+                      "homoscedasticity_p": 0.04974158812611708,
+                      "cooks_distance_top": [
+                        {
+                          "row": "237",
+                          "value": 0.11525643402611382
+                        },
+                        {
+                          "row": "158",
+                          "value": 0.10986797745845046
+                        },
+                        {
+                          "row": "89",
+                          "value": 0.10600780440185606
+                        },
+                        {
+                          "row": "324",
+                          "value": 0.10191475013610439
+                        },
+                        {
+                          "row": "53",
+                          "value": 0.090619344506561
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.135637672876159,
+                  "significant": false
+                },
+                {
+                  "region": "smri_nacc_frontal_cortex",
+                  "effect": {
+                    "beta": 0.08950339417415165,
+                    "se": 1.5220472699931424,
+                    "ci_low": -2.922583407947005,
+                    "ci_high": 3.1015901962953083,
+                    "p": 0.953200898309938,
+                    "n": 132,
+                    "dof": 126.0,
+                    "standardized_effect": 0.005238659034236249,
+                    "diagnostics": {
+                      "residual_mean": -7.70831210309442e-14,
+                      "residual_sd": 8.433641036815207,
+                      "normality_p": 0.38641945543184414,
+                      "homoscedasticity_p": 0.006912728352489745,
+                      "cooks_distance_top": [
+                        {
+                          "row": "237",
+                          "value": 0.3667185291319074
+                        },
+                        {
+                          "row": "368",
+                          "value": 0.1797552365643771
+                        },
+                        {
+                          "row": "158",
+                          "value": 0.16394030759355166
+                        },
+                        {
+                          "row": "314",
+                          "value": 0.16065974701328034
+                        },
+                        {
+                          "row": "365",
+                          "value": 0.10300476682437179
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.953200898309938,
+                  "significant": false
+                },
+                {
+                  "region": "smri_nacc_gray_volume",
+                  "effect": {
+                    "beta": -6.649693378787461,
+                    "se": 3.9110952821553884,
+                    "ci_low": -14.389635963666343,
+                    "ci_high": 1.0902492060914204,
+                    "p": 0.09155805210962674,
+                    "n": 132,
+                    "dof": 126.0,
+                    "standardized_effect": -0.14975881475689898,
+                    "diagnostics": {
+                      "residual_mean": -5.210646728907401e-13,
+                      "residual_sd": 21.671320149359513,
+                      "normality_p": 0.6285236953271187,
+                      "homoscedasticity_p": 0.003934140645611666,
+                      "cooks_distance_top": [
+                        {
+                          "row": "314",
+                          "value": 0.3043964712838405
+                        },
+                        {
+                          "row": "158",
+                          "value": 0.2825172307486991
+                        },
+                        {
+                          "row": "368",
+                          "value": 0.11756476214838049
+                        },
+                        {
+                          "row": "324",
+                          "value": 0.11706660754068832
+                        },
+                        {
+                          "row": "237",
+                          "value": 0.10136913847559112
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.19017671017861848,
+                  "significant": false
+                },
+                {
+                  "region": "smri_nacc_hippocampus_lh",
+                  "effect": {
+                    "beta": -0.06564060570854618,
+                    "se": 0.06357176146780744,
+                    "ci_low": -0.19144725276862062,
+                    "ci_high": 0.060166041351528254,
+                    "p": 0.30379542606826193,
+                    "n": 132,
+                    "dof": 126.0,
+                    "standardized_effect": -0.09159956388502845,
+                    "diagnostics": {
+                      "residual_mean": 1.3391644695516472e-14,
+                      "residual_sd": 0.3522501743982919,
+                      "normality_p": 0.15724150847873444,
+                      "homoscedasticity_p": 0.09491282397075608,
+                      "cooks_distance_top": [
+                        {
+                          "row": "314",
+                          "value": 0.13377656952827455
+                        },
+                        {
+                          "row": "365",
+                          "value": 0.09770517049232326
+                        },
+                        {
+                          "row": "116",
+                          "value": 0.08508550260580122
+                        },
+                        {
+                          "row": "113",
+                          "value": 0.07942416063206864
+                        },
+                        {
+                          "row": "371",
+                          "value": 0.05328632763614991
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.37974428258532744,
+                  "significant": false
+                },
+                {
+                  "region": "smri_nacc_hippocampus_rh",
+                  "effect": {
+                    "beta": -0.1417787076168418,
+                    "se": 0.06749136068653444,
+                    "ci_low": -0.27534212630227134,
+                    "ci_high": -0.008215288931412268,
+                    "p": 0.037660971147422215,
+                    "n": 132,
+                    "dof": 126.0,
+                    "standardized_effect": -0.18395115811620988,
+                    "diagnostics": {
+                      "residual_mean": 7.0280481770968244e-15,
+                      "residual_sd": 0.37396861473232557,
+                      "normality_p": 0.0058561906184498875,
+                      "homoscedasticity_p": 0.009972914660674395,
+                      "cooks_distance_top": [
+                        {
+                          "row": "422",
+                          "value": 0.1632986777630278
+                        },
+                        {
+                          "row": "371",
+                          "value": 0.08161476013378166
+                        },
+                        {
+                          "row": "113",
+                          "value": 0.07229050190144151
+                        },
+                        {
+                          "row": "314",
+                          "value": 0.05850640193481868
+                        },
+                        {
+                          "row": "116",
+                          "value": 0.056275171951623175
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.135637672876159,
+                  "significant": false
+                },
+                {
+                  "region": "smri_nacc_hippocampus_total",
+                  "effect": {
+                    "beta": -0.20823241886853705,
+                    "se": 0.12381666322000201,
+                    "ci_low": -0.45326195541461844,
+                    "ci_high": 0.036797117677544344,
+                    "p": 0.09508835508930924,
+                    "n": 132,
+                    "dof": 126.0,
+                    "standardized_effect": -0.14817108709386967,
+                    "diagnostics": {
+                      "residual_mean": 1.8887248667410997e-14,
+                      "residual_sd": 0.6860662691365963,
+                      "normality_p": 0.024491561067102634,
+                      "homoscedasticity_p": 0.008067352500936341,
+                      "cooks_distance_top": [
+                        {
+                          "row": "314",
+                          "value": 0.1021479046621416
+                        },
+                        {
+                          "row": "113",
+                          "value": 0.08487013674896443
+                        },
+                        {
+                          "row": "422",
+                          "value": 0.08480638564826243
+                        },
+                        {
+                          "row": "116",
+                          "value": 0.07788685649308678
+                        },
+                        {
+                          "row": "371",
+                          "value": 0.07527935212543382
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.19017671017861848,
+                  "significant": false
+                },
+                {
+                  "region": "smri_nacc_occipital_cortex",
+                  "effect": {
+                    "beta": -0.5289304863071509,
+                    "se": 1.0842787619062886,
+                    "ci_low": -2.6746862804572986,
+                    "ci_high": 1.6168253078429968,
+                    "p": 0.6265266546253905,
+                    "n": 132,
+                    "dof": 126.0,
+                    "standardized_effect": -0.043417284133619796,
+                    "diagnostics": {
+                      "residual_mean": -2.0514230045316226e-13,
+                      "residual_sd": 6.007972315998609,
+                      "normality_p": 0.20924209980136668,
+                      "homoscedasticity_p": 0.7362680943198818,
+                      "cooks_distance_top": [
+                        {
+                          "row": "314",
+                          "value": 0.13003761807658748
+                        },
+                        {
+                          "row": "285",
+                          "value": 0.07844397851222915
+                        },
+                        {
+                          "row": "425",
+                          "value": 0.0724730571941251
+                        },
+                        {
+                          "row": "324",
+                          "value": 0.0692993413150022
+                        },
+                        {
+                          "row": "368",
+                          "value": 0.06461003832261648
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.696140727361545,
+                  "significant": false
+                },
+                {
+                  "region": "smri_nacc_parietal_cortex",
+                  "effect": {
+                    "beta": -1.883970354259315,
+                    "se": 1.285447062714683,
+                    "ci_low": -4.427832301757009,
+                    "ci_high": 0.6598915932383789,
+                    "p": 0.1452442762095102,
+                    "n": 132,
+                    "dof": 126.0,
+                    "standardized_effect": -0.12946843737056044,
+                    "diagnostics": {
+                      "residual_mean": 3.552713678800501e-14,
+                      "residual_sd": 7.1226428459169755,
+                      "normality_p": 0.18277262741731423,
+                      "homoscedasticity_p": 0.004806335382452594,
+                      "cooks_distance_top": [
+                        {
+                          "row": "158",
+                          "value": 0.6004599140003997
+                        },
+                        {
+                          "row": "237",
+                          "value": 0.1410970983106676
+                        },
+                        {
+                          "row": "324",
+                          "value": 0.11234571479345125
+                        },
+                        {
+                          "row": "144",
+                          "value": 0.08824256845353212
+                        },
+                        {
+                          "row": "314",
+                          "value": 0.06337134286829832
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.242073793682517,
+                  "significant": false
+                },
+                {
+                  "region": "smri_nacc_temporal_cortex",
+                  "effect": {
+                    "beta": -3.2680064809321845,
+                    "se": 1.481139708404273,
+                    "ci_low": -6.199138421270798,
+                    "ci_high": -0.3368745405935707,
+                    "p": 0.029167329843477044,
+                    "n": 132,
+                    "dof": 126.0,
+                    "standardized_effect": -0.1928722379476597,
+                    "diagnostics": {
+                      "residual_mean": -2.0153575777922841e-13,
+                      "residual_sd": 8.206972853156568,
+                      "normality_p": 0.199474227764371,
+                      "homoscedasticity_p": 0.03399073012555824,
+                      "cooks_distance_top": [
+                        {
+                          "row": "237",
+                          "value": 0.13982897797816662
+                        },
+                        {
+                          "row": "158",
+                          "value": 0.1219175997391714
+                        },
+                        {
+                          "row": "324",
+                          "value": 0.08061533281657798
+                        },
+                        {
+                          "row": "396",
+                          "value": 0.0755356601679075
+                        },
+                        {
+                          "row": "285",
+                          "value": 0.05743678055234148
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.135637672876159,
+                  "significant": false
+                },
+                {
+                  "region": "smri_nacc_white_volume",
+                  "effect": {
+                    "beta": -6.647901634213987,
+                    "se": 5.391979019668271,
+                    "ci_low": -17.31846960056246,
+                    "ci_high": 4.022666332134486,
+                    "p": 0.21989939136231793,
+                    "n": 132,
+                    "dof": 126.0,
+                    "standardized_effect": -0.10918099933070285,
+                    "diagnostics": {
+                      "residual_mean": 1.0912213893430871e-12,
+                      "residual_sd": 29.876874671655788,
+                      "normality_p": 0.0490517463299549,
+                      "homoscedasticity_p": 0.027454584995124928,
+                      "cooks_distance_top": [
+                        {
+                          "row": "53",
+                          "value": 0.09893060225302434
+                        },
+                        {
+                          "row": "89",
+                          "value": 0.09032625616030399
+                        },
+                        {
+                          "row": "144",
+                          "value": 0.06387421067765531
+                        },
+                        {
+                          "row": "257",
+                          "value": 0.041134265295206265
+                        },
+                        {
+                          "row": "314",
+                          "value": 0.03863274569952812
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.31414198766045415,
+                  "significant": false
+                }
+              ],
+              "alpha": 0.05,
+              "method": "fdr_bh",
+              "region_set": "NACC/sMRI+CSF"
+            },
+            "feature_coverage": 1.0
+          }
+        ],
+        "harmonized": false,
+        "pattern_corr": 0.25386250665449944,
+        "dice": 1.0,
+        "region_replication_fraction": 0.0
+      },
+      "contract": {
+        "claim_id": "nacc_csf_ptau_smri",
+        "question": "NACC CSF biomarker association with MRI regional volumes using csf_ptau_log.",
+        "estimand": {
+          "type": "association",
+          "outcome": [
+            "smri_nacc_brain_volume",
+            "smri_nacc_gray_volume",
+            "smri_nacc_white_volume",
+            "smri_nacc_hippocampus_total",
+            "smri_nacc_hippocampus_lh",
+            "smri_nacc_hippocampus_rh",
+            "smri_nacc_frontal_cortex",
+            "smri_nacc_temporal_cortex",
+            "smri_nacc_parietal_cortex",
+            "smri_nacc_occipital_cortex"
+          ],
+          "predictor": "csf_ptau_log",
+          "group": null,
+          "direction": "negative",
+          "unit": "brainwide",
+          "region_set": "NACC/sMRI+CSF"
+        },
+        "covariates": [
+          "age",
+          "site",
+          "eTIV"
+        ],
+        "inclusion": null,
+        "discovery_cohort": "NACC_CSF_DISC",
+        "replication_cohorts": [
+          "NACC_CSF_REP"
+        ],
+        "gates": {
+          "multiplicity": {
+            "method": "fdr_bh",
+            "alpha": 0.05,
+            "family_size": 10
+          },
+          "confound": {
+            "require_covariates": [
+              "age",
+              "site",
+              "eTIV"
+            ],
+            "motion_check": false
+          },
+          "power": {
+            "min_power": 0.8,
+            "ref_effect": 0.1
+          },
+          "multiverse": {
+            "min_fraction_consistent": 0.6
+          },
+          "replication": {
+            "alpha": 0.05,
+            "require_same_sign": true,
+            "require_ci_overlap": false,
+            "harmonize": "none",
+            "pattern_corr_min": 0.25,
+            "region_replication_frac_min": 0.05,
+            "dice_min": 0.0
+          }
+        },
+        "reporting_language_allowed": [
+          "confirmed",
+          "non_replicated",
+          "under_powered",
+          "fragile"
+        ]
+      }
+    },
+    {
+      "claim_id": "nacc_csf_ttau_smri",
+      "modality": "NACC/sMRI+CSF",
+      "claim_type": "multimodal_adapter",
+      "ground_truth": "small_positive_candidate",
+      "scoring_label": "small_positive_candidate",
+      "scoring_bucket": "small_positive",
+      "label_provenance": "Plausible small-effect candidate; scored separately from FCR and TPR.",
+      "expected_label": "small_positive_candidate",
+      "outcome_family": "NACC/sMRI+CSF",
+      "source_kind": "NACC/sMRI+CSF",
+      "discovery_cohort": "NACC_CSF_DISC",
+      "replication_cohort": "NACC_CSF_REP",
+      "n_discovery": 139,
+      "n_replication": 128,
+      "label_counts_discovery": {},
+      "label_counts_replication": {},
+      "n_features": 10,
+      "covariates_full": [
+        "age",
+        "site",
+        "eTIV"
+      ],
+      "covariates_min": [
+        "age",
+        "eTIV"
+      ],
+      "best_region": "smri_nacc_temporal_cortex",
+      "best_beta": -4.779324057102185,
+      "best_p": 1.1270180020097913e-05,
+      "best_standardized_effect": -0.3693070968387143,
+      "primary_sig_regions": 7,
+      "confound_valid": true,
+      "multiverse_fraction_consistent": 0.5,
+      "multiverse_specs": [
+        {
+          "spec_id": "covariates=full,outliers=none",
+          "same_sign": true,
+          "significant": true,
+          "beta": -4.779324057102185,
+          "p": 1.1270180020097913e-05,
+          "n": 139,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=full,outliers=winsorize",
+          "same_sign": true,
+          "significant": true,
+          "beta": -4.778358458759761,
+          "p": 9.53026610255875e-06,
+          "n": 139,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=full,outliers=drop_z3",
+          "same_sign": true,
+          "significant": true,
+          "beta": -5.012032361597113,
+          "p": 6.941010062486586e-06,
+          "n": 135,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=min,outliers=none",
+          "same_sign": false,
+          "significant": true,
+          "beta": -1.9447801823498834,
+          "p": 0.0013144742668130382,
+          "n": 139,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=min,outliers=winsorize",
+          "same_sign": false,
+          "significant": true,
+          "beta": -2.0241861712205944,
+          "p": 0.0007321564449190739,
+          "n": 139,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=min,outliers=drop_z3",
+          "same_sign": false,
+          "significant": true,
+          "beta": -2.2810304097214753,
+          "p": 0.0003084737207546374,
+          "n": 135,
+          "status": "ok",
+          "error": null
+        }
+      ],
+      "exec_only": true,
+      "+confound": true,
+      "+power": true,
+      "+multiverse": false,
+      "+replication": false,
+      "final_label": "fragile",
+      "abstained": true,
+      "rationale": "Failed gates: multiverse, replication, pattern_corr; replication=non_replicated_effect_absent; pattern_corr=0.168; dice=0.714; region_replication_fraction=0.714",
+      "power": {
+        "achieved_power": 0.9909511292691411,
+        "n_needed_80": 59.49745607860403,
+        "shrinkage_factor": 0.9520300169351628,
+        "shrunken_effect": -4.550059963021624,
+        "under_powered": false,
+        "ref_effect": null,
+        "rationale": "power=0.991, n_needed_80=59.5, ref_effect=none"
+      },
+      "replication": {
+        "passed": false,
+        "reason": "non_replicated_effect_absent",
+        "cohort_results": [
+          {
+            "cohort": "NACC_CSF_REP",
+            "passed": false,
+            "reason": "non_replicated_effect_absent:pattern_corr",
+            "pattern_corr": 0.16765525356745525,
+            "dice": 0.7142857142857143,
+            "region_replication_fraction": 0.7142857142857143,
+            "region_table": {
+              "regions": [
+                {
+                  "region": "smri_nacc_brain_volume",
+                  "effect": {
+                    "beta": -16.722573384088506,
+                    "se": 5.475194079898051,
+                    "ci_low": -27.562164215998884,
+                    "ci_high": -5.882982552178126,
+                    "p": 0.002775507764663143,
+                    "n": 128,
+                    "dof": 121.0,
+                    "standardized_effect": -0.26753712731779355,
+                    "diagnostics": {
+                      "residual_mean": -4.306777157125907e-12,
+                      "residual_sd": 35.39100020448628,
+                      "normality_p": 0.024055331261583986,
+                      "homoscedasticity_p": 0.29521229028214097,
+                      "cooks_distance_top": [
+                        {
+                          "row": "367",
+                          "value": 0.2963334906211346
+                        },
+                        {
+                          "row": "259",
+                          "value": 0.15988296028348226
+                        },
+                        {
+                          "row": "89",
+                          "value": 0.09382391157298885
+                        },
+                        {
+                          "row": "8",
+                          "value": 0.059970264539906816
+                        },
+                        {
+                          "row": "425",
+                          "value": 0.059375308438153175
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.007382504525711318,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_frontal_cortex",
+                  "effect": {
+                    "beta": -0.4792861323041997,
+                    "se": 1.1418058726545661,
+                    "ci_low": -2.739792022769058,
+                    "ci_high": 1.7812197581606588,
+                    "p": 0.6754040797496063,
+                    "n": 128,
+                    "dof": 121.0,
+                    "standardized_effect": -0.03813238127900548,
+                    "diagnostics": {
+                      "residual_mean": -2.0294876890147862e-13,
+                      "residual_sd": 7.380496706219741,
+                      "normality_p": 0.40851467789730966,
+                      "homoscedasticity_p": 0.6961237013838613,
+                      "cooks_distance_top": [
+                        {
+                          "row": "21",
+                          "value": 0.5790649394225499
+                        },
+                        {
+                          "row": "247",
+                          "value": 0.21481761799638016
+                        },
+                        {
+                          "row": "259",
+                          "value": 0.17858955862460962
+                        },
+                        {
+                          "row": "8",
+                          "value": 0.11618751772669486
+                        },
+                        {
+                          "row": "151",
+                          "value": 0.04891510014859572
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.6754040797496063,
+                  "significant": false
+                },
+                {
+                  "region": "smri_nacc_gray_volume",
+                  "effect": {
+                    "beta": -5.790973065403392,
+                    "se": 3.120965304648468,
+                    "ci_low": -11.969747079494201,
+                    "ci_high": 0.3878009486874179,
+                    "p": 0.06595731318398211,
+                    "n": 128,
+                    "dof": 121.0,
+                    "standardized_effect": -0.1663326595141867,
+                    "diagnostics": {
+                      "residual_mean": -1.6822099269120372e-12,
+                      "residual_sd": 20.17354674979215,
+                      "normality_p": 0.7138868707358068,
+                      "homoscedasticity_p": 0.002869748912434212,
+                      "cooks_distance_top": [
+                        {
+                          "row": "21",
+                          "value": 0.521204685154258
+                        },
+                        {
+                          "row": "247",
+                          "value": 0.30858363904046965
+                        },
+                        {
+                          "row": "314",
+                          "value": 0.09766554903659351
+                        },
+                        {
+                          "row": "259",
+                          "value": 0.09640953709648548
+                        },
+                        {
+                          "row": "367",
+                          "value": 0.08078010137968741
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.08244664147997764,
+                  "significant": false
+                },
+                {
+                  "region": "smri_nacc_hippocampus_lh",
+                  "effect": {
+                    "beta": -0.18831031864606024,
+                    "se": 0.05340910133810572,
+                    "ci_low": -0.29404772206170005,
+                    "ci_high": -0.08257291523042042,
+                    "p": 0.0005971082802439848,
+                    "n": 128,
+                    "dof": 121.0,
+                    "standardized_effect": -0.3052319108622521,
+                    "diagnostics": {
+                      "residual_mean": -4.00530303368285e-14,
+                      "residual_sd": 0.34523004824945386,
+                      "normality_p": 0.6256188676032454,
+                      "homoscedasticity_p": 0.006735970173596553,
+                      "cooks_distance_top": [
+                        {
+                          "row": "21",
+                          "value": 0.451294150913198
+                        },
+                        {
+                          "row": "367",
+                          "value": 0.3944706548075709
+                        },
+                        {
+                          "row": "314",
+                          "value": 0.32239408350218485
+                        },
+                        {
+                          "row": "259",
+                          "value": 0.20642772477324817
+                        },
+                        {
+                          "row": "8",
+                          "value": 0.0874697865410599
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.003166852953334686,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_hippocampus_rh",
+                  "effect": {
+                    "beta": -0.11890977514545743,
+                    "se": 0.05326630977276138,
+                    "ci_low": -0.22436448499444117,
+                    "ci_high": -0.013455065296473681,
+                    "p": 0.027430827863122526,
+                    "n": 128,
+                    "dof": 121.0,
+                    "standardized_effect": -0.19888782711964284,
+                    "diagnostics": {
+                      "residual_mean": -2.509450980348049e-14,
+                      "residual_sd": 0.34430706063576283,
+                      "normality_p": 4.086433219336955e-05,
+                      "homoscedasticity_p": 0.2003315732394894,
+                      "cooks_distance_top": [
+                        {
+                          "row": "367",
+                          "value": 0.2298344966695356
+                        },
+                        {
+                          "row": "422",
+                          "value": 0.1899310056677865
+                        },
+                        {
+                          "row": "21",
+                          "value": 0.16885573028789208
+                        },
+                        {
+                          "row": "247",
+                          "value": 0.1652409681369146
+                        },
+                        {
+                          "row": "314",
+                          "value": 0.13234935808128848
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.04181670639506354,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_hippocampus_total",
+                  "effect": {
+                    "beta": -0.307688541582968,
+                    "se": 0.1014085714654783,
+                    "ci_low": -0.508453556574874,
+                    "ci_high": -0.10692352659106202,
+                    "p": 0.002953001810284527,
+                    "n": 128,
+                    "dof": 121.0,
+                    "standardized_effect": -0.2659016772559686,
+                    "diagnostics": {
+                      "residual_mean": -6.799769081133888e-14,
+                      "residual_sd": 0.6554928868454342,
+                      "normality_p": 0.027181775461294303,
+                      "homoscedasticity_p": 0.0654242494443863,
+                      "cooks_distance_top": [
+                        {
+                          "row": "367",
+                          "value": 0.33925599222878855
+                        },
+                        {
+                          "row": "21",
+                          "value": 0.32393283567321535
+                        },
+                        {
+                          "row": "314",
+                          "value": 0.2401333125448224
+                        },
+                        {
+                          "row": "422",
+                          "value": 0.10520477751052093
+                        },
+                        {
+                          "row": "247",
+                          "value": 0.08325473534378694
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.007382504525711318,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_occipital_cortex",
+                  "effect": {
+                    "beta": -2.333304030035646,
+                    "se": 0.8749296506038471,
+                    "ci_low": -4.065458047017744,
+                    "ci_high": -0.6011500130535479,
+                    "p": 0.008704157804444258,
+                    "n": 128,
+                    "dof": 121.0,
+                    "standardized_effect": -0.23561512284329655,
+                    "diagnostics": {
+                      "residual_mean": -4.323763569402672e-13,
+                      "residual_sd": 5.655440700653379,
+                      "normality_p": 0.05483086648100611,
+                      "homoscedasticity_p": 0.6163271524679019,
+                      "cooks_distance_top": [
+                        {
+                          "row": "21",
+                          "value": 0.16244619002306385
+                        },
+                        {
+                          "row": "314",
+                          "value": 0.14073791272458278
+                        },
+                        {
+                          "row": "285",
+                          "value": 0.13348472585690555
+                        },
+                        {
+                          "row": "425",
+                          "value": 0.08195321781572237
+                        },
+                        {
+                          "row": "367",
+                          "value": 0.070976901876704
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.017408315608888517,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_parietal_cortex",
+                  "effect": {
+                    "beta": -3.5007955266465536,
+                    "se": 0.9977907309702658,
+                    "ci_low": -5.476185458356854,
+                    "ci_high": -1.5254055949362537,
+                    "p": 0.0006333705906669372,
+                    "n": 128,
+                    "dof": 121.0,
+                    "standardized_effect": -0.30387577340832456,
+                    "diagnostics": {
+                      "residual_mean": -6.922240558537851e-13,
+                      "residual_sd": 6.449600041294013,
+                      "normality_p": 0.3358989312981454,
+                      "homoscedasticity_p": 0.35071371414306907,
+                      "cooks_distance_top": [
+                        {
+                          "row": "21",
+                          "value": 0.2598930037615801
+                        },
+                        {
+                          "row": "1",
+                          "value": 0.11798506510054539
+                        },
+                        {
+                          "row": "367",
+                          "value": 0.08778591457833892
+                        },
+                        {
+                          "row": "0",
+                          "value": 0.07349970137481329
+                        },
+                        {
+                          "row": "324",
+                          "value": 0.06278484394096001
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.003166852953334686,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_temporal_cortex",
+                  "effect": {
+                    "beta": -1.7732389721414146,
+                    "se": 1.2260802910518698,
+                    "ci_low": -4.200588302253074,
+                    "ci_high": 0.6541103579702447,
+                    "p": 0.15068782779844733,
+                    "n": 128,
+                    "dof": 121.0,
+                    "standardized_effect": -0.13035689107296317,
+                    "diagnostics": {
+                      "residual_mean": -3.554934124849751e-13,
+                      "residual_sd": 7.925236475296105,
+                      "normality_p": 0.4152505698305252,
+                      "homoscedasticity_p": 0.023508715966193226,
+                      "cooks_distance_top": [
+                        {
+                          "row": "21",
+                          "value": 0.14866655461759262
+                        },
+                        {
+                          "row": "247",
+                          "value": 0.10103921767414452
+                        },
+                        {
+                          "row": "285",
+                          "value": 0.09334920304758143
+                        },
+                        {
+                          "row": "0",
+                          "value": 0.07319934861748488
+                        },
+                        {
+                          "row": "324",
+                          "value": 0.06247259692569483
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.1674309197760526,
+                  "significant": false
+                },
+                {
+                  "region": "smri_nacc_white_volume",
+                  "effect": {
+                    "beta": -10.931600318685117,
+                    "se": 4.95536798838847,
+                    "ci_low": -20.74205829183481,
+                    "ci_high": -1.1211423455354232,
+                    "p": 0.02927169447654448,
+                    "n": 128,
+                    "dof": 121.0,
+                    "standardized_effect": -0.19663135693094952,
+                    "diagnostics": {
+                      "residual_mean": -2.426503442620742e-12,
+                      "residual_sd": 32.03090647220064,
+                      "normality_p": 0.1292731137077863,
+                      "homoscedasticity_p": 0.3906971217231577,
+                      "cooks_distance_top": [
+                        {
+                          "row": "259",
+                          "value": 0.40622243693176585
+                        },
+                        {
+                          "row": "367",
+                          "value": 0.17847665968275303
+                        },
+                        {
+                          "row": "1",
+                          "value": 0.12433715912009223
+                        },
+                        {
+                          "row": "8",
+                          "value": 0.07701721709892533
+                        },
+                        {
+                          "row": "89",
+                          "value": 0.06940046953584716
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.04181670639506354,
+                  "significant": true
+                }
+              ],
+              "alpha": 0.05,
+              "method": "fdr_bh",
+              "region_set": "NACC/sMRI+CSF"
+            },
+            "feature_coverage": 1.0
+          }
+        ],
+        "harmonized": false,
+        "pattern_corr": 0.16765525356745525,
+        "dice": 0.7142857142857143,
+        "region_replication_fraction": 0.7142857142857143
+      },
+      "contract": {
+        "claim_id": "nacc_csf_ttau_smri",
+        "question": "NACC CSF biomarker association with MRI regional volumes using csf_ttau_log.",
+        "estimand": {
+          "type": "association",
+          "outcome": [
+            "smri_nacc_brain_volume",
+            "smri_nacc_gray_volume",
+            "smri_nacc_white_volume",
+            "smri_nacc_hippocampus_total",
+            "smri_nacc_hippocampus_lh",
+            "smri_nacc_hippocampus_rh",
+            "smri_nacc_frontal_cortex",
+            "smri_nacc_temporal_cortex",
+            "smri_nacc_parietal_cortex",
+            "smri_nacc_occipital_cortex"
+          ],
+          "predictor": "csf_ttau_log",
+          "group": null,
+          "direction": "negative",
+          "unit": "brainwide",
+          "region_set": "NACC/sMRI+CSF"
+        },
+        "covariates": [
+          "age",
+          "site",
+          "eTIV"
+        ],
+        "inclusion": null,
+        "discovery_cohort": "NACC_CSF_DISC",
+        "replication_cohorts": [
+          "NACC_CSF_REP"
+        ],
+        "gates": {
+          "multiplicity": {
+            "method": "fdr_bh",
+            "alpha": 0.05,
+            "family_size": 10
+          },
+          "confound": {
+            "require_covariates": [
+              "age",
+              "site",
+              "eTIV"
+            ],
+            "motion_check": false
+          },
+          "power": {
+            "min_power": 0.8,
+            "ref_effect": 0.1
+          },
+          "multiverse": {
+            "min_fraction_consistent": 0.6
+          },
+          "replication": {
+            "alpha": 0.05,
+            "require_same_sign": true,
+            "require_ci_overlap": false,
+            "harmonize": "none",
+            "pattern_corr_min": 0.25,
+            "region_replication_frac_min": 0.05,
+            "dice_min": 0.0
+          }
+        },
+        "reporting_language_allowed": [
+          "confirmed",
+          "non_replicated",
+          "under_powered",
+          "fragile"
+        ]
+      }
+    },
+    {
+      "claim_id": "nacc_csf_abeta_smri",
+      "modality": "NACC/sMRI+CSF",
+      "claim_type": "multimodal_adapter",
+      "ground_truth": "small_positive_candidate",
+      "scoring_label": "small_positive_candidate",
+      "scoring_bucket": "small_positive",
+      "label_provenance": "Plausible small-effect candidate; scored separately from FCR and TPR.",
+      "expected_label": "small_positive_candidate",
+      "outcome_family": "NACC/sMRI+CSF",
+      "source_kind": "NACC/sMRI+CSF",
+      "discovery_cohort": "NACC_CSF_DISC",
+      "replication_cohort": "NACC_CSF_REP",
+      "n_discovery": 137,
+      "n_replication": 133,
+      "label_counts_discovery": {},
+      "label_counts_replication": {},
+      "n_features": 10,
+      "covariates_full": [
+        "age",
+        "site",
+        "eTIV"
+      ],
+      "covariates_min": [
+        "age",
+        "eTIV"
+      ],
+      "best_region": "smri_nacc_hippocampus_lh",
+      "best_beta": 0.3048876652436662,
+      "best_p": 6.3252679719682275e-06,
+      "best_standardized_effect": 0.3816483023372829,
+      "primary_sig_regions": 9,
+      "confound_valid": true,
+      "multiverse_fraction_consistent": 1.0,
+      "multiverse_specs": [
+        {
+          "spec_id": "covariates=full,outliers=none",
+          "same_sign": true,
+          "significant": true,
+          "beta": 0.3048876652436662,
+          "p": 6.3252679719682275e-06,
+          "n": 137,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=full,outliers=winsorize",
+          "same_sign": true,
+          "significant": true,
+          "beta": 0.3208446631257178,
+          "p": 3.4107665359697103e-06,
+          "n": 137,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=full,outliers=drop_z3",
+          "same_sign": true,
+          "significant": true,
+          "beta": 0.32452368680492927,
+          "p": 2.2945346768286072e-06,
+          "n": 134,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=min,outliers=none",
+          "same_sign": true,
+          "significant": true,
+          "beta": 0.22481586779556295,
+          "p": 1.578473605760301e-06,
+          "n": 137,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=min,outliers=winsorize",
+          "same_sign": true,
+          "significant": true,
+          "beta": 0.2340363723838197,
+          "p": 6.074942914914844e-07,
+          "n": 137,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "covariates=min,outliers=drop_z3",
+          "same_sign": true,
+          "significant": true,
+          "beta": 0.23379543648508921,
+          "p": 7.06113511957781e-07,
+          "n": 134,
+          "status": "ok",
+          "error": null
+        }
+      ],
+      "exec_only": true,
+      "+confound": true,
+      "+power": true,
+      "+multiverse": true,
+      "+replication": false,
+      "final_label": "non_replicated",
+      "abstained": true,
+      "rationale": "Failed gates: replication, pattern_corr; replication=non_replicated_effect_absent; pattern_corr=0.204; dice=0.889; region_replication_fraction=0.889",
+      "power": {
+        "achieved_power": 0.9933449361985123,
+        "n_needed_80": 55.83768404432982,
+        "shrinkage_factor": 0.9548806283213114,
+        "shrunken_effect": 0.2911313253552896,
+        "under_powered": false,
+        "ref_effect": null,
+        "rationale": "power=0.993, n_needed_80=55.8, ref_effect=none"
+      },
+      "replication": {
+        "passed": false,
+        "reason": "non_replicated_effect_absent",
+        "cohort_results": [
+          {
+            "cohort": "NACC_CSF_REP",
+            "passed": false,
+            "reason": "non_replicated_effect_absent:pattern_corr",
+            "pattern_corr": 0.20409103121420982,
+            "dice": 0.8888888888888888,
+            "region_replication_fraction": 0.8888888888888888,
+            "region_table": {
+              "regions": [
+                {
+                  "region": "smri_nacc_brain_volume",
+                  "effect": {
+                    "beta": 38.4297166006161,
+                    "se": 7.5494708616326225,
+                    "ci_low": 23.4895357050357,
+                    "ci_high": 53.36989749619651,
+                    "p": 1.2670483840749132e-06,
+                    "n": 133,
+                    "dof": 126.0,
+                    "standardized_effect": 0.41300431918147906,
+                    "diagnostics": {
+                      "residual_mean": -5.486885799511679e-12,
+                      "residual_sd": 31.67590631156659,
+                      "normality_p": 0.1295874556777303,
+                      "homoscedasticity_p": 0.037762182560931376,
+                      "cooks_distance_top": [
+                        {
+                          "row": "259",
+                          "value": 0.27660034145163215
+                        },
+                        {
+                          "row": "89",
+                          "value": 0.2035667916305946
+                        },
+                        {
+                          "row": "8",
+                          "value": 0.14308484928729137
+                        },
+                        {
+                          "row": "157",
+                          "value": 0.07608286881876082
+                        },
+                        {
+                          "row": "55",
+                          "value": 0.0727652915043963
+                        }
+                      ]
+                    }
+                  },
+                  "q": 1.2670483840749132e-05,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_frontal_cortex",
+                  "effect": {
+                    "beta": 0.975190606197601,
+                    "se": 1.9866691605633338,
+                    "ci_low": -2.956369258392476,
+                    "ci_high": 4.906750470787678,
+                    "p": 0.624374254842727,
+                    "n": 133,
+                    "dof": 126.0,
+                    "standardized_effect": 0.04368816773925113,
+                    "diagnostics": {
+                      "residual_mean": -7.703779135083191e-13,
+                      "residual_sd": 8.335623430497467,
+                      "normality_p": 0.4226619637431325,
+                      "homoscedasticity_p": 0.13183161492437628,
+                      "cooks_distance_top": [
+                        {
+                          "row": "158",
+                          "value": 0.24492449267967972
+                        },
+                        {
+                          "row": "8",
+                          "value": 0.23715055391695614
+                        },
+                        {
+                          "row": "110",
+                          "value": 0.13854962832416007
+                        },
+                        {
+                          "row": "1",
+                          "value": 0.10521604806725447
+                        },
+                        {
+                          "row": "146",
+                          "value": 0.07002715649977673
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.624374254842727,
+                  "significant": false
+                },
+                {
+                  "region": "smri_nacc_gray_volume",
+                  "effect": {
+                    "beta": 19.73844300379237,
+                    "se": 5.074507201847709,
+                    "ci_low": 9.696142431863937,
+                    "ci_high": 29.780743575720802,
+                    "p": 0.0001615763757927996,
+                    "n": 133,
+                    "dof": 126.0,
+                    "standardized_effect": 0.327423160057504,
+                    "diagnostics": {
+                      "residual_mean": -2.2233042474731075e-12,
+                      "residual_sd": 21.291507398220084,
+                      "normality_p": 0.9966929578579476,
+                      "homoscedasticity_p": 0.00369590667659686,
+                      "cooks_distance_top": [
+                        {
+                          "row": "158",
+                          "value": 0.31653062557965694
+                        },
+                        {
+                          "row": "157",
+                          "value": 0.2563928830330491
+                        },
+                        {
+                          "row": "309",
+                          "value": 0.24257666072803444
+                        },
+                        {
+                          "row": "1",
+                          "value": 0.19755638791962932
+                        },
+                        {
+                          "row": "8",
+                          "value": 0.068446987409755
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.000403940939481999,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_hippocampus_lh",
+                  "effect": {
+                    "beta": 0.19879819679364336,
+                    "se": 0.0922082737406554,
+                    "ci_low": 0.016320733802724335,
+                    "ci_high": 0.38127565978456235,
+                    "p": 0.032986197731496546,
+                    "n": 133,
+                    "dof": 126.0,
+                    "standardized_effect": 0.18862134126348654,
+                    "diagnostics": {
+                      "residual_mean": -4.183120015790665e-14,
+                      "residual_sd": 0.3868854776305008,
+                      "normality_p": 0.9461285220548127,
+                      "homoscedasticity_p": 0.018502340467402602,
+                      "cooks_distance_top": [
+                        {
+                          "row": "309",
+                          "value": 0.42093190697353433
+                        },
+                        {
+                          "row": "259",
+                          "value": 0.2504122668062058
+                        },
+                        {
+                          "row": "55",
+                          "value": 0.1319479441019316
+                        },
+                        {
+                          "row": "116",
+                          "value": 0.07267118622992716
+                        },
+                        {
+                          "row": "110",
+                          "value": 0.061754925106302455
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.03665133081277394,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_hippocampus_rh",
+                  "effect": {
+                    "beta": 0.24504060751582477,
+                    "se": 0.0844243165468939,
+                    "ci_low": 0.07796736697833237,
+                    "ci_high": 0.4121138480533172,
+                    "p": 0.004371579571366046,
+                    "n": 133,
+                    "dof": 126.0,
+                    "standardized_effect": 0.2503406582927752,
+                    "diagnostics": {
+                      "residual_mean": -4.515018267362817e-14,
+                      "residual_sd": 0.3542257186458145,
+                      "normality_p": 0.007604055659720694,
+                      "homoscedasticity_p": 0.018806533213205672,
+                      "cooks_distance_top": [
+                        {
+                          "row": "309",
+                          "value": 0.17800708725359807
+                        },
+                        {
+                          "row": "422",
+                          "value": 0.1358736409677246
+                        },
+                        {
+                          "row": "371",
+                          "value": 0.08150672900762856
+                        },
+                        {
+                          "row": "116",
+                          "value": 0.05476342520260415
+                        },
+                        {
+                          "row": "157",
+                          "value": 0.05291186327020117
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.007285965952276743,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_hippocampus_total",
+                  "effect": {
+                    "beta": 0.443606733645757,
+                    "se": 0.16796749794068752,
+                    "ci_low": 0.1112039931351177,
+                    "ci_high": 0.7760094741563963,
+                    "p": 0.009311715446427673,
+                    "n": 133,
+                    "dof": 126.0,
+                    "standardized_effect": 0.229027607812296,
+                    "diagnostics": {
+                      "residual_mean": -8.915508264816934e-14,
+                      "residual_sd": 0.7047543895025875,
+                      "normality_p": 0.7476432065083907,
+                      "homoscedasticity_p": 0.009748853017917735,
+                      "cooks_distance_top": [
+                        {
+                          "row": "309",
+                          "value": 0.32288714361522725
+                        },
+                        {
+                          "row": "259",
+                          "value": 0.13934418798413606
+                        },
+                        {
+                          "row": "55",
+                          "value": 0.09135094442180107
+                        },
+                        {
+                          "row": "116",
+                          "value": 0.07057193972653912
+                        },
+                        {
+                          "row": "371",
+                          "value": 0.06311584086228758
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.013302450637753817,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_occipital_cortex",
+                  "effect": {
+                    "beta": 5.207215763525866,
+                    "se": 1.296020009482208,
+                    "ci_low": 2.642430265199074,
+                    "ci_high": 7.772001261852658,
+                    "p": 0.00010035172027831002,
+                    "n": 133,
+                    "dof": 126.0,
+                    "standardized_effect": 0.33700079853351944,
+                    "diagnostics": {
+                      "residual_mean": -1.2757714684173828e-13,
+                      "residual_sd": 5.437812682595899,
+                      "normality_p": 0.2901549227658393,
+                      "homoscedasticity_p": 0.9950704346039276,
+                      "cooks_distance_top": [
+                        {
+                          "row": "55",
+                          "value": 0.17490493121272863
+                        },
+                        {
+                          "row": "309",
+                          "value": 0.13125925896085652
+                        },
+                        {
+                          "row": "409",
+                          "value": 0.08023485330076352
+                        },
+                        {
+                          "row": "259",
+                          "value": 0.05171527702612472
+                        },
+                        {
+                          "row": "369",
+                          "value": 0.048792342475411234
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.0003345057342610334,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_parietal_cortex",
+                  "effect": {
+                    "beta": 6.561391890513166,
+                    "se": 1.7636714293274605,
+                    "ci_low": 3.071137980344308,
+                    "ci_high": 10.051645800682024,
+                    "p": 0.00029840540407184853,
+                    "n": 133,
+                    "dof": 126.0,
+                    "standardized_effect": 0.31460206977725325,
+                    "diagnostics": {
+                      "residual_mean": -6.672690804243347e-13,
+                      "residual_sd": 7.399974380149074,
+                      "normality_p": 0.1723058551879149,
+                      "homoscedasticity_p": 0.08658069577059668,
+                      "cooks_distance_top": [
+                        {
+                          "row": "158",
+                          "value": 0.44224419184930475
+                        },
+                        {
+                          "row": "309",
+                          "value": 0.18812212511409157
+                        },
+                        {
+                          "row": "1",
+                          "value": 0.1818800507232859
+                        },
+                        {
+                          "row": "157",
+                          "value": 0.05470083170106011
+                        },
+                        {
+                          "row": "259",
+                          "value": 0.04178701762486498
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.0005968108081436971,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_temporal_cortex",
+                  "effect": {
+                    "beta": 8.333265741562677,
+                    "se": 1.809876650918492,
+                    "ci_low": 4.7515730562077785,
+                    "ci_high": 11.914958426917575,
+                    "p": 9.967886763071594e-06,
+                    "n": 133,
+                    "dof": 126.0,
+                    "standardized_effect": 0.37950070806443764,
+                    "diagnostics": {
+                      "residual_mean": -7.19945406549106e-13,
+                      "residual_sd": 7.593841248045853,
+                      "normality_p": 0.347928705959416,
+                      "homoscedasticity_p": 0.01777119641974418,
+                      "cooks_distance_top": [
+                        {
+                          "row": "309",
+                          "value": 0.2808018374991474
+                        },
+                        {
+                          "row": "157",
+                          "value": 0.13269488204686003
+                        },
+                        {
+                          "row": "158",
+                          "value": 0.13216946762634368
+                        },
+                        {
+                          "row": "116",
+                          "value": 0.05656898505700974
+                        },
+                        {
+                          "row": "89",
+                          "value": 0.051761333785544476
+                        }
+                      ]
+                    }
+                  },
+                  "q": 4.983943381535797e-05,
+                  "significant": true
+                },
+                {
+                  "region": "smri_nacc_white_volume",
+                  "effect": {
+                    "beta": 18.69127359682361,
+                    "se": 7.347885130358796,
+                    "ci_low": 4.150024937210203,
+                    "ci_high": 33.232522256437015,
+                    "p": 0.012175257648025373,
+                    "n": 133,
+                    "dof": 126.0,
+                    "standardized_effect": 0.22101236734956978,
+                    "diagnostics": {
+                      "residual_mean": -2.404946751351629e-12,
+                      "residual_sd": 30.830097266851965,
+                      "normality_p": 0.7636068583988169,
+                      "homoscedasticity_p": 0.08080315468685985,
+                      "cooks_distance_top": [
+                        {
+                          "row": "157",
+                          "value": 0.40080239795069483
+                        },
+                        {
+                          "row": "259",
+                          "value": 0.310173233529518
+                        },
+                        {
+                          "row": "89",
+                          "value": 0.15619938158078484
+                        },
+                        {
+                          "row": "55",
+                          "value": 0.10011554933694955
+                        },
+                        {
+                          "row": "1",
+                          "value": 0.09267223903780687
+                        }
+                      ]
+                    }
+                  },
+                  "q": 0.015219072060031716,
+                  "significant": true
+                }
+              ],
+              "alpha": 0.05,
+              "method": "fdr_bh",
+              "region_set": "NACC/sMRI+CSF"
+            },
+            "feature_coverage": 1.0
+          }
+        ],
+        "harmonized": false,
+        "pattern_corr": 0.20409103121420982,
+        "dice": 0.8888888888888888,
+        "region_replication_fraction": 0.8888888888888888
+      },
+      "contract": {
+        "claim_id": "nacc_csf_abeta_smri",
+        "question": "NACC CSF biomarker association with MRI regional volumes using csf_abeta_log.",
+        "estimand": {
+          "type": "association",
+          "outcome": [
+            "smri_nacc_brain_volume",
+            "smri_nacc_gray_volume",
+            "smri_nacc_white_volume",
+            "smri_nacc_hippocampus_total",
+            "smri_nacc_hippocampus_lh",
+            "smri_nacc_hippocampus_rh",
+            "smri_nacc_frontal_cortex",
+            "smri_nacc_temporal_cortex",
+            "smri_nacc_parietal_cortex",
+            "smri_nacc_occipital_cortex"
+          ],
+          "predictor": "csf_abeta_log",
+          "group": null,
+          "direction": "positive",
+          "unit": "brainwide",
+          "region_set": "NACC/sMRI+CSF"
+        },
+        "covariates": [
+          "age",
+          "site",
+          "eTIV"
+        ],
+        "inclusion": null,
+        "discovery_cohort": "NACC_CSF_DISC",
+        "replication_cohorts": [
+          "NACC_CSF_REP"
+        ],
+        "gates": {
+          "multiplicity": {
+            "method": "fdr_bh",
+            "alpha": 0.05,
+            "family_size": 10
+          },
+          "confound": {
+            "require_covariates": [
+              "age",
+              "site",
+              "eTIV"
+            ],
+            "motion_check": false
+          },
+          "power": {
+            "min_power": 0.8,
+            "ref_effect": 0.1
+          },
+          "multiverse": {
+            "min_fraction_consistent": 0.6
+          },
+          "replication": {
+            "alpha": 0.05,
+            "require_same_sign": true,
+            "require_ci_overlap": false,
+            "harmonize": "none",
+            "pattern_corr_min": 0.25,
+            "region_replication_frac_min": 0.05,
+            "dice_min": 0.0
+          }
+        },
+        "reporting_language_allowed": [
+          "confirmed",
+          "non_replicated",
+          "under_powered",
+          "fragile"
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "skipped": [],
+  "lockfile": {
+    "created_at": "2026-06-17T13:36:41",
+    "seed": 20260616,
+    "harmonize": "none",
+    "feature_limit": null,
+    "source_files": [
+      {
+        "path": "data/prepared_data/benchmark_ready/misc_table_manifest.csv",
+        "sha256": "771937edd51eeada5fc61e7e74adcf7db54dd9777bfd334bedeeb7123a8eb599"
+      },
+      {
+        "path": "docs/data_manifests/remote_peek_20260616.md",
+        "sha256": "22c8be3c951f70ad0ef58b3934f3610ee20fcb8f62393d0f300db26f41a3c1bd"
+      },
+      {
+        "path": "docs/literature_labels/fmri_claim_label_ledger.md",
+        "sha256": "b8e173dd30fbcc06b5cda503f0f08cefded3db9526ff44be66545860a295adae"
+      }
+    ],
+    "code_files": [
+      {
+        "path": "src/bench/labels.py",
+        "sha256": "b7d521afea2d1e214d7351a8bad2556f631c6a884bd3ba68350ce56bf6d925d7"
+      },
+      {
+        "path": "src/bench/run_multimodal_benchmark.py",
+        "sha256": "e4678bbae93856a32e074bd4b9b81354daa260eb3729af2c079b01aba5ad3f6c"
+      },
+      {
+        "path": "src/confirm/brainwide.py",
+        "sha256": "7d60bd303d5f095175fb3faeb9d970832de80317b72e16335336d2cfd3bb88f2"
+      },
+      {
+        "path": "src/confirm/multiverse.py",
+        "sha256": "af8ea065ef265d9ccef546fb5f75aacca77dbe63a3c8c22945bcc0f965312d6f"
+      },
+      {
+        "path": "src/confirm/replication.py",
+        "sha256": "99fe2a55a1b947cef36e68ba8bcce1afe5f39751d9e18ba15795e5e97be02f1e"
+      },
+      {
+        "path": "src/confirm/power.py",
+        "sha256": "d1eb6e113c8e059fbf4fa70d2ffa8ce3a6285e45035c927d0a6c1490270d47f7"
+      },
+      {
+        "path": "src/confirm/verdict.py",
+        "sha256": "ef5ef7d464b115c55f9de1827fa5d42a981b532b764b09c0165fdd5085084bd7"
+      }
+    ],
+    "claims": [
+      {
+        "claim_id": "nacc_age_smri_split",
+        "scoring_label": "positive_stability",
+        "scoring_bucket": "positive",
+        "label_provenance": "Biological/stability positive-control label; not a disease-biomarker claim.",
+        "modality": "NACC/sMRI",
+        "discovery_cohort": "NACC_DISC",
+        "replication_cohort": "NACC_REP",
+        "n_features": 10,
+        "covariates_full": [
+          "site",
+          "eTIV"
+        ],
+        "covariates_min": [
+          "eTIV"
+        ]
+      },
+      {
+        "claim_id": "nacc_csf_ptau_smri",
+        "scoring_label": "small_positive_candidate",
+        "scoring_bucket": "small_positive",
+        "label_provenance": "Plausible small-effect candidate; scored separately from FCR and TPR.",
+        "modality": "NACC/sMRI+CSF",
+        "discovery_cohort": "NACC_CSF_DISC",
+        "replication_cohort": "NACC_CSF_REP",
+        "n_features": 10,
+        "covariates_full": [
+          "age",
+          "site",
+          "eTIV"
+        ],
+        "covariates_min": [
+          "age",
+          "eTIV"
+        ]
+      },
+      {
+        "claim_id": "nacc_csf_ttau_smri",
+        "scoring_label": "small_positive_candidate",
+        "scoring_bucket": "small_positive",
+        "label_provenance": "Plausible small-effect candidate; scored separately from FCR and TPR.",
+        "modality": "NACC/sMRI+CSF",
+        "discovery_cohort": "NACC_CSF_DISC",
+        "replication_cohort": "NACC_CSF_REP",
+        "n_features": 10,
+        "covariates_full": [
+          "age",
+          "site",
+          "eTIV"
+        ],
+        "covariates_min": [
+          "age",
+          "eTIV"
+        ]
+      },
+      {
+        "claim_id": "nacc_csf_abeta_smri",
+        "scoring_label": "small_positive_candidate",
+        "scoring_bucket": "small_positive",
+        "label_provenance": "Plausible small-effect candidate; scored separately from FCR and TPR.",
+        "modality": "NACC/sMRI+CSF",
+        "discovery_cohort": "NACC_CSF_DISC",
+        "replication_cohort": "NACC_CSF_REP",
+        "n_features": 10,
+        "covariates_full": [
+          "age",
+          "site",
+          "eTIV"
+        ],
+        "covariates_min": [
+          "age",
+          "eTIV"
+        ]
+      }
+    ],
+    "skipped": []
+  }
+}

@@ -1,0 +1,2809 @@
+{
+  "created_at": "2026-06-17T16:12:43",
+  "command": {
+    "data_root": "data/prepared_data/benchmark_ready",
+    "smri_root": "data/prepared_data/smri_disease",
+    "feature_limit": null,
+    "limit": null,
+    "claim_id": [
+      "ad_hippocampal_atrophy_adni_oasis3"
+    ],
+    "seed": 20260617,
+    "harmonize": "combat",
+    "oasis3_dementia_cdr_min": 1.0,
+    "oasis3_data_dir": "data/raw/oasis3_extracted/data/qneuromark/Data/OASIS/OASIS3/Data_info"
+  },
+  "n_claims": 1,
+  "n_positive": 1,
+  "n_negative_or_fragile": 0,
+  "n_small_positive": 0,
+  "n_candidate": 0,
+  "n_claims_main": 1,
+  "n_positive_main": 1,
+  "n_negative_or_fragile_main": 0,
+  "n_small_positive_main": 0,
+  "n_candidate_main": 0,
+  "label_authority_counts": {
+    "main": 1
+  },
+  "summary": {
+    "exec_only": {
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "small_positive_recovery_ci95": [
+        null,
+        null
+      ],
+      "small_positive_count": 0,
+      "small_positive_denominator": 0,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    },
+    "+confound": {
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "small_positive_recovery_ci95": [
+        null,
+        null
+      ],
+      "small_positive_count": 0,
+      "small_positive_denominator": 0,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    },
+    "+power": {
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "small_positive_recovery_ci95": [
+        null,
+        null
+      ],
+      "small_positive_count": 0,
+      "small_positive_denominator": 0,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    },
+    "+multiverse": {
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "small_positive_recovery_ci95": [
+        null,
+        null
+      ],
+      "small_positive_count": 0,
+      "small_positive_denominator": 0,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    },
+    "+replication": {
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "small_positive_recovery_ci95": [
+        null,
+        null
+      ],
+      "small_positive_count": 0,
+      "small_positive_denominator": 0,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    }
+  },
+  "summary_full": {
+    "exec_only": {
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "small_positive_recovery_ci95": [
+        null,
+        null
+      ],
+      "small_positive_count": 0,
+      "small_positive_denominator": 0,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    },
+    "+confound": {
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "small_positive_recovery_ci95": [
+        null,
+        null
+      ],
+      "small_positive_count": 0,
+      "small_positive_denominator": 0,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    },
+    "+power": {
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "small_positive_recovery_ci95": [
+        null,
+        null
+      ],
+      "small_positive_count": 0,
+      "small_positive_denominator": 0,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    },
+    "+multiverse": {
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "small_positive_recovery_ci95": [
+        null,
+        null
+      ],
+      "small_positive_count": 0,
+      "small_positive_denominator": 0,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    },
+    "+replication": {
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "small_positive_recovery_ci95": [
+        null,
+        null
+      ],
+      "small_positive_count": 0,
+      "small_positive_denominator": 0,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    }
+  },
+  "summary_main": {
+    "exec_only": {
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "small_positive_recovery_ci95": [
+        null,
+        null
+      ],
+      "small_positive_count": 0,
+      "small_positive_denominator": 0,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    },
+    "+confound": {
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "small_positive_recovery_ci95": [
+        null,
+        null
+      ],
+      "small_positive_count": 0,
+      "small_positive_denominator": 0,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    },
+    "+power": {
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "small_positive_recovery_ci95": [
+        null,
+        null
+      ],
+      "small_positive_count": 0,
+      "small_positive_denominator": 0,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    },
+    "+multiverse": {
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "small_positive_recovery_ci95": [
+        null,
+        null
+      ],
+      "small_positive_count": 0,
+      "small_positive_denominator": 0,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    },
+    "+replication": {
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "TPR": 1.0,
+      "TPR_ci95": [
+        0.025,
+        1.0
+      ],
+      "TPR_count": 1,
+      "TPR_denominator": 1,
+      "FCR_ci95": [
+        null,
+        null
+      ],
+      "small_positive_recovery_ci95": [
+        null,
+        null
+      ],
+      "small_positive_count": 0,
+      "small_positive_denominator": 0,
+      "candidate_confirmation_rate": null,
+      "candidate_confirmation_ci95": [
+        null,
+        null
+      ],
+      "candidate_confirmation_count": 0,
+      "candidate_confirmation_denominator": 0
+    }
+  },
+  "metrics_by_label_authority": {
+    "full": {
+      "n_claims": 1,
+      "n_positive": 1,
+      "n_negative_or_fragile": 0,
+      "n_small_positive": 0,
+      "n_candidate": 0,
+      "summary": {
+        "exec_only": {
+          "known_positive_recall": 1.0,
+          "known_positive_recall_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "known_positive_recall_count": 1,
+          "known_positive_recall_denominator": 1,
+          "FCR": null,
+          "FCR_ci95_exact": [
+            null,
+            null
+          ],
+          "FCR_count": 0,
+          "FCR_denominator": 0,
+          "small_positive_recovery": null,
+          "small_positive_recovery_ci95_exact": [
+            null,
+            null
+          ],
+          "small_positive_recovery_count": 0,
+          "small_positive_recovery_denominator": 0,
+          "candidate_yield": null,
+          "candidate_yield_ci95_exact": [
+            null,
+            null
+          ],
+          "candidate_yield_count": 0,
+          "candidate_yield_denominator": 0,
+          "coverage": 1.0,
+          "coverage_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "coverage_count": 1,
+          "coverage_denominator": 1,
+          "overall_abstention_rate": 0.0,
+          "overall_abstention_rate_ci95_exact": [
+            0.0,
+            0.975
+          ],
+          "overall_abstention_rate_count": 0,
+          "overall_abstention_rate_denominator": 1,
+          "TPR": 1.0,
+          "TPR_ci95": [
+            0.025,
+            1.0
+          ],
+          "TPR_count": 1,
+          "TPR_denominator": 1,
+          "FCR_ci95": [
+            null,
+            null
+          ],
+          "small_positive_recovery_ci95": [
+            null,
+            null
+          ],
+          "small_positive_count": 0,
+          "small_positive_denominator": 0,
+          "candidate_confirmation_rate": null,
+          "candidate_confirmation_ci95": [
+            null,
+            null
+          ],
+          "candidate_confirmation_count": 0,
+          "candidate_confirmation_denominator": 0
+        },
+        "+confound": {
+          "known_positive_recall": 1.0,
+          "known_positive_recall_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "known_positive_recall_count": 1,
+          "known_positive_recall_denominator": 1,
+          "FCR": null,
+          "FCR_ci95_exact": [
+            null,
+            null
+          ],
+          "FCR_count": 0,
+          "FCR_denominator": 0,
+          "small_positive_recovery": null,
+          "small_positive_recovery_ci95_exact": [
+            null,
+            null
+          ],
+          "small_positive_recovery_count": 0,
+          "small_positive_recovery_denominator": 0,
+          "candidate_yield": null,
+          "candidate_yield_ci95_exact": [
+            null,
+            null
+          ],
+          "candidate_yield_count": 0,
+          "candidate_yield_denominator": 0,
+          "coverage": 1.0,
+          "coverage_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "coverage_count": 1,
+          "coverage_denominator": 1,
+          "overall_abstention_rate": 0.0,
+          "overall_abstention_rate_ci95_exact": [
+            0.0,
+            0.975
+          ],
+          "overall_abstention_rate_count": 0,
+          "overall_abstention_rate_denominator": 1,
+          "TPR": 1.0,
+          "TPR_ci95": [
+            0.025,
+            1.0
+          ],
+          "TPR_count": 1,
+          "TPR_denominator": 1,
+          "FCR_ci95": [
+            null,
+            null
+          ],
+          "small_positive_recovery_ci95": [
+            null,
+            null
+          ],
+          "small_positive_count": 0,
+          "small_positive_denominator": 0,
+          "candidate_confirmation_rate": null,
+          "candidate_confirmation_ci95": [
+            null,
+            null
+          ],
+          "candidate_confirmation_count": 0,
+          "candidate_confirmation_denominator": 0
+        },
+        "+power": {
+          "known_positive_recall": 1.0,
+          "known_positive_recall_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "known_positive_recall_count": 1,
+          "known_positive_recall_denominator": 1,
+          "FCR": null,
+          "FCR_ci95_exact": [
+            null,
+            null
+          ],
+          "FCR_count": 0,
+          "FCR_denominator": 0,
+          "small_positive_recovery": null,
+          "small_positive_recovery_ci95_exact": [
+            null,
+            null
+          ],
+          "small_positive_recovery_count": 0,
+          "small_positive_recovery_denominator": 0,
+          "candidate_yield": null,
+          "candidate_yield_ci95_exact": [
+            null,
+            null
+          ],
+          "candidate_yield_count": 0,
+          "candidate_yield_denominator": 0,
+          "coverage": 1.0,
+          "coverage_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "coverage_count": 1,
+          "coverage_denominator": 1,
+          "overall_abstention_rate": 0.0,
+          "overall_abstention_rate_ci95_exact": [
+            0.0,
+            0.975
+          ],
+          "overall_abstention_rate_count": 0,
+          "overall_abstention_rate_denominator": 1,
+          "TPR": 1.0,
+          "TPR_ci95": [
+            0.025,
+            1.0
+          ],
+          "TPR_count": 1,
+          "TPR_denominator": 1,
+          "FCR_ci95": [
+            null,
+            null
+          ],
+          "small_positive_recovery_ci95": [
+            null,
+            null
+          ],
+          "small_positive_count": 0,
+          "small_positive_denominator": 0,
+          "candidate_confirmation_rate": null,
+          "candidate_confirmation_ci95": [
+            null,
+            null
+          ],
+          "candidate_confirmation_count": 0,
+          "candidate_confirmation_denominator": 0
+        },
+        "+multiverse": {
+          "known_positive_recall": 1.0,
+          "known_positive_recall_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "known_positive_recall_count": 1,
+          "known_positive_recall_denominator": 1,
+          "FCR": null,
+          "FCR_ci95_exact": [
+            null,
+            null
+          ],
+          "FCR_count": 0,
+          "FCR_denominator": 0,
+          "small_positive_recovery": null,
+          "small_positive_recovery_ci95_exact": [
+            null,
+            null
+          ],
+          "small_positive_recovery_count": 0,
+          "small_positive_recovery_denominator": 0,
+          "candidate_yield": null,
+          "candidate_yield_ci95_exact": [
+            null,
+            null
+          ],
+          "candidate_yield_count": 0,
+          "candidate_yield_denominator": 0,
+          "coverage": 1.0,
+          "coverage_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "coverage_count": 1,
+          "coverage_denominator": 1,
+          "overall_abstention_rate": 0.0,
+          "overall_abstention_rate_ci95_exact": [
+            0.0,
+            0.975
+          ],
+          "overall_abstention_rate_count": 0,
+          "overall_abstention_rate_denominator": 1,
+          "TPR": 1.0,
+          "TPR_ci95": [
+            0.025,
+            1.0
+          ],
+          "TPR_count": 1,
+          "TPR_denominator": 1,
+          "FCR_ci95": [
+            null,
+            null
+          ],
+          "small_positive_recovery_ci95": [
+            null,
+            null
+          ],
+          "small_positive_count": 0,
+          "small_positive_denominator": 0,
+          "candidate_confirmation_rate": null,
+          "candidate_confirmation_ci95": [
+            null,
+            null
+          ],
+          "candidate_confirmation_count": 0,
+          "candidate_confirmation_denominator": 0
+        },
+        "+replication": {
+          "known_positive_recall": 1.0,
+          "known_positive_recall_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "known_positive_recall_count": 1,
+          "known_positive_recall_denominator": 1,
+          "FCR": null,
+          "FCR_ci95_exact": [
+            null,
+            null
+          ],
+          "FCR_count": 0,
+          "FCR_denominator": 0,
+          "small_positive_recovery": null,
+          "small_positive_recovery_ci95_exact": [
+            null,
+            null
+          ],
+          "small_positive_recovery_count": 0,
+          "small_positive_recovery_denominator": 0,
+          "candidate_yield": null,
+          "candidate_yield_ci95_exact": [
+            null,
+            null
+          ],
+          "candidate_yield_count": 0,
+          "candidate_yield_denominator": 0,
+          "coverage": 1.0,
+          "coverage_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "coverage_count": 1,
+          "coverage_denominator": 1,
+          "overall_abstention_rate": 0.0,
+          "overall_abstention_rate_ci95_exact": [
+            0.0,
+            0.975
+          ],
+          "overall_abstention_rate_count": 0,
+          "overall_abstention_rate_denominator": 1,
+          "TPR": 1.0,
+          "TPR_ci95": [
+            0.025,
+            1.0
+          ],
+          "TPR_count": 1,
+          "TPR_denominator": 1,
+          "FCR_ci95": [
+            null,
+            null
+          ],
+          "small_positive_recovery_ci95": [
+            null,
+            null
+          ],
+          "small_positive_count": 0,
+          "small_positive_denominator": 0,
+          "candidate_confirmation_rate": null,
+          "candidate_confirmation_ci95": [
+            null,
+            null
+          ],
+          "candidate_confirmation_count": 0,
+          "candidate_confirmation_denominator": 0
+        }
+      }
+    },
+    "main": {
+      "n_claims": 1,
+      "n_positive": 1,
+      "n_negative_or_fragile": 0,
+      "n_small_positive": 0,
+      "n_candidate": 0,
+      "summary": {
+        "exec_only": {
+          "known_positive_recall": 1.0,
+          "known_positive_recall_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "known_positive_recall_count": 1,
+          "known_positive_recall_denominator": 1,
+          "FCR": null,
+          "FCR_ci95_exact": [
+            null,
+            null
+          ],
+          "FCR_count": 0,
+          "FCR_denominator": 0,
+          "small_positive_recovery": null,
+          "small_positive_recovery_ci95_exact": [
+            null,
+            null
+          ],
+          "small_positive_recovery_count": 0,
+          "small_positive_recovery_denominator": 0,
+          "candidate_yield": null,
+          "candidate_yield_ci95_exact": [
+            null,
+            null
+          ],
+          "candidate_yield_count": 0,
+          "candidate_yield_denominator": 0,
+          "coverage": 1.0,
+          "coverage_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "coverage_count": 1,
+          "coverage_denominator": 1,
+          "overall_abstention_rate": 0.0,
+          "overall_abstention_rate_ci95_exact": [
+            0.0,
+            0.975
+          ],
+          "overall_abstention_rate_count": 0,
+          "overall_abstention_rate_denominator": 1,
+          "TPR": 1.0,
+          "TPR_ci95": [
+            0.025,
+            1.0
+          ],
+          "TPR_count": 1,
+          "TPR_denominator": 1,
+          "FCR_ci95": [
+            null,
+            null
+          ],
+          "small_positive_recovery_ci95": [
+            null,
+            null
+          ],
+          "small_positive_count": 0,
+          "small_positive_denominator": 0,
+          "candidate_confirmation_rate": null,
+          "candidate_confirmation_ci95": [
+            null,
+            null
+          ],
+          "candidate_confirmation_count": 0,
+          "candidate_confirmation_denominator": 0
+        },
+        "+confound": {
+          "known_positive_recall": 1.0,
+          "known_positive_recall_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "known_positive_recall_count": 1,
+          "known_positive_recall_denominator": 1,
+          "FCR": null,
+          "FCR_ci95_exact": [
+            null,
+            null
+          ],
+          "FCR_count": 0,
+          "FCR_denominator": 0,
+          "small_positive_recovery": null,
+          "small_positive_recovery_ci95_exact": [
+            null,
+            null
+          ],
+          "small_positive_recovery_count": 0,
+          "small_positive_recovery_denominator": 0,
+          "candidate_yield": null,
+          "candidate_yield_ci95_exact": [
+            null,
+            null
+          ],
+          "candidate_yield_count": 0,
+          "candidate_yield_denominator": 0,
+          "coverage": 1.0,
+          "coverage_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "coverage_count": 1,
+          "coverage_denominator": 1,
+          "overall_abstention_rate": 0.0,
+          "overall_abstention_rate_ci95_exact": [
+            0.0,
+            0.975
+          ],
+          "overall_abstention_rate_count": 0,
+          "overall_abstention_rate_denominator": 1,
+          "TPR": 1.0,
+          "TPR_ci95": [
+            0.025,
+            1.0
+          ],
+          "TPR_count": 1,
+          "TPR_denominator": 1,
+          "FCR_ci95": [
+            null,
+            null
+          ],
+          "small_positive_recovery_ci95": [
+            null,
+            null
+          ],
+          "small_positive_count": 0,
+          "small_positive_denominator": 0,
+          "candidate_confirmation_rate": null,
+          "candidate_confirmation_ci95": [
+            null,
+            null
+          ],
+          "candidate_confirmation_count": 0,
+          "candidate_confirmation_denominator": 0
+        },
+        "+power": {
+          "known_positive_recall": 1.0,
+          "known_positive_recall_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "known_positive_recall_count": 1,
+          "known_positive_recall_denominator": 1,
+          "FCR": null,
+          "FCR_ci95_exact": [
+            null,
+            null
+          ],
+          "FCR_count": 0,
+          "FCR_denominator": 0,
+          "small_positive_recovery": null,
+          "small_positive_recovery_ci95_exact": [
+            null,
+            null
+          ],
+          "small_positive_recovery_count": 0,
+          "small_positive_recovery_denominator": 0,
+          "candidate_yield": null,
+          "candidate_yield_ci95_exact": [
+            null,
+            null
+          ],
+          "candidate_yield_count": 0,
+          "candidate_yield_denominator": 0,
+          "coverage": 1.0,
+          "coverage_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "coverage_count": 1,
+          "coverage_denominator": 1,
+          "overall_abstention_rate": 0.0,
+          "overall_abstention_rate_ci95_exact": [
+            0.0,
+            0.975
+          ],
+          "overall_abstention_rate_count": 0,
+          "overall_abstention_rate_denominator": 1,
+          "TPR": 1.0,
+          "TPR_ci95": [
+            0.025,
+            1.0
+          ],
+          "TPR_count": 1,
+          "TPR_denominator": 1,
+          "FCR_ci95": [
+            null,
+            null
+          ],
+          "small_positive_recovery_ci95": [
+            null,
+            null
+          ],
+          "small_positive_count": 0,
+          "small_positive_denominator": 0,
+          "candidate_confirmation_rate": null,
+          "candidate_confirmation_ci95": [
+            null,
+            null
+          ],
+          "candidate_confirmation_count": 0,
+          "candidate_confirmation_denominator": 0
+        },
+        "+multiverse": {
+          "known_positive_recall": 1.0,
+          "known_positive_recall_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "known_positive_recall_count": 1,
+          "known_positive_recall_denominator": 1,
+          "FCR": null,
+          "FCR_ci95_exact": [
+            null,
+            null
+          ],
+          "FCR_count": 0,
+          "FCR_denominator": 0,
+          "small_positive_recovery": null,
+          "small_positive_recovery_ci95_exact": [
+            null,
+            null
+          ],
+          "small_positive_recovery_count": 0,
+          "small_positive_recovery_denominator": 0,
+          "candidate_yield": null,
+          "candidate_yield_ci95_exact": [
+            null,
+            null
+          ],
+          "candidate_yield_count": 0,
+          "candidate_yield_denominator": 0,
+          "coverage": 1.0,
+          "coverage_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "coverage_count": 1,
+          "coverage_denominator": 1,
+          "overall_abstention_rate": 0.0,
+          "overall_abstention_rate_ci95_exact": [
+            0.0,
+            0.975
+          ],
+          "overall_abstention_rate_count": 0,
+          "overall_abstention_rate_denominator": 1,
+          "TPR": 1.0,
+          "TPR_ci95": [
+            0.025,
+            1.0
+          ],
+          "TPR_count": 1,
+          "TPR_denominator": 1,
+          "FCR_ci95": [
+            null,
+            null
+          ],
+          "small_positive_recovery_ci95": [
+            null,
+            null
+          ],
+          "small_positive_count": 0,
+          "small_positive_denominator": 0,
+          "candidate_confirmation_rate": null,
+          "candidate_confirmation_ci95": [
+            null,
+            null
+          ],
+          "candidate_confirmation_count": 0,
+          "candidate_confirmation_denominator": 0
+        },
+        "+replication": {
+          "known_positive_recall": 1.0,
+          "known_positive_recall_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "known_positive_recall_count": 1,
+          "known_positive_recall_denominator": 1,
+          "FCR": null,
+          "FCR_ci95_exact": [
+            null,
+            null
+          ],
+          "FCR_count": 0,
+          "FCR_denominator": 0,
+          "small_positive_recovery": null,
+          "small_positive_recovery_ci95_exact": [
+            null,
+            null
+          ],
+          "small_positive_recovery_count": 0,
+          "small_positive_recovery_denominator": 0,
+          "candidate_yield": null,
+          "candidate_yield_ci95_exact": [
+            null,
+            null
+          ],
+          "candidate_yield_count": 0,
+          "candidate_yield_denominator": 0,
+          "coverage": 1.0,
+          "coverage_ci95_exact": [
+            0.025,
+            1.0
+          ],
+          "coverage_count": 1,
+          "coverage_denominator": 1,
+          "overall_abstention_rate": 0.0,
+          "overall_abstention_rate_ci95_exact": [
+            0.0,
+            0.975
+          ],
+          "overall_abstention_rate_count": 0,
+          "overall_abstention_rate_denominator": 1,
+          "TPR": 1.0,
+          "TPR_ci95": [
+            0.025,
+            1.0
+          ],
+          "TPR_count": 1,
+          "TPR_denominator": 1,
+          "FCR_ci95": [
+            null,
+            null
+          ],
+          "small_positive_recovery_ci95": [
+            null,
+            null
+          ],
+          "small_positive_count": 0,
+          "small_positive_denominator": 0,
+          "candidate_confirmation_rate": null,
+          "candidate_confirmation_ci95": [
+            null,
+            null
+          ],
+          "candidate_confirmation_count": 0,
+          "candidate_confirmation_denominator": 0
+        }
+      }
+    }
+  },
+  "risk_coverage": [
+    {
+      "alpha": 0.1,
+      "confirmed_count": 1,
+      "n_claims": 1,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0
+    },
+    {
+      "alpha": 0.05,
+      "confirmed_count": 1,
+      "n_claims": 1,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0
+    },
+    {
+      "alpha": 0.01,
+      "confirmed_count": 1,
+      "n_claims": 1,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0
+    }
+  ],
+  "risk_coverage_full": [
+    {
+      "alpha": 0.1,
+      "confirmed_count": 1,
+      "n_claims": 1,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0
+    },
+    {
+      "alpha": 0.05,
+      "confirmed_count": 1,
+      "n_claims": 1,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0
+    },
+    {
+      "alpha": 0.01,
+      "confirmed_count": 1,
+      "n_claims": 1,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0
+    }
+  ],
+  "risk_coverage_main": [
+    {
+      "alpha": 0.1,
+      "confirmed_count": 1,
+      "n_claims": 1,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0
+    },
+    {
+      "alpha": 0.05,
+      "confirmed_count": 1,
+      "n_claims": 1,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0
+    },
+    {
+      "alpha": 0.01,
+      "confirmed_count": 1,
+      "n_claims": 1,
+      "coverage": 1.0,
+      "coverage_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "coverage_count": 1,
+      "coverage_denominator": 1,
+      "overall_abstention_rate": 0.0,
+      "overall_abstention_rate_ci95_exact": [
+        0.0,
+        0.975
+      ],
+      "overall_abstention_rate_count": 0,
+      "overall_abstention_rate_denominator": 1,
+      "known_positive_recall": 1.0,
+      "known_positive_recall_ci95_exact": [
+        0.025,
+        1.0
+      ],
+      "known_positive_recall_count": 1,
+      "known_positive_recall_denominator": 1,
+      "FCR": null,
+      "FCR_ci95_exact": [
+        null,
+        null
+      ],
+      "FCR_count": 0,
+      "FCR_denominator": 0,
+      "small_positive_recovery": null,
+      "small_positive_recovery_ci95_exact": [
+        null,
+        null
+      ],
+      "small_positive_recovery_count": 0,
+      "small_positive_recovery_denominator": 0,
+      "candidate_yield": null,
+      "candidate_yield_ci95_exact": [
+        null,
+        null
+      ],
+      "candidate_yield_count": 0,
+      "candidate_yield_denominator": 0
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "ad_hippocampal_atrophy_adni_oasis3",
+      "modality": "sMRI",
+      "claim_type": "known_positive",
+      "ground_truth": "known_positive",
+      "scoring_label": "known_positive",
+      "scoring_bucket": "positive",
+      "label_provenance": "Externally established positive-control label from canonical biomarker or stability literature.",
+      "label_basis": "large_cohort_replication",
+      "adjudication_status": "expert_adjudicated",
+      "label_authority": "main",
+      "label_confidence": "high: direct AD atrophy anchor",
+      "source_citation": "Jack et al. 2018 NIA-AA framework",
+      "label_metadata": {
+        "claim_id": "ad_hippocampal_atrophy_adni_oasis3",
+        "phenotype": "AD hippocampal atrophy",
+        "modality": "sMRI",
+        "cohorts": "ADNI;OASIS3",
+        "discovery_cohort": "ADNI",
+        "replication_cohort": "OASIS3",
+        "label_class": "known_positive",
+        "label_basis": "large_cohort_replication",
+        "adjudication_status": "expert_adjudicated",
+        "expected_direction": "negative",
+        "expected_effect_scale": "Dementia lower hippocampal volume with large effect d about 1.5-2",
+        "mde_assumption": "powered by large local case-control samples",
+        "cohort_role": "executed AD phase-1 scalar positive",
+        "forbidden_evidence": "no diagnosis label derived from imaging outcome",
+        "confound_set": "age;sex;eTIV",
+        "site_scanner_handling": "ComBat scalar harmonization when configured",
+        "decision_target": "confirmed if OASIS3 replication has same negative direction and p below alpha",
+        "construct_validity_notes": "Primary AD phase-1 scalar contract",
+        "label_confidence": "high: direct AD atrophy anchor",
+        "source_citation": "Jack et al. 2018 NIA-AA framework",
+        "label_authority": "main"
+      },
+      "expected_label": "known_positive",
+      "outcome_family": "ADNI/OASIS3 sMRI",
+      "source_kind": "smri_disease",
+      "discovery_cohort": "ADNI",
+      "replication_cohort": "OASIS3",
+      "n_discovery": 1485,
+      "n_replication": 1057,
+      "label_counts_discovery": {
+        "MCI": 736,
+        "CN": 474,
+        "Dementia": 275
+      },
+      "label_counts_replication": {
+        "CN": 967,
+        "Dementia": 90
+      },
+      "replication_case_definition": "OASIS3 Dementia: CDR>=1; 0<CDR<1 excluded",
+      "n_features": 1,
+      "covariates_full": [
+        "age",
+        "sex",
+        "eTIV"
+      ],
+      "covariates_min": [
+        "age",
+        "sex"
+      ],
+      "contract": {
+        "claim_id": "ad_hippocampal_atrophy_adni_oasis3",
+        "question": "AD hippocampal atrophy scalar positive control.",
+        "estimand": {
+          "type": "group_diff",
+          "outcome": "smri_hippocampus",
+          "predictor": "dx",
+          "group": {
+            "var": "dx",
+            "case": "Dementia",
+            "control": "CN"
+          },
+          "direction": "negative",
+          "unit": "scalar",
+          "region_set": null
+        },
+        "covariates": [
+          "age",
+          "sex",
+          "eTIV"
+        ],
+        "inclusion": null,
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ],
+        "search_provenance": {
+          "declared": true,
+          "family_size": 1,
+          "selection": "preregistered"
+        },
+        "gates": {
+          "multiplicity": {
+            "method": "fdr_bh",
+            "alpha": 0.05,
+            "family_size": 1
+          },
+          "confound": {
+            "require_covariates": [
+              "age",
+              "sex",
+              "eTIV"
+            ],
+            "motion_check": false
+          },
+          "power": {
+            "min_power": 0.8,
+            "ref_effect": null
+          },
+          "multiverse": {
+            "min_fraction_consistent": 0.6
+          },
+          "replication": {
+            "alpha": 0.05,
+            "require_same_sign": true,
+            "require_ci_overlap": false,
+            "harmonize": "combat",
+            "pattern_corr_min": 0.5,
+            "region_replication_frac_min": 0.5,
+            "dice_min": 0.0
+          }
+        },
+        "reporting_language_allowed": [
+          "confirmed",
+          "non_replicated",
+          "under_powered",
+          "fragile"
+        ]
+      },
+      "best_region": "smri_hippocampus",
+      "best_beta": -1654.2086480065677,
+      "best_p": 2.1762293771854846e-112,
+      "best_standardized_effect": -1.7156409590131518,
+      "primary_effect": {
+        "beta": -1654.2086480065677,
+        "se": 61.292188687238095,
+        "ci_low": -1774.5348756657286,
+        "ci_high": -1533.8824203474069,
+        "p": 2.1762293771854846e-112,
+        "n": 749,
+        "dof": 744.0,
+        "standardized_effect": -1.7156409590131518,
+        "diagnostics": {
+          "residual_mean": 5.905513123370389e-07,
+          "residual_sd": 803.7019171857888,
+          "normality_p": 0.15544753500136974,
+          "homoscedasticity_p": 0.06590876133368172,
+          "cooks_distance_top": [
+            {
+              "row": "52",
+              "value": 0.05650549584755375
+            },
+            {
+              "row": "1110",
+              "value": 0.01905462672852507
+            },
+            {
+              "row": "1597",
+              "value": 0.017396392316476113
+            },
+            {
+              "row": "380",
+              "value": 0.016937639062785663
+            },
+            {
+              "row": "148",
+              "value": 0.015436256879185926
+            }
+          ]
+        }
+      },
+      "primary_region_table": null,
+      "primary_sig_regions": 1,
+      "confound_valid": true,
+      "multiverse_fraction_consistent": 1.0,
+      "multiverse_specs": [
+        {
+          "spec_id": "etiv=True,site=True,outliers=none,model=ols",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1654.2086480065677,
+          "p": 2.1762293771854846e-112,
+          "n": 749,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=True,site=True,outliers=none,model=robust",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1701.9520488268822,
+          "p": 3.8862711689336216e-163,
+          "n": 749,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=True,site=True,outliers=drop_z3,model=ols",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1629.717527444554,
+          "p": 4.1033999829920005e-112,
+          "n": 745,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=True,site=True,outliers=drop_z3,model=robust",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1686.4740209394731,
+          "p": 1.827592804714991e-162,
+          "n": 745,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=True,site=True,outliers=winsorize,model=ols",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1627.322250975192,
+          "p": 7.628284940449925e-114,
+          "n": 749,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=True,site=True,outliers=winsorize,model=robust",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1685.8604877978828,
+          "p": 1.1781262203026644e-166,
+          "n": 749,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=True,site=False,outliers=none,model=ols",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1654.2086480065677,
+          "p": 2.1762293771854846e-112,
+          "n": 749,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=True,site=False,outliers=none,model=robust",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1701.9520488268822,
+          "p": 3.8862711689336216e-163,
+          "n": 749,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=True,site=False,outliers=drop_z3,model=ols",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1629.717527444554,
+          "p": 4.1033999829920005e-112,
+          "n": 745,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=True,site=False,outliers=drop_z3,model=robust",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1686.4740209394731,
+          "p": 1.827592804714991e-162,
+          "n": 745,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=True,site=False,outliers=winsorize,model=ols",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1627.322250975192,
+          "p": 7.628284940449925e-114,
+          "n": 749,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=True,site=False,outliers=winsorize,model=robust",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1685.8604877978828,
+          "p": 1.1781262203026644e-166,
+          "n": 749,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=False,site=True,outliers=none,model=ols",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1638.858610470867,
+          "p": 9.192878267516552e-103,
+          "n": 749,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=False,site=True,outliers=none,model=robust",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1679.7768834328317,
+          "p": 1.7465690480835e-143,
+          "n": 749,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=False,site=True,outliers=drop_z3,model=ols",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1612.2604521210278,
+          "p": 1.0127101517271684e-102,
+          "n": 745,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=False,site=True,outliers=drop_z3,model=robust",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1663.552177721469,
+          "p": 4.760181595100482e-143,
+          "n": 745,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=False,site=True,outliers=winsorize,model=ols",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1612.53334305248,
+          "p": 2.4399708201574766e-104,
+          "n": 749,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=False,site=True,outliers=winsorize,model=robust",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1667.7364098245318,
+          "p": 4.413829146231189e-146,
+          "n": 749,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=False,site=False,outliers=none,model=ols",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1638.858610470867,
+          "p": 9.192878267516552e-103,
+          "n": 749,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=False,site=False,outliers=none,model=robust",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1679.7768834328317,
+          "p": 1.7465690480835e-143,
+          "n": 749,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=False,site=False,outliers=drop_z3,model=ols",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1612.2604521210278,
+          "p": 1.0127101517271684e-102,
+          "n": 745,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=False,site=False,outliers=drop_z3,model=robust",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1663.552177721469,
+          "p": 4.760181595100482e-143,
+          "n": 745,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=False,site=False,outliers=winsorize,model=ols",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1612.53334305248,
+          "p": 2.4399708201574766e-104,
+          "n": 749,
+          "status": "ok",
+          "error": null
+        },
+        {
+          "spec_id": "etiv=False,site=False,outliers=winsorize,model=robust",
+          "same_sign": true,
+          "significant": true,
+          "beta": -1667.7364098245318,
+          "p": 4.413829146231189e-146,
+          "n": 749,
+          "status": "ok",
+          "error": null
+        }
+      ],
+      "exec_only": true,
+      "+confound": true,
+      "+power": true,
+      "+multiverse": true,
+      "+replication": true,
+      "final_label": "confirmed",
+      "confirmation_subtype": "magnitude_confirmed",
+      "heterogeneity_i2": 64.59014994542976,
+      "abstained": false,
+      "rationale": "All gates passed.; confirmation_subtype=magnitude_confirmed; heterogeneity_i2=64.6",
+      "power": {
+        "achieved_power": 1.0,
+        "n_needed_80": 4.896662095626574,
+        "shrinkage_factor": 0.9986271291433765,
+        "shrunken_effect": -1651.9376331629448,
+        "under_powered": false,
+        "ref_effect": null,
+        "rationale": "power=1.000, n_needed_80=4.9, ref_effect=none"
+      },
+      "replication": {
+        "passed": true,
+        "reason": "passed",
+        "cohort_results": [
+          {
+            "cohort": "OASIS3",
+            "passed": true,
+            "reason": "passed",
+            "effect": {
+              "beta": -1719.0441270391689,
+              "se": 95.51601856379992,
+              "ci_low": -1906.4677168228611,
+              "ci_high": -1531.6205372554766,
+              "p": 2.431350308536032e-63,
+              "n": 1057,
+              "dof": 1052.0,
+              "standardized_effect": -1.9247119155431374,
+              "diagnostics": {
+                "residual_mean": 6.508656738673107e-07,
+                "residual_sd": 850.0890016714131,
+                "normality_p": 0.0011532106259241211,
+                "homoscedasticity_p": 1.490237098393568e-07,
+                "cooks_distance_top": [
+                  {
+                    "row": "1663",
+                    "value": 0.04679557319192828
+                  },
+                  {
+                    "row": "2106",
+                    "value": 0.04411388890774171
+                  },
+                  {
+                    "row": "2039",
+                    "value": 0.031182453858104173
+                  },
+                  {
+                    "row": "2011",
+                    "value": 0.0289391828438372
+                  },
+                  {
+                    "row": "1600",
+                    "value": 0.023611618552538252
+                  }
+                ]
+              }
+            },
+            "feature_coverage": 1.0
+          }
+        ],
+        "harmonized": true,
+        "heterogeneity": {
+          "cohort_effects": [
+            {
+              "cohort": "ADNI",
+              "standardized_effect": -1.7156409590131518,
+              "se_standardized_effect": 0.06356839538114344,
+              "sign": "negative",
+              "p": 2.1762293771854846e-112,
+              "n": 749
+            },
+            {
+              "cohort": "OASIS3",
+              "standardized_effect": -1.9247119155431374,
+              "se_standardized_effect": 0.10694362998792081,
+              "sign": "negative",
+              "p": 2.431350308536032e-63,
+              "n": 1057
+            }
+          ],
+          "random_effect": -1.8024886646041836,
+          "random_effect_se": 0.10302819475233492,
+          "ci_low": -2.00442392631876,
+          "ci_high": -1.6005534028896071,
+          "q": 2.8240729583968767,
+          "tau2": 0.014116391989018203,
+          "i2": 64.59014994542976,
+          "high_i2": false
+        },
+        "replicated_but_heterogeneous": false,
+        "confirmation_subtype": "magnitude_confirmed",
+        "confirmation_i2": 64.59014994542976
+      }
+    }
+  ],
+  "errors": [],
+  "skipped": [],
+  "lockfile": {
+    "created_at": "2026-06-17T16:12:43",
+    "seed": 20260617,
+    "harmonize": "combat",
+    "oasis3_dementia_cdr_min": 1.0,
+    "feature_limit": null,
+    "source_files": [
+      {
+        "path": "data/prepared_data/benchmark_ready/claim_inventory_ready.csv",
+        "sha256": "fdd77f775a6571cc6f2e87f5c014257d8d1c22a92e6dfdf306e57132517c1d0f"
+      },
+      {
+        "path": "data/prepared_data/benchmark_ready/feature_dictionary.csv",
+        "sha256": "a09b5be51e124b4cd3d0798400f653859aa825fc7b9f286a771689fdf6ef7269"
+      },
+      {
+        "path": "data/prepared_data/smri_disease/ADNI.parquet",
+        "sha256": "a62613c653153895aa80b031c2a501421b82b34e9c66ccc37b592b551e8bcab0"
+      },
+      {
+        "path": "data/prepared_data/smri_disease/OASIS3.parquet",
+        "sha256": "73ff6a2ee48440d4fb6628bea9ddc2da2051f8e7275c6f6286706b3a4a58861e"
+      },
+      {
+        "path": "data/labels/claim_label_table.csv",
+        "sha256": "a171da929539dc484a8308ad25ce654a6fcdae0a10d8147bc6162fe0ad718a1c"
+      }
+    ],
+    "code_files": [
+      {
+        "path": "src/bench/labels.py",
+        "sha256": "21237515c54ef78970eecef1f79dbb586161daa90d5dfbe13b761dfec7b3def1"
+      },
+      {
+        "path": "src/bench/metrics.py",
+        "sha256": "148a99753a4d3684685f011b67a61da33b5e779c66e11c7f9f4b0d71e6673adc"
+      },
+      {
+        "path": "src/bench/run_benchmark_ready.py",
+        "sha256": "01c7304bc61f17ea7e0c57d22d8cff74d64dad46a02a04847b5fd8ff3842b028"
+      },
+      {
+        "path": "src/bench/run_expanded_benchmark.py",
+        "sha256": "5d790c3ec9464997c7c892e7f97c0dc0dfc04d824b95cfac2e11871b0845d501"
+      },
+      {
+        "path": "src/bench/injected_nulls.py",
+        "sha256": "aafcc79dc5a4a4fc85e99ebe9b552559b1b3b6cf2af60fbe1e8037259a40b0fb"
+      },
+      {
+        "path": "src/confirm/analysis.py",
+        "sha256": "89cfbfade5b1b2fdb1cecd25c30ba550fa92645c4a80c1ad12afa42d03b4220a"
+      },
+      {
+        "path": "src/confirm/contract.py",
+        "sha256": "641a1e6944ae0ad2b73ca826c0982b7a788b2f9fd75d76de2466965eeaffbe3a"
+      },
+      {
+        "path": "src/confirm/ingest/oasis3.py",
+        "sha256": "bfdad5c5de1498dd444c56b0b756fcafcfe2d6ad5920370cb42d0e062c650ebd"
+      },
+      {
+        "path": "src/confirm/verdict.py",
+        "sha256": "0b015bb105b7f943b3f06ec4d2b86e3293f682901f0bab89ba9050c0a1ee8a6e"
+      },
+      {
+        "path": "src/confirm/replication.py",
+        "sha256": "b9914b153c6ee5e2f06acd83d7ef70117cfc7ba50331a383bed823a6505c1c97"
+      },
+      {
+        "path": "src/confirm/results.py",
+        "sha256": "a4acd3278aeec1fe40375618f691beea08312eb6f296a6d49590fc1f554ab01f"
+      }
+    ],
+    "claims": [
+      {
+        "claim_id": "ad_hippocampal_atrophy_adni_oasis3",
+        "scoring_label": "known_positive",
+        "scoring_bucket": "positive",
+        "label_authority": "main",
+        "discovery_cohort": "ADNI",
+        "replication_cohort": "OASIS3",
+        "replication_case_definition": "OASIS3 Dementia: CDR>=1; 0<CDR<1 excluded",
+        "n_features": 1,
+        "reported_feature_count": null,
+        "search_provenance": null,
+        "covariates_full": [
+          "age",
+          "sex",
+          "eTIV"
+        ],
+        "covariates_min": [
+          "age",
+          "sex"
+        ]
+      }
+    ],
+    "skipped": []
+  }
+}

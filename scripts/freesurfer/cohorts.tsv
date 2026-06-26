@@ -1,0 +1,10 @@
+# cohort	t1_root	t1_glob	disorder	n_verified	notes
+# --- CONFIRMED on arcdev (native T1 present, counts verified 2026-06-20). Run these. ---
+Shile_Nanjing	/data/qneuromark/Data/Shile_Nanjing/Data_BIDS/Raw_Data	T1.nii	SZ	834	groups XA/XB/.. ; dx not in Data_info (resolve at ingest)
+PK_MPRC	/data/qneuromark/Data/PK_MPRC/sMRI	anat.nii	SZ	444	Scanner1/2/3 ; dx in Data_info/Subj_info_MPRC_merge_5.xlsx
+MDD_China	/data/qneuromark/Data/Depression/MDD_China/Data	T1.nii	MDD	600	4 sites (anding/huaxi/xinxiang/zhejiang); dx via NC_/DP_ prefix + Data_Info/MDD_China_organized.csv
+# --- NOT available on arcdev right now (empty mount points / no native T1). Skip unless remounted. ---
+# AMP_SCZ	/data/neuromark2/Data/AMP_SCZ	?	SZ	0	empty mount (root-owned, 0 bytes)
+# HCP_EarlyP	/data/qneuromark/Data/HCP_EarlyP	?	SZ	0	empty mount
+# EMBARC	/data/qneuromark/Data/EMBARC	?	MDD	0	empty mount
+# MDD_DIRECT	/data/qneuromark/Data/MDD_DIRECT/Data_BIDS	?	MDD	0	Data_BIDS empty / no native T1 found

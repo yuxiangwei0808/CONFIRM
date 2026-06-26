@@ -1,0 +1,10 @@
+{
+  "overall_verdict": "WARN",
+  "integrity_status": "warn",
+  "reviewer_agent": "019ed29b-fe0c-7bc2-b7bc-34ee3b3d0ee7",
+  "post_audit_fixes_applied": true,
+  "outputs": {
+    "audit_md": "EXPERIMENT_AUDIT.md",
+    "audit_json": "EXPERIMENT_AUDIT.json"
+  }
+}

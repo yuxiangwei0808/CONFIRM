@@ -1,0 +1,12 @@
+{
+  "call_number": 3,
+  "purpose": "label-aware-multimodal-review",
+  "timestamp": "2026-06-16T16:30:00-07:00",
+  "agent_id": "019ed2c5-2110-7330-b133-6db0629c5dfe",
+  "model": "inherited",
+  "status": "ok",
+  "score": 7.0,
+  "verdict": "almost",
+  "ready_for_full_scale_experiments": true,
+  "ready_for_broad_paper_claims": false
+}

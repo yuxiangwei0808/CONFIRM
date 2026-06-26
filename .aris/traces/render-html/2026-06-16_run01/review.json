@@ -1,0 +1,12 @@
+{
+  "artifact": "review-stage/AUTO_REVIEW.html",
+  "source": "review-stage/AUTO_REVIEW.md",
+  "sidecar": "review-stage/REVIEW_STATE.json",
+  "reviewer_agent": "019ed28f-e72b-7c93-a8e6-33c145ebe4ed",
+  "verdict": "WARN",
+  "blocking_issues": [],
+  "warnings": [
+    "Generated TOC labels expose literal Markdown emphasis markers for emphasized headings.",
+    "The sidecar JSON is semantically identical but not byte-preserved."
+  ]
+}

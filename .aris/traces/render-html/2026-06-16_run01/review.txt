@@ -1,0 +1,28 @@
+{
+  "verdict": "WARN",
+  "checks": {
+    "source_hash_match": "pass",
+    "information_fidelity": "pass",
+    "structure": "warn",
+    "math_code_tables": "pass",
+    "callouts": "not_applicable",
+    "safety_escaping": "pass",
+    "placeholder_leak": "pass"
+  },
+  "blocking_issues": [],
+  "warnings": [
+    {
+      "severity": "warn",
+      "issue": "Generated TOC labels expose literal Markdown emphasis markers for emphasized headings, e.g. `**LOOP TERMINATED**` and `**4 → 6 (almost)**`; the body headings render correctly.",
+      "suggested_fix": "Build TOC labels from parsed inline heading content rather than raw Markdown text."
+    },
+    {
+      "severity": "warn",
+      "issue": "The sidecar JSON is semantically identical but not byte-preserved; `score_progression` is reformatted from one line into a multi-line array.",
+      "suggested_fix": "If byte-fidelity is required for sidecars, embed the escaped original file text verbatim instead of pretty-printing parsed JSON."
+    }
+  ],
+  "summary": "The generated HTML is a faithful and safe view of the Markdown source: source SHA-256 metadata matches, all main sections, details blocks, lists, both tables, inline code, and the optional REVIEW_STATE.json sidecar are present. No source-origin unsafe HTML, event handlers, javascript/data URLs, parser placeholders, or unreplaced template markers were found. Only minor generated-view issues were observed in TOC label rendering and sidecar formatting."
+}
+
+Prose note: Audit result is WARN only for minor cosmetic/byte-formatting issues. I found no blocking fidelity, structure, table/code, callout, or safety defect.

@@ -1,0 +1,21 @@
+# Placeholder seed contract for claim_library; pilots generate the concrete
+# cohort-specific version at runtime after selecting an ABIDE site.
+claim_id: asd_single_site_fragile
+question: "Does ASD differ from controls on a small single-site neuroimaging phenotype?"
+estimand:
+  type: group_diff
+  outcome: smri_meanthickness
+  predictor: dx
+  group: {var: dx, case: ASD, control: TC}
+  direction: two_sided
+covariates: [age, sex]
+inclusion: null
+discovery_cohort: P3_DISC
+replication_cohorts: [P3_REP]
+gates:
+  multiplicity: {method: fdr_bh, alpha: 0.05, family_size: 1}
+  confound: {require_covariates: [age, sex], motion_check: false}
+  power: {min_power: 0.8, ref_effect: null}
+  multiverse: {min_fraction_consistent: 0.6}
+  replication: {alpha: 0.05, require_same_sign: true, require_ci_overlap: false, harmonize: combat}
+reporting_language_allowed: [confirmed, non_replicated, under_powered, fragile]

@@ -1,0 +1,108 @@
+{
+  "created_at": "2026-06-18T18:10:23",
+  "run_id": "smoke_20260619_current",
+  "model_spec": "openai:gpt-5-mini",
+  "summary": {
+    "model_spec": "openai:gpt-5-mini",
+    "n_claims": 3,
+    "draft_success_count": 0,
+    "draft_success_rate": 0.0,
+    "estimand_match_count": 0,
+    "estimand_match_rate": null,
+    "gate_success_count": 0,
+    "gate_success_rate": null,
+    "anti_hallucination_catch_count": 0
+  },
+  "claims": [
+    {
+      "model_spec": "openai:gpt-5-mini",
+      "claim_id": "ad_hippocampal_atrophy_adni_oasis3",
+      "label_class": "known_positive",
+      "question": "In ADNI as discovery and OASIS3 as replication, are Dementia participants lower than CN in smri_hippocampus after age, sex, and eTIV adjustment?",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_hippocampus",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "Dementia",
+          "control": "CN"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ]
+      },
+      "draft_success": false,
+      "estimand_match": false,
+      "gate_success": false,
+      "gate_verdict_label": null,
+      "anti_hallucination_ok": null,
+      "anti_hallucination_removed_number": false,
+      "error_stage": "draft_contract",
+      "error": "Connection error."
+    },
+    {
+      "model_spec": "openai:gpt-5-mini",
+      "claim_id": "ad_entorhinal_atrophy_adni_oasis3",
+      "label_class": "known_positive",
+      "question": "In ADNI as discovery and OASIS3 as replication, are Dementia participants lower than CN in smri_entorhinal after age, sex, and eTIV adjustment?",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_entorhinal",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "Dementia",
+          "control": "CN"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ]
+      },
+      "draft_success": false,
+      "estimand_match": false,
+      "gate_success": false,
+      "gate_verdict_label": null,
+      "anti_hallucination_ok": null,
+      "anti_hallucination_removed_number": false,
+      "error_stage": "draft_contract",
+      "error": "Connection error."
+    },
+    {
+      "model_spec": "openai:gpt-5-mini",
+      "claim_id": "ad_wholebrain_atrophy_adni_oasis3",
+      "label_class": "known_positive",
+      "question": "In ADNI as discovery and OASIS3 as replication, are Dementia participants lower than CN in smri_wholebrain after age, sex, and eTIV adjustment?",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_wholebrain",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "Dementia",
+          "control": "CN"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ]
+      },
+      "draft_success": false,
+      "estimand_match": false,
+      "gate_success": false,
+      "gate_verdict_label": null,
+      "anti_hallucination_ok": null,
+      "anti_hallucination_removed_number": false,
+      "error_stage": "draft_contract",
+      "error": "Connection error."
+    }
+  ]
+}

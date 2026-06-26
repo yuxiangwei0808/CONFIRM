@@ -1,0 +1,20 @@
+{
+  "call_number": 3,
+  "purpose": "label-aware-multimodal-review",
+  "timestamp": "2026-06-16T16:30:00-07:00",
+  "tool": "spawn_agent",
+  "model": "inherited",
+  "reasoning_effort": "xhigh",
+  "agent_id": "019ed2c5-2110-7330-b133-6db0629c5dfe",
+  "files_referenced": [
+    "src/bench/labels.py",
+    "src/bench/run_benchmark_ready.py",
+    "src/bench/run_multimodal_benchmark.py",
+    "src/bench/combine_benchmark_results.py",
+    "docs/literature_labels/fmri_claim_label_ledger.md",
+    "docs/data_manifests/remote_peek_20260616.md",
+    "review-stage/combined-label-aware-combat/combined_benchmark_results.json",
+    "review-stage/combined-label-aware-combat/combined_benchmark_audit.csv"
+  ],
+  "prompt_summary": "Asked reviewer to assess label-aware fMRI scoring plus NACC/PANStudy multimodal adapters, including combined 39-claim ComBat/no-harmonization results and caveats."
+}

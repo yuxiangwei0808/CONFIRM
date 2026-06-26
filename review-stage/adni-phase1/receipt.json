@@ -1,0 +1,468 @@
+{
+  "code": {
+    "git_sha": null
+  },
+  "cohorts": [
+    {
+      "path": "data/prepared_data/smri_disease/ADNI.parquet",
+      "sha256": "a62613c653153895aa80b031c2a501421b82b34e9c66ccc37b592b551e8bcab0"
+    },
+    {
+      "path": "data/prepared_data/smri_disease/OASIS3.parquet",
+      "sha256": "73ff6a2ee48440d4fb6628bea9ddc2da2051f8e7275c6f6286706b3a4a58861e"
+    }
+  ],
+  "command": [
+    "/Users/yuxiang.wei/Desktop/Playground/NeuroScientistAgents/src/confirm/cli.py",
+    "run",
+    "--contract",
+    "configs/contracts/ad_hippocampal_atrophy_adni_oasis3.yaml",
+    "--data-dir",
+    "data/prepared_data/smri_disease",
+    "--out",
+    "review-stage/adni-phase1"
+  ],
+  "contract": {
+    "path": "configs/contracts/ad_hippocampal_atrophy_adni_oasis3.yaml",
+    "sha256": "446ff86c49ce47bc96d4d0315df9115818b115a50c2e8edc4ff09e23d0373706"
+  },
+  "environment": {
+    "packages": {
+      "neuroHarmonize": "2.4.5",
+      "nibabel": "5.3.3",
+      "nilearn": "0.12.1",
+      "numpy": "2.0.2",
+      "pandas": "2.3.3",
+      "pyarrow": "21.0.0",
+      "pydantic": "2.13.4",
+      "pyyaml": "6.0.3",
+      "scikit-learn": "1.6.1",
+      "scipy": "1.13.1",
+      "statsmodels": "0.14.6"
+    },
+    "python": "3.9.6 (default, Apr 17 2026, 18:15:52) \n[Clang 21.0.0 (clang-2100.1.1.101)]"
+  },
+  "results": {
+    "contract": {
+      "claim_id": "ad_hippocampal_atrophy_adni_oasis3",
+      "covariates": [
+        "age",
+        "sex",
+        "eTIV"
+      ],
+      "discovery_cohort": "ADNI",
+      "estimand": {
+        "direction": "negative",
+        "group": {
+          "case": "Dementia",
+          "control": "CN",
+          "var": "dx"
+        },
+        "outcome": "smri_hippocampus",
+        "predictor": "dx",
+        "region_set": null,
+        "type": "group_diff",
+        "unit": "scalar"
+      },
+      "gates": {
+        "confound": {
+          "motion_check": false,
+          "require_covariates": [
+            "age",
+            "sex",
+            "eTIV"
+          ]
+        },
+        "multiplicity": {
+          "alpha": 0.05,
+          "family_size": 1,
+          "method": "fdr_bh"
+        },
+        "multiverse": {
+          "min_fraction_consistent": 0.6
+        },
+        "power": {
+          "min_power": 0.8,
+          "ref_effect": null
+        },
+        "replication": {
+          "alpha": 0.05,
+          "dice_min": 0.0,
+          "harmonize": "combat",
+          "pattern_corr_min": 0.5,
+          "region_replication_frac_min": 0.5,
+          "require_ci_overlap": false,
+          "require_same_sign": true
+        }
+      },
+      "inclusion": null,
+      "question": "Is hippocampal volume reduced in Alzheimer's disease dementia compared with cognitively normal controls?",
+      "replication_cohorts": [
+        "OASIS3"
+      ],
+      "reporting_language_allowed": [
+        "confirmed",
+        "non_replicated",
+        "under_powered",
+        "fragile"
+      ]
+    },
+    "multiverse": {
+      "fraction_consistent": 1.0,
+      "passed": true,
+      "specs": [
+        {
+          "beta": -1654.2086480065677,
+          "error": null,
+          "n": 749,
+          "p": 2.1762293771854846e-112,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=True,site=True,outliers=none,model=ols",
+          "status": "ok"
+        },
+        {
+          "beta": -1701.9520488268822,
+          "error": null,
+          "n": 749,
+          "p": 3.8862711689336216e-163,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=True,site=True,outliers=none,model=robust",
+          "status": "ok"
+        },
+        {
+          "beta": -1629.717527444554,
+          "error": null,
+          "n": 745,
+          "p": 4.1033999829920005e-112,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=True,site=True,outliers=drop_z3,model=ols",
+          "status": "ok"
+        },
+        {
+          "beta": -1686.4740209394731,
+          "error": null,
+          "n": 745,
+          "p": 1.827592804714991e-162,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=True,site=True,outliers=drop_z3,model=robust",
+          "status": "ok"
+        },
+        {
+          "beta": -1627.2663515375987,
+          "error": null,
+          "n": 749,
+          "p": 7.546309434924862e-114,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=True,site=True,outliers=winsorize,model=ols",
+          "status": "ok"
+        },
+        {
+          "beta": -1685.8280334705719,
+          "error": null,
+          "n": 749,
+          "p": 1.133682150661788e-166,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=True,site=True,outliers=winsorize,model=robust",
+          "status": "ok"
+        },
+        {
+          "beta": -1654.2086480065677,
+          "error": null,
+          "n": 749,
+          "p": 2.1762293771854846e-112,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=True,site=False,outliers=none,model=ols",
+          "status": "ok"
+        },
+        {
+          "beta": -1701.9520488268822,
+          "error": null,
+          "n": 749,
+          "p": 3.8862711689336216e-163,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=True,site=False,outliers=none,model=robust",
+          "status": "ok"
+        },
+        {
+          "beta": -1629.717527444554,
+          "error": null,
+          "n": 745,
+          "p": 4.1033999829920005e-112,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=True,site=False,outliers=drop_z3,model=ols",
+          "status": "ok"
+        },
+        {
+          "beta": -1686.4740209394731,
+          "error": null,
+          "n": 745,
+          "p": 1.827592804714991e-162,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=True,site=False,outliers=drop_z3,model=robust",
+          "status": "ok"
+        },
+        {
+          "beta": -1627.2663515375987,
+          "error": null,
+          "n": 749,
+          "p": 7.546309434924862e-114,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=True,site=False,outliers=winsorize,model=ols",
+          "status": "ok"
+        },
+        {
+          "beta": -1685.8280334705719,
+          "error": null,
+          "n": 749,
+          "p": 1.133682150661788e-166,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=True,site=False,outliers=winsorize,model=robust",
+          "status": "ok"
+        },
+        {
+          "beta": -1638.858610470867,
+          "error": null,
+          "n": 749,
+          "p": 9.192878267516552e-103,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=False,site=True,outliers=none,model=ols",
+          "status": "ok"
+        },
+        {
+          "beta": -1679.7768834328317,
+          "error": null,
+          "n": 749,
+          "p": 1.7465690480835e-143,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=False,site=True,outliers=none,model=robust",
+          "status": "ok"
+        },
+        {
+          "beta": -1612.2604521210278,
+          "error": null,
+          "n": 745,
+          "p": 1.0127101517271684e-102,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=False,site=True,outliers=drop_z3,model=ols",
+          "status": "ok"
+        },
+        {
+          "beta": -1663.552177721469,
+          "error": null,
+          "n": 745,
+          "p": 4.760181595100482e-143,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=False,site=True,outliers=drop_z3,model=robust",
+          "status": "ok"
+        },
+        {
+          "beta": -1612.4783020764003,
+          "error": null,
+          "n": 749,
+          "p": 2.4155896920330814e-104,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=False,site=True,outliers=winsorize,model=ols",
+          "status": "ok"
+        },
+        {
+          "beta": -1667.698374727526,
+          "error": null,
+          "n": 749,
+          "p": 4.492267230812777e-146,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=False,site=True,outliers=winsorize,model=robust",
+          "status": "ok"
+        },
+        {
+          "beta": -1638.858610470867,
+          "error": null,
+          "n": 749,
+          "p": 9.192878267516552e-103,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=False,site=False,outliers=none,model=ols",
+          "status": "ok"
+        },
+        {
+          "beta": -1679.7768834328317,
+          "error": null,
+          "n": 749,
+          "p": 1.7465690480835e-143,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=False,site=False,outliers=none,model=robust",
+          "status": "ok"
+        },
+        {
+          "beta": -1612.2604521210278,
+          "error": null,
+          "n": 745,
+          "p": 1.0127101517271684e-102,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=False,site=False,outliers=drop_z3,model=ols",
+          "status": "ok"
+        },
+        {
+          "beta": -1663.552177721469,
+          "error": null,
+          "n": 745,
+          "p": 4.760181595100482e-143,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=False,site=False,outliers=drop_z3,model=robust",
+          "status": "ok"
+        },
+        {
+          "beta": -1612.4783020764003,
+          "error": null,
+          "n": 749,
+          "p": 2.4155896920330814e-104,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=False,site=False,outliers=winsorize,model=ols",
+          "status": "ok"
+        },
+        {
+          "beta": -1667.698374727526,
+          "error": null,
+          "n": 749,
+          "p": 4.492267230812777e-146,
+          "same_sign": true,
+          "significant": true,
+          "spec_id": "etiv=False,site=False,outliers=winsorize,model=robust",
+          "status": "ok"
+        }
+      ]
+    },
+    "power": {
+      "achieved_power": 1.0,
+      "n_needed_80": 4.896662095626574,
+      "rationale": "power=1.000, n_needed_80=4.9, ref_effect=none",
+      "ref_effect": null,
+      "shrinkage_factor": 0.9986271291433765,
+      "shrunken_effect": -1651.9376331629448,
+      "under_powered": false
+    },
+    "primary": {
+      "beta": -1654.2086480065677,
+      "ci_high": -1533.8824203474069,
+      "ci_low": -1774.5348756657286,
+      "diagnostics": {
+        "cooks_distance_top": [
+          {
+            "row": "52",
+            "value": 0.05650549584755375
+          },
+          {
+            "row": "1110",
+            "value": 0.01905462672852507
+          },
+          {
+            "row": "1597",
+            "value": 0.017396392316476113
+          },
+          {
+            "row": "380",
+            "value": 0.016937639062785663
+          },
+          {
+            "row": "148",
+            "value": 0.015436256879185926
+          }
+        ],
+        "homoscedasticity_p": 0.06590876133368172,
+        "normality_p": 0.15544753500136974,
+        "residual_mean": 5.905513123370389e-07,
+        "residual_sd": 803.7019171857888
+      },
+      "dof": 744.0,
+      "n": 749,
+      "p": 2.1762293771854846e-112,
+      "se": 61.292188687238095,
+      "standardized_effect": -1.7156409590131518
+    },
+    "replication": {
+      "cohort_results": [
+        {
+          "cohort": "OASIS3",
+          "effect": {
+            "beta": -1097.5642218159192,
+            "ci_high": -981.727881920774,
+            "ci_low": -1213.4005617110643,
+            "diagnostics": {
+              "cooks_distance_top": [
+                {
+                  "row": "2609",
+                  "value": 0.03483930912040754
+                },
+                {
+                  "row": "2051",
+                  "value": 0.03293738933583971
+                },
+                {
+                  "row": "2522",
+                  "value": 0.023590227390179904
+                },
+                {
+                  "row": "2428",
+                  "value": 0.011738035768238026
+                },
+                {
+                  "row": "1973",
+                  "value": 0.011021108749353135
+                }
+              ],
+              "homoscedasticity_p": 2.948215802415591e-11,
+              "normality_p": 0.0008304540338245234,
+              "residual_mean": -5.0422928504957445e-08,
+              "residual_sd": 896.7617426944628
+            },
+            "dof": 1310.0,
+            "n": 1315,
+            "p": 1.2398977107468674e-68,
+            "se": 59.04665411715849,
+            "standardized_effect": -1.2942040264045607
+          },
+          "feature_coverage": 1.0,
+          "passed": true,
+          "reason": "passed"
+        }
+      ],
+      "harmonized": true,
+      "passed": true,
+      "reason": "passed"
+    },
+    "verdict": {
+      "abstained": false,
+      "gates": {
+        "confound": true,
+        "multiplicity": true,
+        "multiverse": true,
+        "power": true,
+        "replication": true
+      },
+      "label": "confirmed",
+      "rationale": "All gates passed."
+    }
+  },
+  "seed": 20260615
+}

@@ -1,0 +1,2553 @@
+{
+  "created_at": "2026-06-18T18:10:19",
+  "run_id": "smoke_20260619_current",
+  "model_spec": "standin",
+  "summary": {
+    "model_spec": "standin",
+    "n_claims": 3,
+    "draft_success_count": 3,
+    "draft_success_rate": 1.0,
+    "estimand_match_count": 0,
+    "estimand_match_rate": 0.0,
+    "gate_success_count": 3,
+    "gate_success_rate": 1.0,
+    "anti_hallucination_catch_count": 0
+  },
+  "claims": [
+    {
+      "model_spec": "standin",
+      "claim_id": "ad_hippocampal_atrophy_adni_oasis3",
+      "label_class": "known_positive",
+      "question": "In ADNI as discovery and OASIS3 as replication, are Dementia participants lower than CN in smri_hippocampus after age, sex, and eTIV adjustment?",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_hippocampus",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "Dementia",
+          "control": "CN"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ]
+      },
+      "draft_success": true,
+      "estimand_match": false,
+      "gate_success": true,
+      "gate_verdict_label": "confirmed",
+      "anti_hallucination_ok": true,
+      "anti_hallucination_removed_number": false,
+      "drafted_contract": {
+        "claim_id": "agent_brainwide_ad_cn",
+        "question": "Agent-drafted brain-wide regional claim.",
+        "estimand": {
+          "type": "group_diff",
+          "outcome": "smri_*",
+          "predictor": "dx",
+          "group": {
+            "var": "dx",
+            "case": "Dementia",
+            "control": "CN"
+          },
+          "direction": "negative",
+          "unit": "brainwide",
+          "region_set": "shared_ad_signature"
+        },
+        "covariates": [
+          "age",
+          "sex",
+          "eTIV"
+        ],
+        "inclusion": null,
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ],
+        "search_provenance": {
+          "declared": true,
+          "family_size": 1,
+          "selection": "preregistered"
+        },
+        "gates": {
+          "multiplicity": {
+            "method": "fdr_bh",
+            "alpha": 0.05,
+            "family_size": 1
+          },
+          "confound": {
+            "require_covariates": [
+              "age",
+              "sex",
+              "eTIV"
+            ],
+            "motion_check": false
+          },
+          "power": {
+            "min_power": 0.8,
+            "ref_effect": null
+          },
+          "multiverse": {
+            "min_fraction_consistent": 0.6
+          },
+          "replication": {
+            "alpha": 0.05,
+            "require_same_sign": true,
+            "require_ci_overlap": false,
+            "harmonize": "combat",
+            "pattern_corr_min": 0.5,
+            "region_replication_frac_min": 0.5,
+            "dice_min": 0.0
+          }
+        },
+        "reporting_language_allowed": [
+          "confirmed",
+          "non_replicated",
+          "under_powered",
+          "fragile"
+        ]
+      },
+      "estimand_mismatches": {
+        "outcome": {
+          "expected": "smri_hippocampus",
+          "actual": "smri_*"
+        },
+        "unit": {
+          "expected": "scalar",
+          "actual": "brainwide"
+        }
+      },
+      "gate_verdict": {
+        "label": "confirmed",
+        "abstained": false,
+        "rationale": "All brain-wide gates passed.; pattern_corr=0.967; dice=1.000; region_replication_fraction=1.000",
+        "gates": {
+          "search_provenance": true,
+          "confound": true,
+          "multiplicity": true,
+          "power": true,
+          "multiverse": true,
+          "replication": true,
+          "pattern_corr": true,
+          "region_replication_fraction": true,
+          "dice": true,
+          "multiplicity_effective_family_size": 6
+        },
+        "confirmation_subtype": null,
+        "heterogeneity_i2": null
+      },
+      "cohort_paths": [
+        "data/prepared_data/smri_disease/ADNI.parquet",
+        "data/prepared_data/smri_disease/OASIS3.parquet"
+      ],
+      "gate_results": {
+        "contract": {
+          "claim_id": "agent_brainwide_ad_cn",
+          "question": "Agent-drafted brain-wide regional claim.",
+          "estimand": {
+            "type": "group_diff",
+            "outcome": "smri_*",
+            "predictor": "dx",
+            "group": {
+              "var": "dx",
+              "case": "Dementia",
+              "control": "CN"
+            },
+            "direction": "negative",
+            "unit": "brainwide",
+            "region_set": "shared_ad_signature"
+          },
+          "covariates": [
+            "age",
+            "sex",
+            "eTIV"
+          ],
+          "inclusion": null,
+          "discovery_cohort": "ADNI",
+          "replication_cohorts": [
+            "OASIS3"
+          ],
+          "search_provenance": {
+            "declared": true,
+            "family_size": 1,
+            "selection": "preregistered"
+          },
+          "gates": {
+            "multiplicity": {
+              "method": "fdr_bh",
+              "alpha": 0.05,
+              "family_size": 1
+            },
+            "confound": {
+              "require_covariates": [
+                "age",
+                "sex",
+                "eTIV"
+              ],
+              "motion_check": false
+            },
+            "power": {
+              "min_power": 0.8,
+              "ref_effect": null
+            },
+            "multiverse": {
+              "min_fraction_consistent": 0.6
+            },
+            "replication": {
+              "alpha": 0.05,
+              "require_same_sign": true,
+              "require_ci_overlap": false,
+              "harmonize": "combat",
+              "pattern_corr_min": 0.5,
+              "region_replication_frac_min": 0.5,
+              "dice_min": 0.0
+            }
+          },
+          "reporting_language_allowed": [
+            "confirmed",
+            "non_replicated",
+            "under_powered",
+            "fragile"
+          ]
+        },
+        "regions": {
+          "regions": [
+            {
+              "region": "smri_entorhinal",
+              "effect": {
+                "beta": -1048.8402411083093,
+                "se": 45.36375788019751,
+                "ci_low": -1137.9008701251205,
+                "ci_high": -959.779612091498,
+                "p": 6.073615546545957e-89,
+                "n": 727,
+                "dof": 722.0,
+                "standardized_effect": -1.5816033476477465,
+                "diagnostics": {
+                  "residual_mean": 2.527642304393523e-07,
+                  "residual_sd": 581.438983044764,
+                  "normality_p": 0.003296379532338245,
+                  "homoscedasticity_p": 0.1338247713808139,
+                  "cooks_distance_top": [
+                    {
+                      "row": "179",
+                      "value": 0.02818133667660947
+                    },
+                    {
+                      "row": "145",
+                      "value": 0.01805760235004628
+                    },
+                    {
+                      "row": "905",
+                      "value": 0.01801110124945347
+                    },
+                    {
+                      "row": "1",
+                      "value": 0.01553704492792469
+                    },
+                    {
+                      "row": "448",
+                      "value": 0.014903391234933498
+                    }
+                  ]
+                }
+              },
+              "q": 1.8220846639637873e-88,
+              "significant": true
+            },
+            {
+              "region": "smri_fusiform",
+              "effect": {
+                "beta": -2556.5921767994987,
+                "se": 164.23720067782128,
+                "ci_low": -2879.031698652077,
+                "ci_high": -2234.1526549469204,
+                "p": 2.509631486126671e-47,
+                "n": 727,
+                "dof": 722.0,
+                "standardized_effect": -0.9678877903865046,
+                "diagnostics": {
+                  "residual_mean": 6.196708315944983e-07,
+                  "residual_sd": 2105.070554172869,
+                  "normality_p": 0.843951466904874,
+                  "homoscedasticity_p": 0.4905462991006213,
+                  "cooks_distance_top": [
+                    {
+                      "row": "1710",
+                      "value": 0.022122965974229053
+                    },
+                    {
+                      "row": "1732",
+                      "value": 0.015866297883427676
+                    },
+                    {
+                      "row": "554",
+                      "value": 0.015768348190839387
+                    },
+                    {
+                      "row": "80",
+                      "value": 0.015052223163590474
+                    },
+                    {
+                      "row": "1464",
+                      "value": 0.014981282900953925
+                    }
+                  ]
+                }
+              },
+              "q": 3.011557783352005e-47,
+              "significant": true
+            },
+            {
+              "region": "smri_hippocampus",
+              "effect": {
+                "beta": -1654.2086480065677,
+                "se": 61.292188687238095,
+                "ci_low": -1774.5348756657286,
+                "ci_high": -1533.8824203474069,
+                "p": 2.1762293771854846e-112,
+                "n": 749,
+                "dof": 744.0,
+                "standardized_effect": -1.7156409590131518,
+                "diagnostics": {
+                  "residual_mean": 5.905513123370389e-07,
+                  "residual_sd": 803.7019171857888,
+                  "normality_p": 0.15544753500136974,
+                  "homoscedasticity_p": 0.06590876133368172,
+                  "cooks_distance_top": [
+                    {
+                      "row": "52",
+                      "value": 0.05650549584755375
+                    },
+                    {
+                      "row": "1110",
+                      "value": 0.01905462672852507
+                    },
+                    {
+                      "row": "1597",
+                      "value": 0.017396392316476113
+                    },
+                    {
+                      "row": "380",
+                      "value": 0.016937639062785663
+                    },
+                    {
+                      "row": "148",
+                      "value": 0.015436256879185926
+                    }
+                  ]
+                }
+              },
+              "q": 1.3057376263112907e-111,
+              "significant": true
+            },
+            {
+              "region": "smri_midtemp",
+              "effect": {
+                "beta": -3297.988861331254,
+                "se": 176.30578439667553,
+                "ci_low": -3644.122091720541,
+                "ci_high": -2951.8556309419673,
+                "p": 5.7294907199195404e-64,
+                "n": 727,
+                "dof": 722.0,
+                "standardized_effect": -1.0942810520867954,
+                "diagnostics": {
+                  "residual_mean": 7.818611143374665e-07,
+                  "residual_sd": 2259.756703914101,
+                  "normality_p": 0.03496398843683143,
+                  "homoscedasticity_p": 9.387604483308551e-05,
+                  "cooks_distance_top": [
+                    {
+                      "row": "146",
+                      "value": 0.031736171619912976
+                    },
+                    {
+                      "row": "1597",
+                      "value": 0.028853762303181405
+                    },
+                    {
+                      "row": "851",
+                      "value": 0.028433643852044672
+                    },
+                    {
+                      "row": "177",
+                      "value": 0.021405232882367186
+                    },
+                    {
+                      "row": "511",
+                      "value": 0.017656667476134317
+                    }
+                  ]
+                }
+              },
+              "q": 1.1458981439839081e-63,
+              "significant": true
+            },
+            {
+              "region": "smri_ventricles",
+              "effect": {
+                "beta": 13752.962290462572,
+                "se": 1199.2942060828484,
+                "ci_low": 11398.871265799473,
+                "ci_high": 16107.053315125671,
+                "p": 2.5710282561836494e-28,
+                "n": 815,
+                "dof": 810.0,
+                "standardized_effect": 0.7611025918908444,
+                "diagnostics": {
+                  "residual_mean": -7.8376362234514e-06,
+                  "residual_sd": 16590.02508994344,
+                  "normality_p": 4.444835244258358e-16,
+                  "homoscedasticity_p": 3.1750455914659297e-12,
+                  "cooks_distance_top": [
+                    {
+                      "row": "607",
+                      "value": 0.06586606526610526
+                    },
+                    {
+                      "row": "1469",
+                      "value": 0.03489005987876087
+                    },
+                    {
+                      "row": "0",
+                      "value": 0.02450630661601462
+                    },
+                    {
+                      "row": "1597",
+                      "value": 0.021265538457594792
+                    },
+                    {
+                      "row": "590",
+                      "value": 0.02116376395679067
+                    }
+                  ]
+                }
+              },
+              "q": 2.5710282561836494e-28,
+              "significant": false
+            },
+            {
+              "region": "smri_wholebrain",
+              "effect": {
+                "beta": -67075.51618745543,
+                "se": 4288.327296221618,
+                "ci_low": -75492.75754833335,
+                "ci_high": -58658.274826577515,
+                "p": 1.59514955465788e-48,
+                "n": 835,
+                "dof": 830.0,
+                "standardized_effect": -0.524858984819158,
+                "diagnostics": {
+                  "residual_mean": -2.4936937108011303e-06,
+                  "residual_sd": 60059.32199464182,
+                  "normality_p": 0.3698849835567504,
+                  "homoscedasticity_p": 1.1229861731155105e-06,
+                  "cooks_distance_top": [
+                    {
+                      "row": "1597",
+                      "value": 0.027273152275903594
+                    },
+                    {
+                      "row": "146",
+                      "value": 0.022010121588680664
+                    },
+                    {
+                      "row": "299",
+                      "value": 0.02048750909512333
+                    },
+                    {
+                      "row": "1375",
+                      "value": 0.02014493253594408
+                    },
+                    {
+                      "row": "177",
+                      "value": 0.016272825022573222
+                    }
+                  ]
+                }
+              },
+              "q": 2.3927243319868202e-48,
+              "significant": true
+            }
+          ],
+          "alpha": 0.05,
+          "method": "fdr_bh",
+          "region_set": "shared_ad_signature"
+        },
+        "multiverse": {
+          "fraction_consistent": 1.0,
+          "passed": true,
+          "specs": [
+            {
+              "spec_id": "covariates=full,outliers=none",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1654.2086480065677,
+              "p": 2.1762293771854846e-112,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "covariates=full,outliers=winsorize",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1654.2086480065677,
+              "p": 2.1762293771854846e-112,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "covariates=full,outliers=drop_z3",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1654.2086480065677,
+              "p": 2.1762293771854846e-112,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "covariates=min,outliers=none",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1638.858610470867,
+              "p": 9.192878267516552e-103,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "covariates=min,outliers=winsorize",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1638.858610470867,
+              "p": 9.192878267516552e-103,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "covariates=min,outliers=drop_z3",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1638.858610470867,
+              "p": 9.192878267516552e-103,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            }
+          ]
+        },
+        "power": {
+          "achieved_power": 1.0,
+          "n_needed_80": 4.896662095626574,
+          "shrinkage_factor": 0.9986271291433765,
+          "shrunken_effect": -1651.9376331629448,
+          "under_powered": false,
+          "ref_effect": null,
+          "rationale": "power=1.000, n_needed_80=4.9, ref_effect=none"
+        },
+        "replication": {
+          "passed": true,
+          "reason": "passed",
+          "cohort_results": [
+            {
+              "cohort": "OASIS3",
+              "passed": true,
+              "reason": "passed",
+              "pattern_corr": 0.9674360672752392,
+              "dice": 1.0,
+              "region_replication_fraction": 1.0,
+              "region_table": {
+                "regions": [
+                  {
+                    "region": "smri_entorhinal",
+                    "effect": {
+                      "beta": -467.84957180982485,
+                      "se": 38.29456709348127,
+                      "ci_low": -542.9749545483007,
+                      "ci_high": -392.724189071349,
+                      "p": 1.3855090596493296e-32,
+                      "n": 1315,
+                      "dof": 1310.0,
+                      "standardized_effect": -0.7019586987449427,
+                      "diagnostics": {
+                        "residual_mean": -4.977372772867717e-08,
+                        "residual_sd": 581.5926954022115,
+                        "normality_p": 0.00016680640651223682,
+                        "homoscedasticity_p": 1.728999914141046e-14,
+                        "cooks_distance_top": [
+                          {
+                            "row": "2609",
+                            "value": 0.025986924621275293
+                          },
+                          {
+                            "row": "2416",
+                            "value": 0.016959853459857854
+                          },
+                          {
+                            "row": "1839",
+                            "value": 0.010600862489817165
+                          },
+                          {
+                            "row": "2349",
+                            "value": 0.010390538877579372
+                          },
+                          {
+                            "row": "2051",
+                            "value": 0.00864045514259732
+                          }
+                        ]
+                      }
+                    },
+                    "q": 2.0782635894739945e-32,
+                    "significant": true
+                  },
+                  {
+                    "region": "smri_fusiform",
+                    "effect": {
+                      "beta": -1672.655472827068,
+                      "se": 133.21165745526142,
+                      "ci_low": -1933.986975207645,
+                      "ci_high": -1411.323970446491,
+                      "p": 3.1440749123033104e-34,
+                      "n": 1315,
+                      "dof": 1310.0,
+                      "standardized_effect": -0.7307080609196575,
+                      "diagnostics": {
+                        "residual_mean": -1.309925562811895e-07,
+                        "residual_sd": 2023.1310287246943,
+                        "normality_p": 1.3940692304810424e-06,
+                        "homoscedasticity_p": 0.10729648701618978,
+                        "cooks_distance_top": [
+                          {
+                            "row": "2109",
+                            "value": 0.027108969330480688
+                          },
+                          {
+                            "row": "2609",
+                            "value": 0.02279746596708507
+                          },
+                          {
+                            "row": "2522",
+                            "value": 0.015418665937994031
+                          },
+                          {
+                            "row": "2796",
+                            "value": 0.011055744269614755
+                          },
+                          {
+                            "row": "3069",
+                            "value": 0.010311501049288038
+                          }
+                        ]
+                      }
+                    },
+                    "q": 6.288149824606621e-34,
+                    "significant": true
+                  },
+                  {
+                    "region": "smri_hippocampus",
+                    "effect": {
+                      "beta": -1097.5642218159192,
+                      "se": 59.04665411715849,
+                      "ci_low": -1213.4005617110643,
+                      "ci_high": -981.727881920774,
+                      "p": 1.2398977107468674e-68,
+                      "n": 1315,
+                      "dof": 1310.0,
+                      "standardized_effect": -1.2942040264045607,
+                      "diagnostics": {
+                        "residual_mean": -5.0422928504957445e-08,
+                        "residual_sd": 896.7617426944628,
+                        "normality_p": 0.0008304540338245234,
+                        "homoscedasticity_p": 2.948215802415591e-11,
+                        "cooks_distance_top": [
+                          {
+                            "row": "2609",
+                            "value": 0.03483930912040754
+                          },
+                          {
+                            "row": "2051",
+                            "value": 0.03293738933583971
+                          },
+                          {
+                            "row": "2522",
+                            "value": 0.023590227390179904
+                          },
+                          {
+                            "row": "2428",
+                            "value": 0.011738035768238026
+                          },
+                          {
+                            "row": "1973",
+                            "value": 0.011021108749353135
+                          }
+                        ]
+                      }
+                    },
+                    "q": 7.439386264481205e-68,
+                    "significant": true
+                  },
+                  {
+                    "region": "smri_midtemp",
+                    "effect": {
+                      "beta": -1796.9787255196875,
+                      "se": 142.20811883424668,
+                      "ci_low": -2075.959274636798,
+                      "ci_high": -1517.9981764025767,
+                      "p": 1.274295796642422e-34,
+                      "n": 1315,
+                      "dof": 1310.0,
+                      "standardized_effect": -0.6990395771522445,
+                      "diagnostics": {
+                        "residual_mean": -1.1064815436783796e-07,
+                        "residual_sd": 2159.7633664062605,
+                        "normality_p": 1.476622440307833e-10,
+                        "homoscedasticity_p": 9.790481387697053e-05,
+                        "cooks_distance_top": [
+                          {
+                            "row": "2109",
+                            "value": 0.03610234196429793
+                          },
+                          {
+                            "row": "2609",
+                            "value": 0.028460582748770565
+                          },
+                          {
+                            "row": "2522",
+                            "value": 0.024755641545467763
+                          },
+                          {
+                            "row": "2290",
+                            "value": 0.018919920596029267
+                          },
+                          {
+                            "row": "2051",
+                            "value": 0.01560287131706566
+                          }
+                        ]
+                      }
+                    },
+                    "q": 3.822887389927266e-34,
+                    "significant": true
+                  },
+                  {
+                    "region": "smri_ventricles",
+                    "effect": {
+                      "beta": 9638.148686499107,
+                      "se": 1016.9949072061695,
+                      "ci_low": 7643.031952043324,
+                      "ci_high": 11633.265420954891,
+                      "p": 1.178350418241978e-20,
+                      "n": 1315,
+                      "dof": 1310.0,
+                      "standardized_effect": 0.852382395987311,
+                      "diagnostics": {
+                        "residual_mean": 1.3711250532319338e-07,
+                        "residual_sd": 15445.449686074207,
+                        "normality_p": 1.6173623282295532e-24,
+                        "homoscedasticity_p": 2.7228528708830814e-26,
+                        "cooks_distance_top": [
+                          {
+                            "row": "2609",
+                            "value": 0.17732503642451572
+                          },
+                          {
+                            "row": "2585",
+                            "value": 0.044182181496358226
+                          },
+                          {
+                            "row": "2271",
+                            "value": 0.0438287934272836
+                          },
+                          {
+                            "row": "2108",
+                            "value": 0.021879366757505115
+                          },
+                          {
+                            "row": "3009",
+                            "value": 0.018517167272715823
+                          }
+                        ]
+                      }
+                    },
+                    "q": 1.178350418241978e-20,
+                    "significant": false
+                  },
+                  {
+                    "region": "smri_wholebrain",
+                    "effect": {
+                      "beta": -34256.45277831844,
+                      "se": 3000.5158708102904,
+                      "ci_low": -40142.798533471854,
+                      "ci_high": -28370.107023165023,
+                      "p": 7.582512853735699e-29,
+                      "n": 1314,
+                      "dof": 1309.0,
+                      "standardized_effect": -0.3148619122203819,
+                      "diagnostics": {
+                        "residual_mean": -1.7841504351625748e-05,
+                        "residual_sd": 45562.54753293131,
+                        "normality_p": 1.3543745567003244e-10,
+                        "homoscedasticity_p": 0.0009690072691488951,
+                        "cooks_distance_top": [
+                          {
+                            "row": "2609",
+                            "value": 0.041857117696789736
+                          },
+                          {
+                            "row": "2541",
+                            "value": 0.02774170047841509
+                          },
+                          {
+                            "row": "2352",
+                            "value": 0.02118576952050662
+                          },
+                          {
+                            "row": "2544",
+                            "value": 0.019763796302518056
+                          },
+                          {
+                            "row": "2522",
+                            "value": 0.019400522054216336
+                          }
+                        ]
+                      }
+                    },
+                    "q": 9.099015424482839e-29,
+                    "significant": true
+                  }
+                ],
+                "alpha": 0.05,
+                "method": "fdr_bh",
+                "region_set": "shared_ad_signature"
+              },
+              "feature_coverage": 1.0
+            }
+          ],
+          "harmonized": true,
+          "pattern_corr": 0.9674360672752392,
+          "dice": 1.0,
+          "region_replication_fraction": 1.0
+        },
+        "verdict": {
+          "label": "confirmed",
+          "abstained": false,
+          "rationale": "All brain-wide gates passed.; pattern_corr=0.967; dice=1.000; region_replication_fraction=1.000",
+          "gates": {
+            "search_provenance": true,
+            "confound": true,
+            "multiplicity": true,
+            "power": true,
+            "multiverse": true,
+            "replication": true,
+            "pattern_corr": true,
+            "region_replication_fraction": true,
+            "dice": true,
+            "multiplicity_effective_family_size": 6
+          },
+          "confirmation_subtype": null,
+          "heterogeneity_i2": null
+        }
+      },
+      "interpretation": "CONFIRM verdict: see the engine-computed result bundle for effect estimates and gate decisions."
+    },
+    {
+      "model_spec": "standin",
+      "claim_id": "ad_entorhinal_atrophy_adni_oasis3",
+      "label_class": "known_positive",
+      "question": "In ADNI as discovery and OASIS3 as replication, are Dementia participants lower than CN in smri_entorhinal after age, sex, and eTIV adjustment?",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_entorhinal",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "Dementia",
+          "control": "CN"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ]
+      },
+      "draft_success": true,
+      "estimand_match": false,
+      "gate_success": true,
+      "gate_verdict_label": "confirmed",
+      "anti_hallucination_ok": true,
+      "anti_hallucination_removed_number": false,
+      "drafted_contract": {
+        "claim_id": "agent_brainwide_ad_cn",
+        "question": "Agent-drafted brain-wide regional claim.",
+        "estimand": {
+          "type": "group_diff",
+          "outcome": "smri_*",
+          "predictor": "dx",
+          "group": {
+            "var": "dx",
+            "case": "Dementia",
+            "control": "CN"
+          },
+          "direction": "negative",
+          "unit": "brainwide",
+          "region_set": "shared_ad_signature"
+        },
+        "covariates": [
+          "age",
+          "sex",
+          "eTIV"
+        ],
+        "inclusion": null,
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ],
+        "search_provenance": {
+          "declared": true,
+          "family_size": 1,
+          "selection": "preregistered"
+        },
+        "gates": {
+          "multiplicity": {
+            "method": "fdr_bh",
+            "alpha": 0.05,
+            "family_size": 1
+          },
+          "confound": {
+            "require_covariates": [
+              "age",
+              "sex",
+              "eTIV"
+            ],
+            "motion_check": false
+          },
+          "power": {
+            "min_power": 0.8,
+            "ref_effect": null
+          },
+          "multiverse": {
+            "min_fraction_consistent": 0.6
+          },
+          "replication": {
+            "alpha": 0.05,
+            "require_same_sign": true,
+            "require_ci_overlap": false,
+            "harmonize": "combat",
+            "pattern_corr_min": 0.5,
+            "region_replication_frac_min": 0.5,
+            "dice_min": 0.0
+          }
+        },
+        "reporting_language_allowed": [
+          "confirmed",
+          "non_replicated",
+          "under_powered",
+          "fragile"
+        ]
+      },
+      "estimand_mismatches": {
+        "outcome": {
+          "expected": "smri_entorhinal",
+          "actual": "smri_*"
+        },
+        "unit": {
+          "expected": "scalar",
+          "actual": "brainwide"
+        }
+      },
+      "gate_verdict": {
+        "label": "confirmed",
+        "abstained": false,
+        "rationale": "All brain-wide gates passed.; pattern_corr=0.967; dice=1.000; region_replication_fraction=1.000",
+        "gates": {
+          "search_provenance": true,
+          "confound": true,
+          "multiplicity": true,
+          "power": true,
+          "multiverse": true,
+          "replication": true,
+          "pattern_corr": true,
+          "region_replication_fraction": true,
+          "dice": true,
+          "multiplicity_effective_family_size": 6
+        },
+        "confirmation_subtype": null,
+        "heterogeneity_i2": null
+      },
+      "cohort_paths": [
+        "data/prepared_data/smri_disease/ADNI.parquet",
+        "data/prepared_data/smri_disease/OASIS3.parquet"
+      ],
+      "gate_results": {
+        "contract": {
+          "claim_id": "agent_brainwide_ad_cn",
+          "question": "Agent-drafted brain-wide regional claim.",
+          "estimand": {
+            "type": "group_diff",
+            "outcome": "smri_*",
+            "predictor": "dx",
+            "group": {
+              "var": "dx",
+              "case": "Dementia",
+              "control": "CN"
+            },
+            "direction": "negative",
+            "unit": "brainwide",
+            "region_set": "shared_ad_signature"
+          },
+          "covariates": [
+            "age",
+            "sex",
+            "eTIV"
+          ],
+          "inclusion": null,
+          "discovery_cohort": "ADNI",
+          "replication_cohorts": [
+            "OASIS3"
+          ],
+          "search_provenance": {
+            "declared": true,
+            "family_size": 1,
+            "selection": "preregistered"
+          },
+          "gates": {
+            "multiplicity": {
+              "method": "fdr_bh",
+              "alpha": 0.05,
+              "family_size": 1
+            },
+            "confound": {
+              "require_covariates": [
+                "age",
+                "sex",
+                "eTIV"
+              ],
+              "motion_check": false
+            },
+            "power": {
+              "min_power": 0.8,
+              "ref_effect": null
+            },
+            "multiverse": {
+              "min_fraction_consistent": 0.6
+            },
+            "replication": {
+              "alpha": 0.05,
+              "require_same_sign": true,
+              "require_ci_overlap": false,
+              "harmonize": "combat",
+              "pattern_corr_min": 0.5,
+              "region_replication_frac_min": 0.5,
+              "dice_min": 0.0
+            }
+          },
+          "reporting_language_allowed": [
+            "confirmed",
+            "non_replicated",
+            "under_powered",
+            "fragile"
+          ]
+        },
+        "regions": {
+          "regions": [
+            {
+              "region": "smri_entorhinal",
+              "effect": {
+                "beta": -1048.8402411083093,
+                "se": 45.36375788019751,
+                "ci_low": -1137.9008701251205,
+                "ci_high": -959.779612091498,
+                "p": 6.073615546545957e-89,
+                "n": 727,
+                "dof": 722.0,
+                "standardized_effect": -1.5816033476477465,
+                "diagnostics": {
+                  "residual_mean": 2.527642304393523e-07,
+                  "residual_sd": 581.438983044764,
+                  "normality_p": 0.003296379532338245,
+                  "homoscedasticity_p": 0.1338247713808139,
+                  "cooks_distance_top": [
+                    {
+                      "row": "179",
+                      "value": 0.02818133667660947
+                    },
+                    {
+                      "row": "145",
+                      "value": 0.01805760235004628
+                    },
+                    {
+                      "row": "905",
+                      "value": 0.01801110124945347
+                    },
+                    {
+                      "row": "1",
+                      "value": 0.01553704492792469
+                    },
+                    {
+                      "row": "448",
+                      "value": 0.014903391234933498
+                    }
+                  ]
+                }
+              },
+              "q": 1.8220846639637873e-88,
+              "significant": true
+            },
+            {
+              "region": "smri_fusiform",
+              "effect": {
+                "beta": -2556.5921767994987,
+                "se": 164.23720067782128,
+                "ci_low": -2879.031698652077,
+                "ci_high": -2234.1526549469204,
+                "p": 2.509631486126671e-47,
+                "n": 727,
+                "dof": 722.0,
+                "standardized_effect": -0.9678877903865046,
+                "diagnostics": {
+                  "residual_mean": 6.196708315944983e-07,
+                  "residual_sd": 2105.070554172869,
+                  "normality_p": 0.843951466904874,
+                  "homoscedasticity_p": 0.4905462991006213,
+                  "cooks_distance_top": [
+                    {
+                      "row": "1710",
+                      "value": 0.022122965974229053
+                    },
+                    {
+                      "row": "1732",
+                      "value": 0.015866297883427676
+                    },
+                    {
+                      "row": "554",
+                      "value": 0.015768348190839387
+                    },
+                    {
+                      "row": "80",
+                      "value": 0.015052223163590474
+                    },
+                    {
+                      "row": "1464",
+                      "value": 0.014981282900953925
+                    }
+                  ]
+                }
+              },
+              "q": 3.011557783352005e-47,
+              "significant": true
+            },
+            {
+              "region": "smri_hippocampus",
+              "effect": {
+                "beta": -1654.2086480065677,
+                "se": 61.292188687238095,
+                "ci_low": -1774.5348756657286,
+                "ci_high": -1533.8824203474069,
+                "p": 2.1762293771854846e-112,
+                "n": 749,
+                "dof": 744.0,
+                "standardized_effect": -1.7156409590131518,
+                "diagnostics": {
+                  "residual_mean": 5.905513123370389e-07,
+                  "residual_sd": 803.7019171857888,
+                  "normality_p": 0.15544753500136974,
+                  "homoscedasticity_p": 0.06590876133368172,
+                  "cooks_distance_top": [
+                    {
+                      "row": "52",
+                      "value": 0.05650549584755375
+                    },
+                    {
+                      "row": "1110",
+                      "value": 0.01905462672852507
+                    },
+                    {
+                      "row": "1597",
+                      "value": 0.017396392316476113
+                    },
+                    {
+                      "row": "380",
+                      "value": 0.016937639062785663
+                    },
+                    {
+                      "row": "148",
+                      "value": 0.015436256879185926
+                    }
+                  ]
+                }
+              },
+              "q": 1.3057376263112907e-111,
+              "significant": true
+            },
+            {
+              "region": "smri_midtemp",
+              "effect": {
+                "beta": -3297.988861331254,
+                "se": 176.30578439667553,
+                "ci_low": -3644.122091720541,
+                "ci_high": -2951.8556309419673,
+                "p": 5.7294907199195404e-64,
+                "n": 727,
+                "dof": 722.0,
+                "standardized_effect": -1.0942810520867954,
+                "diagnostics": {
+                  "residual_mean": 7.818611143374665e-07,
+                  "residual_sd": 2259.756703914101,
+                  "normality_p": 0.03496398843683143,
+                  "homoscedasticity_p": 9.387604483308551e-05,
+                  "cooks_distance_top": [
+                    {
+                      "row": "146",
+                      "value": 0.031736171619912976
+                    },
+                    {
+                      "row": "1597",
+                      "value": 0.028853762303181405
+                    },
+                    {
+                      "row": "851",
+                      "value": 0.028433643852044672
+                    },
+                    {
+                      "row": "177",
+                      "value": 0.021405232882367186
+                    },
+                    {
+                      "row": "511",
+                      "value": 0.017656667476134317
+                    }
+                  ]
+                }
+              },
+              "q": 1.1458981439839081e-63,
+              "significant": true
+            },
+            {
+              "region": "smri_ventricles",
+              "effect": {
+                "beta": 13752.962290462572,
+                "se": 1199.2942060828484,
+                "ci_low": 11398.871265799473,
+                "ci_high": 16107.053315125671,
+                "p": 2.5710282561836494e-28,
+                "n": 815,
+                "dof": 810.0,
+                "standardized_effect": 0.7611025918908444,
+                "diagnostics": {
+                  "residual_mean": -7.8376362234514e-06,
+                  "residual_sd": 16590.02508994344,
+                  "normality_p": 4.444835244258358e-16,
+                  "homoscedasticity_p": 3.1750455914659297e-12,
+                  "cooks_distance_top": [
+                    {
+                      "row": "607",
+                      "value": 0.06586606526610526
+                    },
+                    {
+                      "row": "1469",
+                      "value": 0.03489005987876087
+                    },
+                    {
+                      "row": "0",
+                      "value": 0.02450630661601462
+                    },
+                    {
+                      "row": "1597",
+                      "value": 0.021265538457594792
+                    },
+                    {
+                      "row": "590",
+                      "value": 0.02116376395679067
+                    }
+                  ]
+                }
+              },
+              "q": 2.5710282561836494e-28,
+              "significant": false
+            },
+            {
+              "region": "smri_wholebrain",
+              "effect": {
+                "beta": -67075.51618745543,
+                "se": 4288.327296221618,
+                "ci_low": -75492.75754833335,
+                "ci_high": -58658.274826577515,
+                "p": 1.59514955465788e-48,
+                "n": 835,
+                "dof": 830.0,
+                "standardized_effect": -0.524858984819158,
+                "diagnostics": {
+                  "residual_mean": -2.4936937108011303e-06,
+                  "residual_sd": 60059.32199464182,
+                  "normality_p": 0.3698849835567504,
+                  "homoscedasticity_p": 1.1229861731155105e-06,
+                  "cooks_distance_top": [
+                    {
+                      "row": "1597",
+                      "value": 0.027273152275903594
+                    },
+                    {
+                      "row": "146",
+                      "value": 0.022010121588680664
+                    },
+                    {
+                      "row": "299",
+                      "value": 0.02048750909512333
+                    },
+                    {
+                      "row": "1375",
+                      "value": 0.02014493253594408
+                    },
+                    {
+                      "row": "177",
+                      "value": 0.016272825022573222
+                    }
+                  ]
+                }
+              },
+              "q": 2.3927243319868202e-48,
+              "significant": true
+            }
+          ],
+          "alpha": 0.05,
+          "method": "fdr_bh",
+          "region_set": "shared_ad_signature"
+        },
+        "multiverse": {
+          "fraction_consistent": 1.0,
+          "passed": true,
+          "specs": [
+            {
+              "spec_id": "covariates=full,outliers=none",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1654.2086480065677,
+              "p": 2.1762293771854846e-112,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "covariates=full,outliers=winsorize",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1654.2086480065677,
+              "p": 2.1762293771854846e-112,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "covariates=full,outliers=drop_z3",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1654.2086480065677,
+              "p": 2.1762293771854846e-112,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "covariates=min,outliers=none",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1638.858610470867,
+              "p": 9.192878267516552e-103,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "covariates=min,outliers=winsorize",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1638.858610470867,
+              "p": 9.192878267516552e-103,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "covariates=min,outliers=drop_z3",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1638.858610470867,
+              "p": 9.192878267516552e-103,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            }
+          ]
+        },
+        "power": {
+          "achieved_power": 1.0,
+          "n_needed_80": 4.896662095626574,
+          "shrinkage_factor": 0.9986271291433765,
+          "shrunken_effect": -1651.9376331629448,
+          "under_powered": false,
+          "ref_effect": null,
+          "rationale": "power=1.000, n_needed_80=4.9, ref_effect=none"
+        },
+        "replication": {
+          "passed": true,
+          "reason": "passed",
+          "cohort_results": [
+            {
+              "cohort": "OASIS3",
+              "passed": true,
+              "reason": "passed",
+              "pattern_corr": 0.9674360672752392,
+              "dice": 1.0,
+              "region_replication_fraction": 1.0,
+              "region_table": {
+                "regions": [
+                  {
+                    "region": "smri_entorhinal",
+                    "effect": {
+                      "beta": -467.84957180982485,
+                      "se": 38.29456709348127,
+                      "ci_low": -542.9749545483007,
+                      "ci_high": -392.724189071349,
+                      "p": 1.3855090596493296e-32,
+                      "n": 1315,
+                      "dof": 1310.0,
+                      "standardized_effect": -0.7019586987449427,
+                      "diagnostics": {
+                        "residual_mean": -4.977372772867717e-08,
+                        "residual_sd": 581.5926954022115,
+                        "normality_p": 0.00016680640651223682,
+                        "homoscedasticity_p": 1.728999914141046e-14,
+                        "cooks_distance_top": [
+                          {
+                            "row": "2609",
+                            "value": 0.025986924621275293
+                          },
+                          {
+                            "row": "2416",
+                            "value": 0.016959853459857854
+                          },
+                          {
+                            "row": "1839",
+                            "value": 0.010600862489817165
+                          },
+                          {
+                            "row": "2349",
+                            "value": 0.010390538877579372
+                          },
+                          {
+                            "row": "2051",
+                            "value": 0.00864045514259732
+                          }
+                        ]
+                      }
+                    },
+                    "q": 2.0782635894739945e-32,
+                    "significant": true
+                  },
+                  {
+                    "region": "smri_fusiform",
+                    "effect": {
+                      "beta": -1672.655472827068,
+                      "se": 133.21165745526142,
+                      "ci_low": -1933.986975207645,
+                      "ci_high": -1411.323970446491,
+                      "p": 3.1440749123033104e-34,
+                      "n": 1315,
+                      "dof": 1310.0,
+                      "standardized_effect": -0.7307080609196575,
+                      "diagnostics": {
+                        "residual_mean": -1.309925562811895e-07,
+                        "residual_sd": 2023.1310287246943,
+                        "normality_p": 1.3940692304810424e-06,
+                        "homoscedasticity_p": 0.10729648701618978,
+                        "cooks_distance_top": [
+                          {
+                            "row": "2109",
+                            "value": 0.027108969330480688
+                          },
+                          {
+                            "row": "2609",
+                            "value": 0.02279746596708507
+                          },
+                          {
+                            "row": "2522",
+                            "value": 0.015418665937994031
+                          },
+                          {
+                            "row": "2796",
+                            "value": 0.011055744269614755
+                          },
+                          {
+                            "row": "3069",
+                            "value": 0.010311501049288038
+                          }
+                        ]
+                      }
+                    },
+                    "q": 6.288149824606621e-34,
+                    "significant": true
+                  },
+                  {
+                    "region": "smri_hippocampus",
+                    "effect": {
+                      "beta": -1097.5642218159192,
+                      "se": 59.04665411715849,
+                      "ci_low": -1213.4005617110643,
+                      "ci_high": -981.727881920774,
+                      "p": 1.2398977107468674e-68,
+                      "n": 1315,
+                      "dof": 1310.0,
+                      "standardized_effect": -1.2942040264045607,
+                      "diagnostics": {
+                        "residual_mean": -5.0422928504957445e-08,
+                        "residual_sd": 896.7617426944628,
+                        "normality_p": 0.0008304540338245234,
+                        "homoscedasticity_p": 2.948215802415591e-11,
+                        "cooks_distance_top": [
+                          {
+                            "row": "2609",
+                            "value": 0.03483930912040754
+                          },
+                          {
+                            "row": "2051",
+                            "value": 0.03293738933583971
+                          },
+                          {
+                            "row": "2522",
+                            "value": 0.023590227390179904
+                          },
+                          {
+                            "row": "2428",
+                            "value": 0.011738035768238026
+                          },
+                          {
+                            "row": "1973",
+                            "value": 0.011021108749353135
+                          }
+                        ]
+                      }
+                    },
+                    "q": 7.439386264481205e-68,
+                    "significant": true
+                  },
+                  {
+                    "region": "smri_midtemp",
+                    "effect": {
+                      "beta": -1796.9787255196875,
+                      "se": 142.20811883424668,
+                      "ci_low": -2075.959274636798,
+                      "ci_high": -1517.9981764025767,
+                      "p": 1.274295796642422e-34,
+                      "n": 1315,
+                      "dof": 1310.0,
+                      "standardized_effect": -0.6990395771522445,
+                      "diagnostics": {
+                        "residual_mean": -1.1064815436783796e-07,
+                        "residual_sd": 2159.7633664062605,
+                        "normality_p": 1.476622440307833e-10,
+                        "homoscedasticity_p": 9.790481387697053e-05,
+                        "cooks_distance_top": [
+                          {
+                            "row": "2109",
+                            "value": 0.03610234196429793
+                          },
+                          {
+                            "row": "2609",
+                            "value": 0.028460582748770565
+                          },
+                          {
+                            "row": "2522",
+                            "value": 0.024755641545467763
+                          },
+                          {
+                            "row": "2290",
+                            "value": 0.018919920596029267
+                          },
+                          {
+                            "row": "2051",
+                            "value": 0.01560287131706566
+                          }
+                        ]
+                      }
+                    },
+                    "q": 3.822887389927266e-34,
+                    "significant": true
+                  },
+                  {
+                    "region": "smri_ventricles",
+                    "effect": {
+                      "beta": 9638.148686499107,
+                      "se": 1016.9949072061695,
+                      "ci_low": 7643.031952043324,
+                      "ci_high": 11633.265420954891,
+                      "p": 1.178350418241978e-20,
+                      "n": 1315,
+                      "dof": 1310.0,
+                      "standardized_effect": 0.852382395987311,
+                      "diagnostics": {
+                        "residual_mean": 1.3711250532319338e-07,
+                        "residual_sd": 15445.449686074207,
+                        "normality_p": 1.6173623282295532e-24,
+                        "homoscedasticity_p": 2.7228528708830814e-26,
+                        "cooks_distance_top": [
+                          {
+                            "row": "2609",
+                            "value": 0.17732503642451572
+                          },
+                          {
+                            "row": "2585",
+                            "value": 0.044182181496358226
+                          },
+                          {
+                            "row": "2271",
+                            "value": 0.0438287934272836
+                          },
+                          {
+                            "row": "2108",
+                            "value": 0.021879366757505115
+                          },
+                          {
+                            "row": "3009",
+                            "value": 0.018517167272715823
+                          }
+                        ]
+                      }
+                    },
+                    "q": 1.178350418241978e-20,
+                    "significant": false
+                  },
+                  {
+                    "region": "smri_wholebrain",
+                    "effect": {
+                      "beta": -34256.45277831844,
+                      "se": 3000.5158708102904,
+                      "ci_low": -40142.798533471854,
+                      "ci_high": -28370.107023165023,
+                      "p": 7.582512853735699e-29,
+                      "n": 1314,
+                      "dof": 1309.0,
+                      "standardized_effect": -0.3148619122203819,
+                      "diagnostics": {
+                        "residual_mean": -1.7841504351625748e-05,
+                        "residual_sd": 45562.54753293131,
+                        "normality_p": 1.3543745567003244e-10,
+                        "homoscedasticity_p": 0.0009690072691488951,
+                        "cooks_distance_top": [
+                          {
+                            "row": "2609",
+                            "value": 0.041857117696789736
+                          },
+                          {
+                            "row": "2541",
+                            "value": 0.02774170047841509
+                          },
+                          {
+                            "row": "2352",
+                            "value": 0.02118576952050662
+                          },
+                          {
+                            "row": "2544",
+                            "value": 0.019763796302518056
+                          },
+                          {
+                            "row": "2522",
+                            "value": 0.019400522054216336
+                          }
+                        ]
+                      }
+                    },
+                    "q": 9.099015424482839e-29,
+                    "significant": true
+                  }
+                ],
+                "alpha": 0.05,
+                "method": "fdr_bh",
+                "region_set": "shared_ad_signature"
+              },
+              "feature_coverage": 1.0
+            }
+          ],
+          "harmonized": true,
+          "pattern_corr": 0.9674360672752392,
+          "dice": 1.0,
+          "region_replication_fraction": 1.0
+        },
+        "verdict": {
+          "label": "confirmed",
+          "abstained": false,
+          "rationale": "All brain-wide gates passed.; pattern_corr=0.967; dice=1.000; region_replication_fraction=1.000",
+          "gates": {
+            "search_provenance": true,
+            "confound": true,
+            "multiplicity": true,
+            "power": true,
+            "multiverse": true,
+            "replication": true,
+            "pattern_corr": true,
+            "region_replication_fraction": true,
+            "dice": true,
+            "multiplicity_effective_family_size": 6
+          },
+          "confirmation_subtype": null,
+          "heterogeneity_i2": null
+        }
+      },
+      "interpretation": "CONFIRM verdict: see the engine-computed result bundle for effect estimates and gate decisions."
+    },
+    {
+      "model_spec": "standin",
+      "claim_id": "ad_wholebrain_atrophy_adni_oasis3",
+      "label_class": "known_positive",
+      "question": "In ADNI as discovery and OASIS3 as replication, are Dementia participants lower than CN in smri_wholebrain after age, sex, and eTIV adjustment?",
+      "intended_estimand": {
+        "type": "group_diff",
+        "outcome": "smri_wholebrain",
+        "predictor": "dx",
+        "group": {
+          "var": "dx",
+          "case": "Dementia",
+          "control": "CN"
+        },
+        "direction": "negative",
+        "unit": "scalar",
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ]
+      },
+      "draft_success": true,
+      "estimand_match": false,
+      "gate_success": true,
+      "gate_verdict_label": "confirmed",
+      "anti_hallucination_ok": true,
+      "anti_hallucination_removed_number": false,
+      "drafted_contract": {
+        "claim_id": "agent_brainwide_ad_cn",
+        "question": "Agent-drafted brain-wide regional claim.",
+        "estimand": {
+          "type": "group_diff",
+          "outcome": "smri_*",
+          "predictor": "dx",
+          "group": {
+            "var": "dx",
+            "case": "Dementia",
+            "control": "CN"
+          },
+          "direction": "negative",
+          "unit": "brainwide",
+          "region_set": "shared_ad_signature"
+        },
+        "covariates": [
+          "age",
+          "sex",
+          "eTIV"
+        ],
+        "inclusion": null,
+        "discovery_cohort": "ADNI",
+        "replication_cohorts": [
+          "OASIS3"
+        ],
+        "search_provenance": {
+          "declared": true,
+          "family_size": 1,
+          "selection": "preregistered"
+        },
+        "gates": {
+          "multiplicity": {
+            "method": "fdr_bh",
+            "alpha": 0.05,
+            "family_size": 1
+          },
+          "confound": {
+            "require_covariates": [
+              "age",
+              "sex",
+              "eTIV"
+            ],
+            "motion_check": false
+          },
+          "power": {
+            "min_power": 0.8,
+            "ref_effect": null
+          },
+          "multiverse": {
+            "min_fraction_consistent": 0.6
+          },
+          "replication": {
+            "alpha": 0.05,
+            "require_same_sign": true,
+            "require_ci_overlap": false,
+            "harmonize": "combat",
+            "pattern_corr_min": 0.5,
+            "region_replication_frac_min": 0.5,
+            "dice_min": 0.0
+          }
+        },
+        "reporting_language_allowed": [
+          "confirmed",
+          "non_replicated",
+          "under_powered",
+          "fragile"
+        ]
+      },
+      "estimand_mismatches": {
+        "outcome": {
+          "expected": "smri_wholebrain",
+          "actual": "smri_*"
+        },
+        "unit": {
+          "expected": "scalar",
+          "actual": "brainwide"
+        }
+      },
+      "gate_verdict": {
+        "label": "confirmed",
+        "abstained": false,
+        "rationale": "All brain-wide gates passed.; pattern_corr=0.967; dice=1.000; region_replication_fraction=1.000",
+        "gates": {
+          "search_provenance": true,
+          "confound": true,
+          "multiplicity": true,
+          "power": true,
+          "multiverse": true,
+          "replication": true,
+          "pattern_corr": true,
+          "region_replication_fraction": true,
+          "dice": true,
+          "multiplicity_effective_family_size": 6
+        },
+        "confirmation_subtype": null,
+        "heterogeneity_i2": null
+      },
+      "cohort_paths": [
+        "data/prepared_data/smri_disease/ADNI.parquet",
+        "data/prepared_data/smri_disease/OASIS3.parquet"
+      ],
+      "gate_results": {
+        "contract": {
+          "claim_id": "agent_brainwide_ad_cn",
+          "question": "Agent-drafted brain-wide regional claim.",
+          "estimand": {
+            "type": "group_diff",
+            "outcome": "smri_*",
+            "predictor": "dx",
+            "group": {
+              "var": "dx",
+              "case": "Dementia",
+              "control": "CN"
+            },
+            "direction": "negative",
+            "unit": "brainwide",
+            "region_set": "shared_ad_signature"
+          },
+          "covariates": [
+            "age",
+            "sex",
+            "eTIV"
+          ],
+          "inclusion": null,
+          "discovery_cohort": "ADNI",
+          "replication_cohorts": [
+            "OASIS3"
+          ],
+          "search_provenance": {
+            "declared": true,
+            "family_size": 1,
+            "selection": "preregistered"
+          },
+          "gates": {
+            "multiplicity": {
+              "method": "fdr_bh",
+              "alpha": 0.05,
+              "family_size": 1
+            },
+            "confound": {
+              "require_covariates": [
+                "age",
+                "sex",
+                "eTIV"
+              ],
+              "motion_check": false
+            },
+            "power": {
+              "min_power": 0.8,
+              "ref_effect": null
+            },
+            "multiverse": {
+              "min_fraction_consistent": 0.6
+            },
+            "replication": {
+              "alpha": 0.05,
+              "require_same_sign": true,
+              "require_ci_overlap": false,
+              "harmonize": "combat",
+              "pattern_corr_min": 0.5,
+              "region_replication_frac_min": 0.5,
+              "dice_min": 0.0
+            }
+          },
+          "reporting_language_allowed": [
+            "confirmed",
+            "non_replicated",
+            "under_powered",
+            "fragile"
+          ]
+        },
+        "regions": {
+          "regions": [
+            {
+              "region": "smri_entorhinal",
+              "effect": {
+                "beta": -1048.8402411083093,
+                "se": 45.36375788019751,
+                "ci_low": -1137.9008701251205,
+                "ci_high": -959.779612091498,
+                "p": 6.073615546545957e-89,
+                "n": 727,
+                "dof": 722.0,
+                "standardized_effect": -1.5816033476477465,
+                "diagnostics": {
+                  "residual_mean": 2.527642304393523e-07,
+                  "residual_sd": 581.438983044764,
+                  "normality_p": 0.003296379532338245,
+                  "homoscedasticity_p": 0.1338247713808139,
+                  "cooks_distance_top": [
+                    {
+                      "row": "179",
+                      "value": 0.02818133667660947
+                    },
+                    {
+                      "row": "145",
+                      "value": 0.01805760235004628
+                    },
+                    {
+                      "row": "905",
+                      "value": 0.01801110124945347
+                    },
+                    {
+                      "row": "1",
+                      "value": 0.01553704492792469
+                    },
+                    {
+                      "row": "448",
+                      "value": 0.014903391234933498
+                    }
+                  ]
+                }
+              },
+              "q": 1.8220846639637873e-88,
+              "significant": true
+            },
+            {
+              "region": "smri_fusiform",
+              "effect": {
+                "beta": -2556.5921767994987,
+                "se": 164.23720067782128,
+                "ci_low": -2879.031698652077,
+                "ci_high": -2234.1526549469204,
+                "p": 2.509631486126671e-47,
+                "n": 727,
+                "dof": 722.0,
+                "standardized_effect": -0.9678877903865046,
+                "diagnostics": {
+                  "residual_mean": 6.196708315944983e-07,
+                  "residual_sd": 2105.070554172869,
+                  "normality_p": 0.843951466904874,
+                  "homoscedasticity_p": 0.4905462991006213,
+                  "cooks_distance_top": [
+                    {
+                      "row": "1710",
+                      "value": 0.022122965974229053
+                    },
+                    {
+                      "row": "1732",
+                      "value": 0.015866297883427676
+                    },
+                    {
+                      "row": "554",
+                      "value": 0.015768348190839387
+                    },
+                    {
+                      "row": "80",
+                      "value": 0.015052223163590474
+                    },
+                    {
+                      "row": "1464",
+                      "value": 0.014981282900953925
+                    }
+                  ]
+                }
+              },
+              "q": 3.011557783352005e-47,
+              "significant": true
+            },
+            {
+              "region": "smri_hippocampus",
+              "effect": {
+                "beta": -1654.2086480065677,
+                "se": 61.292188687238095,
+                "ci_low": -1774.5348756657286,
+                "ci_high": -1533.8824203474069,
+                "p": 2.1762293771854846e-112,
+                "n": 749,
+                "dof": 744.0,
+                "standardized_effect": -1.7156409590131518,
+                "diagnostics": {
+                  "residual_mean": 5.905513123370389e-07,
+                  "residual_sd": 803.7019171857888,
+                  "normality_p": 0.15544753500136974,
+                  "homoscedasticity_p": 0.06590876133368172,
+                  "cooks_distance_top": [
+                    {
+                      "row": "52",
+                      "value": 0.05650549584755375
+                    },
+                    {
+                      "row": "1110",
+                      "value": 0.01905462672852507
+                    },
+                    {
+                      "row": "1597",
+                      "value": 0.017396392316476113
+                    },
+                    {
+                      "row": "380",
+                      "value": 0.016937639062785663
+                    },
+                    {
+                      "row": "148",
+                      "value": 0.015436256879185926
+                    }
+                  ]
+                }
+              },
+              "q": 1.3057376263112907e-111,
+              "significant": true
+            },
+            {
+              "region": "smri_midtemp",
+              "effect": {
+                "beta": -3297.988861331254,
+                "se": 176.30578439667553,
+                "ci_low": -3644.122091720541,
+                "ci_high": -2951.8556309419673,
+                "p": 5.7294907199195404e-64,
+                "n": 727,
+                "dof": 722.0,
+                "standardized_effect": -1.0942810520867954,
+                "diagnostics": {
+                  "residual_mean": 7.818611143374665e-07,
+                  "residual_sd": 2259.756703914101,
+                  "normality_p": 0.03496398843683143,
+                  "homoscedasticity_p": 9.387604483308551e-05,
+                  "cooks_distance_top": [
+                    {
+                      "row": "146",
+                      "value": 0.031736171619912976
+                    },
+                    {
+                      "row": "1597",
+                      "value": 0.028853762303181405
+                    },
+                    {
+                      "row": "851",
+                      "value": 0.028433643852044672
+                    },
+                    {
+                      "row": "177",
+                      "value": 0.021405232882367186
+                    },
+                    {
+                      "row": "511",
+                      "value": 0.017656667476134317
+                    }
+                  ]
+                }
+              },
+              "q": 1.1458981439839081e-63,
+              "significant": true
+            },
+            {
+              "region": "smri_ventricles",
+              "effect": {
+                "beta": 13752.962290462572,
+                "se": 1199.2942060828484,
+                "ci_low": 11398.871265799473,
+                "ci_high": 16107.053315125671,
+                "p": 2.5710282561836494e-28,
+                "n": 815,
+                "dof": 810.0,
+                "standardized_effect": 0.7611025918908444,
+                "diagnostics": {
+                  "residual_mean": -7.8376362234514e-06,
+                  "residual_sd": 16590.02508994344,
+                  "normality_p": 4.444835244258358e-16,
+                  "homoscedasticity_p": 3.1750455914659297e-12,
+                  "cooks_distance_top": [
+                    {
+                      "row": "607",
+                      "value": 0.06586606526610526
+                    },
+                    {
+                      "row": "1469",
+                      "value": 0.03489005987876087
+                    },
+                    {
+                      "row": "0",
+                      "value": 0.02450630661601462
+                    },
+                    {
+                      "row": "1597",
+                      "value": 0.021265538457594792
+                    },
+                    {
+                      "row": "590",
+                      "value": 0.02116376395679067
+                    }
+                  ]
+                }
+              },
+              "q": 2.5710282561836494e-28,
+              "significant": false
+            },
+            {
+              "region": "smri_wholebrain",
+              "effect": {
+                "beta": -67075.51618745543,
+                "se": 4288.327296221618,
+                "ci_low": -75492.75754833335,
+                "ci_high": -58658.274826577515,
+                "p": 1.59514955465788e-48,
+                "n": 835,
+                "dof": 830.0,
+                "standardized_effect": -0.524858984819158,
+                "diagnostics": {
+                  "residual_mean": -2.4936937108011303e-06,
+                  "residual_sd": 60059.32199464182,
+                  "normality_p": 0.3698849835567504,
+                  "homoscedasticity_p": 1.1229861731155105e-06,
+                  "cooks_distance_top": [
+                    {
+                      "row": "1597",
+                      "value": 0.027273152275903594
+                    },
+                    {
+                      "row": "146",
+                      "value": 0.022010121588680664
+                    },
+                    {
+                      "row": "299",
+                      "value": 0.02048750909512333
+                    },
+                    {
+                      "row": "1375",
+                      "value": 0.02014493253594408
+                    },
+                    {
+                      "row": "177",
+                      "value": 0.016272825022573222
+                    }
+                  ]
+                }
+              },
+              "q": 2.3927243319868202e-48,
+              "significant": true
+            }
+          ],
+          "alpha": 0.05,
+          "method": "fdr_bh",
+          "region_set": "shared_ad_signature"
+        },
+        "multiverse": {
+          "fraction_consistent": 1.0,
+          "passed": true,
+          "specs": [
+            {
+              "spec_id": "covariates=full,outliers=none",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1654.2086480065677,
+              "p": 2.1762293771854846e-112,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "covariates=full,outliers=winsorize",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1654.2086480065677,
+              "p": 2.1762293771854846e-112,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "covariates=full,outliers=drop_z3",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1654.2086480065677,
+              "p": 2.1762293771854846e-112,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "covariates=min,outliers=none",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1638.858610470867,
+              "p": 9.192878267516552e-103,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "covariates=min,outliers=winsorize",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1638.858610470867,
+              "p": 9.192878267516552e-103,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            },
+            {
+              "spec_id": "covariates=min,outliers=drop_z3",
+              "same_sign": true,
+              "significant": true,
+              "beta": -1638.858610470867,
+              "p": 9.192878267516552e-103,
+              "n": 749,
+              "status": "ok",
+              "error": null
+            }
+          ]
+        },
+        "power": {
+          "achieved_power": 1.0,
+          "n_needed_80": 4.896662095626574,
+          "shrinkage_factor": 0.9986271291433765,
+          "shrunken_effect": -1651.9376331629448,
+          "under_powered": false,
+          "ref_effect": null,
+          "rationale": "power=1.000, n_needed_80=4.9, ref_effect=none"
+        },
+        "replication": {
+          "passed": true,
+          "reason": "passed",
+          "cohort_results": [
+            {
+              "cohort": "OASIS3",
+              "passed": true,
+              "reason": "passed",
+              "pattern_corr": 0.9674360672752392,
+              "dice": 1.0,
+              "region_replication_fraction": 1.0,
+              "region_table": {
+                "regions": [
+                  {
+                    "region": "smri_entorhinal",
+                    "effect": {
+                      "beta": -467.84957180982485,
+                      "se": 38.29456709348127,
+                      "ci_low": -542.9749545483007,
+                      "ci_high": -392.724189071349,
+                      "p": 1.3855090596493296e-32,
+                      "n": 1315,
+                      "dof": 1310.0,
+                      "standardized_effect": -0.7019586987449427,
+                      "diagnostics": {
+                        "residual_mean": -4.977372772867717e-08,
+                        "residual_sd": 581.5926954022115,
+                        "normality_p": 0.00016680640651223682,
+                        "homoscedasticity_p": 1.728999914141046e-14,
+                        "cooks_distance_top": [
+                          {
+                            "row": "2609",
+                            "value": 0.025986924621275293
+                          },
+                          {
+                            "row": "2416",
+                            "value": 0.016959853459857854
+                          },
+                          {
+                            "row": "1839",
+                            "value": 0.010600862489817165
+                          },
+                          {
+                            "row": "2349",
+                            "value": 0.010390538877579372
+                          },
+                          {
+                            "row": "2051",
+                            "value": 0.00864045514259732
+                          }
+                        ]
+                      }
+                    },
+                    "q": 2.0782635894739945e-32,
+                    "significant": true
+                  },
+                  {
+                    "region": "smri_fusiform",
+                    "effect": {
+                      "beta": -1672.655472827068,
+                      "se": 133.21165745526142,
+                      "ci_low": -1933.986975207645,
+                      "ci_high": -1411.323970446491,
+                      "p": 3.1440749123033104e-34,
+                      "n": 1315,
+                      "dof": 1310.0,
+                      "standardized_effect": -0.7307080609196575,
+                      "diagnostics": {
+                        "residual_mean": -1.309925562811895e-07,
+                        "residual_sd": 2023.1310287246943,
+                        "normality_p": 1.3940692304810424e-06,
+                        "homoscedasticity_p": 0.10729648701618978,
+                        "cooks_distance_top": [
+                          {
+                            "row": "2109",
+                            "value": 0.027108969330480688
+                          },
+                          {
+                            "row": "2609",
+                            "value": 0.02279746596708507
+                          },
+                          {
+                            "row": "2522",
+                            "value": 0.015418665937994031
+                          },
+                          {
+                            "row": "2796",
+                            "value": 0.011055744269614755
+                          },
+                          {
+                            "row": "3069",
+                            "value": 0.010311501049288038
+                          }
+                        ]
+                      }
+                    },
+                    "q": 6.288149824606621e-34,
+                    "significant": true
+                  },
+                  {
+                    "region": "smri_hippocampus",
+                    "effect": {
+                      "beta": -1097.5642218159192,
+                      "se": 59.04665411715849,
+                      "ci_low": -1213.4005617110643,
+                      "ci_high": -981.727881920774,
+                      "p": 1.2398977107468674e-68,
+                      "n": 1315,
+                      "dof": 1310.0,
+                      "standardized_effect": -1.2942040264045607,
+                      "diagnostics": {
+                        "residual_mean": -5.0422928504957445e-08,
+                        "residual_sd": 896.7617426944628,
+                        "normality_p": 0.0008304540338245234,
+                        "homoscedasticity_p": 2.948215802415591e-11,
+                        "cooks_distance_top": [
+                          {
+                            "row": "2609",
+                            "value": 0.03483930912040754
+                          },
+                          {
+                            "row": "2051",
+                            "value": 0.03293738933583971
+                          },
+                          {
+                            "row": "2522",
+                            "value": 0.023590227390179904
+                          },
+                          {
+                            "row": "2428",
+                            "value": 0.011738035768238026
+                          },
+                          {
+                            "row": "1973",
+                            "value": 0.011021108749353135
+                          }
+                        ]
+                      }
+                    },
+                    "q": 7.439386264481205e-68,
+                    "significant": true
+                  },
+                  {
+                    "region": "smri_midtemp",
+                    "effect": {
+                      "beta": -1796.9787255196875,
+                      "se": 142.20811883424668,
+                      "ci_low": -2075.959274636798,
+                      "ci_high": -1517.9981764025767,
+                      "p": 1.274295796642422e-34,
+                      "n": 1315,
+                      "dof": 1310.0,
+                      "standardized_effect": -0.6990395771522445,
+                      "diagnostics": {
+                        "residual_mean": -1.1064815436783796e-07,
+                        "residual_sd": 2159.7633664062605,
+                        "normality_p": 1.476622440307833e-10,
+                        "homoscedasticity_p": 9.790481387697053e-05,
+                        "cooks_distance_top": [
+                          {
+                            "row": "2109",
+                            "value": 0.03610234196429793
+                          },
+                          {
+                            "row": "2609",
+                            "value": 0.028460582748770565
+                          },
+                          {
+                            "row": "2522",
+                            "value": 0.024755641545467763
+                          },
+                          {
+                            "row": "2290",
+                            "value": 0.018919920596029267
+                          },
+                          {
+                            "row": "2051",
+                            "value": 0.01560287131706566
+                          }
+                        ]
+                      }
+                    },
+                    "q": 3.822887389927266e-34,
+                    "significant": true
+                  },
+                  {
+                    "region": "smri_ventricles",
+                    "effect": {
+                      "beta": 9638.148686499107,
+                      "se": 1016.9949072061695,
+                      "ci_low": 7643.031952043324,
+                      "ci_high": 11633.265420954891,
+                      "p": 1.178350418241978e-20,
+                      "n": 1315,
+                      "dof": 1310.0,
+                      "standardized_effect": 0.852382395987311,
+                      "diagnostics": {
+                        "residual_mean": 1.3711250532319338e-07,
+                        "residual_sd": 15445.449686074207,
+                        "normality_p": 1.6173623282295532e-24,
+                        "homoscedasticity_p": 2.7228528708830814e-26,
+                        "cooks_distance_top": [
+                          {
+                            "row": "2609",
+                            "value": 0.17732503642451572
+                          },
+                          {
+                            "row": "2585",
+                            "value": 0.044182181496358226
+                          },
+                          {
+                            "row": "2271",
+                            "value": 0.0438287934272836
+                          },
+                          {
+                            "row": "2108",
+                            "value": 0.021879366757505115
+                          },
+                          {
+                            "row": "3009",
+                            "value": 0.018517167272715823
+                          }
+                        ]
+                      }
+                    },
+                    "q": 1.178350418241978e-20,
+                    "significant": false
+                  },
+                  {
+                    "region": "smri_wholebrain",
+                    "effect": {
+                      "beta": -34256.45277831844,
+                      "se": 3000.5158708102904,
+                      "ci_low": -40142.798533471854,
+                      "ci_high": -28370.107023165023,
+                      "p": 7.582512853735699e-29,
+                      "n": 1314,
+                      "dof": 1309.0,
+                      "standardized_effect": -0.3148619122203819,
+                      "diagnostics": {
+                        "residual_mean": -1.7841504351625748e-05,
+                        "residual_sd": 45562.54753293131,
+                        "normality_p": 1.3543745567003244e-10,
+                        "homoscedasticity_p": 0.0009690072691488951,
+                        "cooks_distance_top": [
+                          {
+                            "row": "2609",
+                            "value": 0.041857117696789736
+                          },
+                          {
+                            "row": "2541",
+                            "value": 0.02774170047841509
+                          },
+                          {
+                            "row": "2352",
+                            "value": 0.02118576952050662
+                          },
+                          {
+                            "row": "2544",
+                            "value": 0.019763796302518056
+                          },
+                          {
+                            "row": "2522",
+                            "value": 0.019400522054216336
+                          }
+                        ]
+                      }
+                    },
+                    "q": 9.099015424482839e-29,
+                    "significant": true
+                  }
+                ],
+                "alpha": 0.05,
+                "method": "fdr_bh",
+                "region_set": "shared_ad_signature"
+              },
+              "feature_coverage": 1.0
+            }
+          ],
+          "harmonized": true,
+          "pattern_corr": 0.9674360672752392,
+          "dice": 1.0,
+          "region_replication_fraction": 1.0
+        },
+        "verdict": {
+          "label": "confirmed",
+          "abstained": false,
+          "rationale": "All brain-wide gates passed.; pattern_corr=0.967; dice=1.000; region_replication_fraction=1.000",
+          "gates": {
+            "search_provenance": true,
+            "confound": true,
+            "multiplicity": true,
+            "power": true,
+            "multiverse": true,
+            "replication": true,
+            "pattern_corr": true,
+            "region_replication_fraction": true,
+            "dice": true,
+            "multiplicity_effective_family_size": 6
+          },
+          "confirmation_subtype": null,
+          "heterogeneity_i2": null
+        }
+      },
+      "interpretation": "CONFIRM verdict: see the engine-computed result bundle for effect estimates and gate decisions."
+    }
+  ]
+}

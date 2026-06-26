@@ -1,0 +1,21 @@
+# Example claim contract — the P1 known-positive pilot.
+# "Cortical thickness decreases with age" — a huge, universally-replicated effect.
+claim_id: age_atrophy_smri
+question: "Does global mean cortical thickness decrease with age in typically-developing/control subjects?"
+estimand:
+  type: association          # association | group_diff
+  outcome: smri_meanthickness
+  predictor: age
+  group: null
+  direction: negative
+covariates: [sex, eTIV, site]
+inclusion: null              # null => all rows; or a pandas query string
+discovery_cohort: ABIDE
+replication_cohorts: [ADHD200]
+gates:
+  multiplicity: {method: fdr_bh, alpha: 0.05, family_size: 1}
+  confound:     {require_covariates: [sex, eTIV], motion_check: false}
+  power:        {min_power: 0.8, ref_effect: null}
+  multiverse:   {min_fraction_consistent: 0.6}
+  replication:  {alpha: 0.05, require_same_sign: true, require_ci_overlap: false, harmonize: combat}
+reporting_language_allowed: [confirmed, non_replicated, under_powered, fragile]

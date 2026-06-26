@@ -1,0 +1,26 @@
+{
+  "round": "loop2-round3 (negatives push)",
+  "status": "completed",
+  "final_score": 8.1,
+  "final_verdict": "ready",
+  "score_progression": [5.5, 5.8, 6.4, 6.8, 7.3, 7.5, 8.1],
+  "outcome": "READY 8.1 — submission-ready methods contribution. Negatives push tightened FCR upper bound 12.8% (0/27) -> 3.1% (1/177).",
+  "what_was_built": [
+    "CONFIRM governance engine + gate ladder (multiplicity+search-provenance, confound, confound-completeness, power, multiverse, cross-cohort replication)",
+    "agentic loop validated across 6 LLMs (governance robust on the false-confirm axis; anti-hallucination guard)",
+    "CONFIRM-as-modular-layer over NeuroClaw (FCR 0.33->0.0, TPR preserved)",
+    "contract-validation layer (static checks + data-aware confound-completeness audit)",
+    "3 confirmed-positive domains (AD, schizophrenia, aging); real NeuroClaw baseline beaten; 150-negative stress benchmark"
+  ],
+  "framing_discipline": "the ~3.1% FCR bound is CONDITIONAL on the synthetic gate-targeted generator on local cohorts -- 'strong internal stress-test validation', NOT a real-world guarantee. 3 positive domains; cross-cohort-nonreplication family small (n=3).",
+  "future_work_for_top_tier": "preregistered EXTERNAL adversarial benchmark of ~100-200 REAL claims across UNSEEN cohorts, frozen gates, run once -> 'field-level evidence' (vs current strong internal validation).",
+  "next_step": "paper writeup with the calibrated framing (the loop is complete; the contribution is submission-ready).",
+  "key_artifacts": {
+    "final_review": "review-stage/loop2-round3-negatives-review.md",
+    "auto_review_log": "review-stage/AUTO_REVIEW.md",
+    "negatives": "review-stage/negatives-expansion/",
+    "agentic_multillm": "review-stage/agentic-multillm/",
+    "confirm_layer": "review-stage/confirm-layer/"
+  },
+  "timestamp": "2026-06-18T20:30:00-07:00"
+}

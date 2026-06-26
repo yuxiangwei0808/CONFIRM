@@ -1,0 +1,30 @@
+% Auto-generated include snippets for CONFIRM WACV figures and tables.
+% Rebuild with: PYTHONPATH=src ./.venv/bin/python paper/figures/scripts/generate_all.py
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig_coverage_fcr.pdf}
+    \caption{Coverage, false-confirm rate (FCR), and known-positive recall (TPR) across progressively stricter CONFIRM gate rungs for the full benchmark and main-label subset. FCR error bars are exact 95\% Clopper--Pearson intervals.}
+    \label{fig:coverage_fcr}
+\end{figure*}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig_neuroclaw.pdf}
+    \caption{Head-to-head comparison with NeuroClaw and post-hoc CONFIRM layering. Bars show TPR and FCR with exact 95\% binomial intervals; labels show count/denominator. The CONFIRM layer removes NeuroClaw false confirms while preserving the NeuroClaw positive-recall count.}
+    \label{fig:neuroclaw}
+\end{figure*}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig_multillm.pdf}
+    \caption{Agentic multi-LLM sweep across six models. Bars report artifact-derived draft-success, estimand-match, and gate-success rates; the inset summarizes cross-model verdict agreement and anti-hallucination catches.}
+    \label{fig:multillm}
+\end{figure*}
+
+\input{figures/tab_positives.tex}
+
+\input{figures/tab_gate_ladder.tex}
+
+\input{figures/tab_negatives.tex}
+

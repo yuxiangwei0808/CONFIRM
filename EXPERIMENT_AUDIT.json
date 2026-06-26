@@ -1,0 +1,61 @@
+{
+  "date": "2026-06-16",
+  "auditor": "gpt-5.5-xhigh",
+  "overall_verdict": "warn",
+  "integrity_status": "warn",
+  "checks": {
+    "gt_provenance": {
+      "status": "warn",
+      "details": "Labels are not derived from model outputs, but many are proxy/stability/stress-test labels rather than official external ground truth."
+    },
+    "score_normalization": {
+      "status": "warn",
+      "details": "No self-normalized prediction metrics found. Warning is observed-effect power fallback when external MDE/reference effect is absent."
+    },
+    "result_existence": {
+      "status": "warn",
+      "details": "Main benchmark numbers match files. Stale paths and skipped feature-mismatch claims were repaired post-audit."
+    },
+    "dead_code": {
+      "status": "warn",
+      "details": "Duplicated brain-wide multiverse and unused raw-effect helper were repaired post-audit; injected-null utility builders remain for future traps."
+    },
+    "scope": {
+      "status": "warn",
+      "details": "Current hardened wave is 20 runnable fMRI claims over 8 fMRI cohorts; broad cross-disease claims require expansion/adjudication."
+    },
+    "eval_type": {
+      "status": "warn",
+      "classification": ["real_data_proxy_labels", "synthetic_proxy", "simulation_only"],
+      "details": "No human_eval yet; no official benchmark ground truth for most fMRI claims."
+    }
+  },
+  "post_audit_fixes": [
+    "Demoted no-shared-feature claims in benchmark-ready builder",
+    "Reran hardened no-harmonization and ComBat benchmarks with n_skipped=0",
+    "Replaced benchmark-private brain-wide multiverse with shared confirm.multiverse.run_brainwide_multiverse",
+    "Wired generic agent brain-wide path to shared multiverse implementation",
+    "Removed unused _raw_effect_map helper",
+    "Removed stale generated src/confirm.egg-info metadata",
+    "Fixed stale pilot paths and current-status text in experiment tracker",
+    "Added first-pass fMRI claim literature label ledger"
+  ],
+  "label_ledger": "docs/literature_labels/fmri_claim_label_ledger.md",
+  "claims": [
+    {
+      "id": "C_infrastructure",
+      "impact": "supported_narrowly",
+      "text": "The benchmark-ready framework runs end-to-end and emits auditable receipts."
+    },
+    {
+      "id": "C_validity",
+      "impact": "needs_qualifier",
+      "text": "FCR reduction is measured against proxy/stress-test labels, not official disease-biomarker ground truth."
+    },
+    {
+      "id": "C_cross_disease",
+      "impact": "unsupported",
+      "text": "Broad cross-disease robustness requires literature labels and benchmark expansion."
+    }
+  ]
+}

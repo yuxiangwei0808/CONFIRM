@@ -1,0 +1,24 @@
+\begin{table*}[t]
+\centering
+\caption{Gate-ladder operating characteristics for the full benchmark and the main-label subset. Entries show rate [exact 95\% CI] with count/denominator in parentheses. TPR is known-positive recall.}
+\label{tab:gate_ladder}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}llccc@{}}
+\toprule
+Subset & Rung & TPR & FCR & Coverage \\
+\midrule
+FULL & exec-only & 1.000 [0.715, 1.000] (11/11) & 0.379 [0.207, 0.577] (11/29) & 0.564 [0.423, 0.697] (31/55) \\
+ & +confound & 1.000 [0.715, 1.000] (11/11) & 0.103 [0.022, 0.274] (3/29) & 0.418 [0.287, 0.559] (23/55) \\
+ & +power & 1.000 [0.715, 1.000] (11/11) & 0.103 [0.022, 0.274] (3/29) & 0.418 [0.287, 0.559] (23/55) \\
+ & +multiverse & 1.000 [0.715, 1.000] (11/11) & 0.103 [0.022, 0.274] (3/29) & 0.400 [0.270, 0.541] (22/55) \\
+ & +replication & 1.000 [0.715, 1.000] (11/11) & 0.000 [0.000, 0.119] (0/29) & 0.309 [0.191, 0.448] (17/55) \\
+\midrule
+MAIN & exec-only & 1.000 [0.692, 1.000] (10/10) & 0.407 [0.224, 0.612] (11/27) & 0.575 [0.409, 0.730] (23/40) \\
+ & +confound & 1.000 [0.692, 1.000] (10/10) & 0.111 [0.024, 0.292] (3/27) & 0.375 [0.227, 0.542] (15/40) \\
+ & +power & 1.000 [0.692, 1.000] (10/10) & 0.111 [0.024, 0.292] (3/27) & 0.375 [0.227, 0.542] (15/40) \\
+ & +multiverse & 1.000 [0.692, 1.000] (10/10) & 0.111 [0.024, 0.292] (3/27) & 0.375 [0.227, 0.542] (15/40) \\
+ & +replication & 1.000 [0.692, 1.000] (10/10) & 0.000 [0.000, 0.128] (0/27) & 0.300 [0.166, 0.465] (12/40) \\
+\bottomrule
+\end{tabular}
+\end{table*}
