@@ -165,3 +165,44 @@ CONFIRM is a CPU-only **claim-governance layer** over precomputed neuroimaging d
 
 ### Status
 - **LOOP COMPLETE — READY (8.1).** Submission-ready methods contribution. Next = paper writeup (calibrated framing); external real-claim benchmark = future work.
+
+---
+
+## Feedback Loop Extension / Round 1 (2026-06-26) — ALMOST
+
+### Assessment
+- Score **7.0/10**, verdict **almost**.
+- External secondary Codex review was attempted but blocked by data-export policy because it would disclose private workspace code/artifacts to an unverified external service. No workaround was attempted.
+- Local adversarial review: extension is reasonable and useful if framed as safer scientific repair/triage, not as guaranteed repair or increased confirmation.
+
+### Actions
+- Implemented deterministic feedback layer in `src/confirm/feedback.py` with `ClaimFeedback`, `RevisionResponse`, and `PolicyValidation`.
+- Added policy validator rejecting lower gates, removed confounds/covariates, outcome/direction/cohort gaming, same-cohort replication, and search-provenance relabeling.
+- Added configurable pipeline output: `confirm run --feedback on|off` and `confirm ask --feedback on|off`, default off.
+- Added E7 replay: `src/bench/run_feedback_replay.py`.
+- Added E8 one-step repair benchmark: `src/bench/run_agentic_feedback_benchmark.py`, including live LLM arms and a controlled feedback-following baseline.
+- Iterated after review: stricter downgrade/needs-new-data handling, draft-mismatch cohort/covariate correction allowance, embedded code-fence parser handling, same-cohort replication disposition instruction.
+
+### Results
+- E7 replay over existing artifacts: 289 feedback rows, 257 abstentions, 100% deterministic feedback coverage over abstentions. Primary failures: multiplicity 140, confound 54, search_provenance 43, replication 10, multiverse 7, power 3. Repairability: contract_repairable 88, downgrade_only 147, needs_new_data 22.
+- E8 live six-model run: generic retry valid revisions 3/24, appropriate 3/24, policy violations 15/24; structured feedback valid revisions 16/24, appropriate 14/24, policy violations 5/24. Both retry arms had 0 observed false confirmations.
+- Controlled feedback-following baseline on final code: structured feedback 8/8 valid and appropriate revisions, 0 policy violations, 0 false confirmations; generic retry 0/8 valid.
+- Tests: 48 passed.
+
+### Key Artifacts
+- Summary: `review-stage/feedback-loop-fullscale-20260626/EXPERIMENT_SUMMARY.md`
+- E7 replay: `review-stage/feedback-loop-fullscale-20260626/replay/feedback_replay.json`
+- E8 live: `review-stage/feedback-loop-fullscale-20260626/agentic-feedback-live-v2/agentic_feedback_benchmark_full_scale_live_v2.json`
+- E8 controlled: `review-stage/feedback-loop-fullscale-20260626/agentic-feedback-controlled-v4/agentic_feedback_benchmark_full_scale_controlled_v4.json`
+- Local review: `review-stage/feedback-loop-fullscale-20260626/local-review-round1.md`
+
+### Method Description
+The feedback loop is a post-verdict, deterministic guidance layer. CONFIRM gates still own final scientific verdicts. When a claim fails or a draft mismatches the intended estimand, the feedback layer maps the failure to structured repairability, allowed revisions, forbidden revisions, and a next agent instruction. A one-step revised output is accepted only if it either returns a valid downgrade/disposition or passes the policy validator and then passes the unchanged CONFIRM gates.
+
+### Framing
+Supported claim: structured CONFIRM feedback improves safe one-step repair/triage over generic retry in the live multi-LLM benchmark, while maintaining 0 observed false confirmations in retry arms.
+
+Do not claim: every failed claim can be repaired, or the policy validator can prove a newly selected cohort was not chosen after seeing results.
+
+### Status
+- Stop condition met: score >= 6 and verdict almost.

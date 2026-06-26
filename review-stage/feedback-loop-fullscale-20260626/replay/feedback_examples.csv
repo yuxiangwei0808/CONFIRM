@@ -1,0 +1,7 @@
+failed_gate,repairability,example_claim,agent_instruction
+confound,needs_new_data,injected_null_site_abcd,"Repair the confound specification/design, or return a fragile/needs_more_data disposition."
+search_provenance,contract_repairable,neg_p_fishing_ukb_s1,"Revise search provenance/family size honestly, or return a fragile disposition."
+power,needs_new_data,neg_underpowered_abcd_s3,Do not force confirmation; request more data or return an under_powered/needs_more_data disposition.
+multiverse,downgrade_only,adhd_fc_adhd200_abcd,Return a fragile disposition unless a new predeclared study design is available.
+replication,needs_new_data,neg_random_label_adhd200_s1,Request independent replication evidence or return a non_replicated/needs_more_data disposition.
+multiplicity,downgrade_only,cognition_fc_hcp_hcpa,Return a fragile disposition or propose a new confirmatory design.

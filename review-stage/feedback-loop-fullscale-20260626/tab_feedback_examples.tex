@@ -1,0 +1,12 @@
+\begin{tabular}{@{}llll@{}}
+\toprule
+Failed gate & Repairability & Example claim & Agent instruction \\
+\midrule
+confound & needs\_new\_data & \texttt{injected\_null\_site\_abcd} & Repair the confound specification/design, or return a fragile/needs\_more\_data disposition. \\
+search\_provenance & contract\_repairable & \texttt{neg\_p\_fishing\_ukb\_s1} & Revise search provenance/family size honestly, or return a fragile disposition. \\
+power & needs\_new\_data & \texttt{neg\_underpowered\_abcd\_s3} & Do not force confirmation; request more data or return an under\_powered/needs\_more\_data disposition. \\
+multiverse & downgrade\_only & \texttt{adhd\_fc\_adhd200\_abcd} & Return a fragile disposition unless a new predeclared study design is available. \\
+replication & needs\_new\_data & \texttt{neg\_random\_label\_adhd200\_s1} & Request independent replication evidence or return a non\_replicated/needs\_more\_data disposition. \\
+multiplicity & downgrade\_only & \texttt{cognition\_fc\_hcp\_hcpa} & Return a fragile disposition or propose a new confirmatory design. \\
+\bottomrule
+\end{tabular}

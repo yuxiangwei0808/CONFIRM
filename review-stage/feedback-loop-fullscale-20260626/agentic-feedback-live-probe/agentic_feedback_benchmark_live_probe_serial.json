@@ -1,0 +1,294 @@
+{
+  "created_at": "2026-06-26T10:57:11",
+  "run_id": "live_probe_serial",
+  "description": "One-step agent repair benchmark with generic retry versus structured CONFIRM feedback.",
+  "command": {
+    "models": [
+      "openai:gpt-5-mini"
+    ],
+    "smri_root": "data/prepared_data/smri_disease",
+    "cluster_root": "data/prepared_data/cluster_recovered",
+    "limit": null,
+    "claim_id": [
+      "ad_hippocampal_atrophy_adni_oasis3"
+    ],
+    "max_workers": 1
+  },
+  "summary": {
+    "initial": {
+      "arm": "initial",
+      "n_rows": 1,
+      "attempted_count": 1,
+      "revision_attempt_count": 0,
+      "valid_revision_count": 0,
+      "valid_revision_rate": null,
+      "estimand_match_improvement_count": 0,
+      "estimand_match_improvement_denominator": 0,
+      "estimand_match_improvement_rate": null,
+      "appropriate_resolution_count": 0,
+      "appropriate_resolution_rate": 0.0,
+      "false_confirmation_count": 0,
+      "false_confirmation_claims": [],
+      "policy_violation_count": 0,
+      "policy_violation_rate": null
+    },
+    "generic_retry": {
+      "arm": "generic_retry",
+      "n_rows": 1,
+      "attempted_count": 1,
+      "revision_attempt_count": 1,
+      "valid_revision_count": 0,
+      "valid_revision_rate": 0.0,
+      "estimand_match_improvement_count": 0,
+      "estimand_match_improvement_denominator": 1,
+      "estimand_match_improvement_rate": 0.0,
+      "appropriate_resolution_count": 0,
+      "appropriate_resolution_rate": 0.0,
+      "false_confirmation_count": 0,
+      "false_confirmation_claims": [],
+      "policy_violation_count": 0,
+      "policy_violation_rate": 0.0
+    },
+    "structured_feedback": {
+      "arm": "structured_feedback",
+      "n_rows": 1,
+      "attempted_count": 1,
+      "revision_attempt_count": 1,
+      "valid_revision_count": 0,
+      "valid_revision_rate": 0.0,
+      "estimand_match_improvement_count": 0,
+      "estimand_match_improvement_denominator": 1,
+      "estimand_match_improvement_rate": 0.0,
+      "appropriate_resolution_count": 0,
+      "appropriate_resolution_rate": 0.0,
+      "false_confirmation_count": 0,
+      "false_confirmation_claims": [],
+      "policy_violation_count": 0,
+      "policy_violation_rate": 0.0
+    }
+  },
+  "models": [
+    {
+      "model_spec": "openai:gpt-5-mini",
+      "initial_claims": [
+        {
+          "model_spec": "openai:gpt-5-mini",
+          "claim_id": "ad_hippocampal_atrophy_adni_oasis3",
+          "label_class": "known_positive",
+          "question": "In ADNI as discovery and OASIS3 as replication, are Dementia participants lower than CN in smri_hippocampus after age, sex, and eTIV adjustment?",
+          "intended_estimand": {
+            "type": "group_diff",
+            "outcome": "smri_hippocampus",
+            "predictor": "dx",
+            "group": {
+              "var": "dx",
+              "case": "Dementia",
+              "control": "CN"
+            },
+            "direction": "negative",
+            "unit": "scalar",
+            "discovery_cohort": "ADNI",
+            "replication_cohorts": [
+              "OASIS3"
+            ]
+          },
+          "draft_success": false,
+          "estimand_match": false,
+          "gate_success": false,
+          "gate_verdict_label": null,
+          "anti_hallucination_ok": null,
+          "anti_hallucination_removed_number": false,
+          "error_stage": "draft_contract",
+          "error": "Connection error."
+        }
+      ],
+      "feedback": {
+        "ad_hippocampal_atrophy_adni_oasis3": {
+          "claim_id": "ad_hippocampal_atrophy_adni_oasis3",
+          "source_verdict": "draft_failed",
+          "failed_gates": [
+            "draft_contract"
+          ],
+          "primary_failure": "execution_error",
+          "repairability": "contract_repairable",
+          "diagnosis": "The agent did not produce a valid executable ClaimContract: Connection error..",
+          "allowed_revisions": [
+            "Return a schema-valid ClaimContract for the original scientific question.",
+            "Return a claim disposition if the requested claim cannot be represented."
+          ],
+          "forbidden_revisions": [
+            "Do not change the scientific question to an easier claim.",
+            "Do not lower gates or omit required covariates."
+          ],
+          "next_agent_instruction": "Produce one schema-valid revision for the same question, or return an abandonment disposition.",
+          "must_preserve": [
+            "scientific_question",
+            "gate_thresholds"
+          ],
+          "allowed_contract_changes": [
+            "estimand",
+            "disposition"
+          ]
+        }
+      },
+      "arm_rows": [
+        {
+          "model_spec": "openai:gpt-5-mini",
+          "claim_id": "ad_hippocampal_atrophy_adni_oasis3",
+          "label_class": "known_positive",
+          "arm": "initial",
+          "attempted": true,
+          "draft_success": false,
+          "estimand_match_after": false,
+          "gate_success": false,
+          "final_label": "draft_contract",
+          "policy_ok": null,
+          "policy_violations": [],
+          "revision_valid": false,
+          "accepted_disposition": false
+        },
+        {
+          "model_spec": "openai:gpt-5-mini",
+          "claim_id": "ad_hippocampal_atrophy_adni_oasis3",
+          "label_class": "known_positive",
+          "arm": "generic_retry",
+          "attempted": true,
+          "initial_gate_verdict_label": null,
+          "initial_estimand_match": false,
+          "feedback": {
+            "claim_id": "ad_hippocampal_atrophy_adni_oasis3",
+            "source_verdict": "draft_failed",
+            "failed_gates": [
+              "draft_contract"
+            ],
+            "primary_failure": "execution_error",
+            "repairability": "contract_repairable",
+            "diagnosis": "The agent did not produce a valid executable ClaimContract: Connection error..",
+            "allowed_revisions": [
+              "Return a schema-valid ClaimContract for the original scientific question.",
+              "Return a claim disposition if the requested claim cannot be represented."
+            ],
+            "forbidden_revisions": [
+              "Do not change the scientific question to an easier claim.",
+              "Do not lower gates or omit required covariates."
+            ],
+            "next_agent_instruction": "Produce one schema-valid revision for the same question, or return an abandonment disposition.",
+            "must_preserve": [
+              "scientific_question",
+              "gate_thresholds"
+            ],
+            "allowed_contract_changes": [
+              "estimand",
+              "disposition"
+            ]
+          },
+          "revision_valid": false,
+          "policy_ok": null,
+          "policy_violations": [],
+          "accepted_disposition": false,
+          "final_label": "revision_error",
+          "estimand_match_after": false,
+          "error_stage": "revision_draft",
+          "error": "Connection error."
+        },
+        {
+          "model_spec": "openai:gpt-5-mini",
+          "claim_id": "ad_hippocampal_atrophy_adni_oasis3",
+          "label_class": "known_positive",
+          "arm": "structured_feedback",
+          "attempted": true,
+          "initial_gate_verdict_label": null,
+          "initial_estimand_match": false,
+          "feedback": {
+            "claim_id": "ad_hippocampal_atrophy_adni_oasis3",
+            "source_verdict": "draft_failed",
+            "failed_gates": [
+              "draft_contract"
+            ],
+            "primary_failure": "execution_error",
+            "repairability": "contract_repairable",
+            "diagnosis": "The agent did not produce a valid executable ClaimContract: Connection error..",
+            "allowed_revisions": [
+              "Return a schema-valid ClaimContract for the original scientific question.",
+              "Return a claim disposition if the requested claim cannot be represented."
+            ],
+            "forbidden_revisions": [
+              "Do not change the scientific question to an easier claim.",
+              "Do not lower gates or omit required covariates."
+            ],
+            "next_agent_instruction": "Produce one schema-valid revision for the same question, or return an abandonment disposition.",
+            "must_preserve": [
+              "scientific_question",
+              "gate_thresholds"
+            ],
+            "allowed_contract_changes": [
+              "estimand",
+              "disposition"
+            ]
+          },
+          "revision_valid": false,
+          "policy_ok": null,
+          "policy_violations": [],
+          "accepted_disposition": false,
+          "final_label": "revision_error",
+          "estimand_match_after": false,
+          "error_stage": "revision_draft",
+          "error": "'NoneType' object has no attribute 'model_dump'"
+        }
+      ],
+      "summary": {
+        "initial": {
+          "arm": "initial",
+          "n_rows": 1,
+          "attempted_count": 1,
+          "revision_attempt_count": 0,
+          "valid_revision_count": 0,
+          "valid_revision_rate": null,
+          "estimand_match_improvement_count": 0,
+          "estimand_match_improvement_denominator": 0,
+          "estimand_match_improvement_rate": null,
+          "appropriate_resolution_count": 0,
+          "appropriate_resolution_rate": 0.0,
+          "false_confirmation_count": 0,
+          "false_confirmation_claims": [],
+          "policy_violation_count": 0,
+          "policy_violation_rate": null
+        },
+        "generic_retry": {
+          "arm": "generic_retry",
+          "n_rows": 1,
+          "attempted_count": 1,
+          "revision_attempt_count": 1,
+          "valid_revision_count": 0,
+          "valid_revision_rate": 0.0,
+          "estimand_match_improvement_count": 0,
+          "estimand_match_improvement_denominator": 1,
+          "estimand_match_improvement_rate": 0.0,
+          "appropriate_resolution_count": 0,
+          "appropriate_resolution_rate": 0.0,
+          "false_confirmation_count": 0,
+          "false_confirmation_claims": [],
+          "policy_violation_count": 0,
+          "policy_violation_rate": 0.0
+        },
+        "structured_feedback": {
+          "arm": "structured_feedback",
+          "n_rows": 1,
+          "attempted_count": 1,
+          "revision_attempt_count": 1,
+          "valid_revision_count": 0,
+          "valid_revision_rate": 0.0,
+          "estimand_match_improvement_count": 0,
+          "estimand_match_improvement_denominator": 1,
+          "estimand_match_improvement_rate": 0.0,
+          "appropriate_resolution_count": 0,
+          "appropriate_resolution_rate": 0.0,
+          "false_confirmation_count": 0,
+          "false_confirmation_claims": [],
+          "policy_violation_count": 0,
+          "policy_violation_rate": 0.0
+        }
+      }
+    }
+  ]
+}

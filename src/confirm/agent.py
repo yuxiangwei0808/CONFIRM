@@ -17,6 +17,7 @@ from bench.claim_library import lookup_ref_effect
 from confirm.analysis import audit_confound_completeness, run_primary
 from confirm.brainwide import run_brainwide
 from confirm.contract import ClaimContract, load_contract
+from confirm.feedback import feedback_from_verdict
 from confirm.llm import LLMClient, get_llm
 from confirm.multiverse import run_brainwide_multiverse, run_multiverse
 from confirm.power import power_check
@@ -86,6 +87,12 @@ def _strip_code_fence(text: str) -> str:
             lines = lines[1:]
         if lines and lines[-1].strip() == "```":
             lines = lines[:-1]
+        return "\n".join(lines).strip()
+    fenced = re.search(r"```(?:[A-Za-z0-9_-]+)?\s*(.*?)```", stripped, flags=re.DOTALL)
+    if fenced:
+        return fenced.group(1).strip()
+    if "```" in stripped:
+        lines = [line for line in stripped.splitlines() if not line.strip().startswith("```")]
         return "\n".join(lines).strip()
     return stripped
 
@@ -245,6 +252,21 @@ def _execute_contract(
     return verdict, {"contract": contract.model_dump(), **results}, [discovery_path, *replication_paths]
 
 
+def _maybe_write_feedback(
+    out_dir: Path,
+    contract: ClaimContract,
+    verdict: Verdict,
+    results: dict[str, Any],
+    enabled: bool,
+) -> dict[str, Any] | None:
+    if not enabled:
+        return None
+    feedback = feedback_from_verdict(contract.claim_id, verdict.to_dict(), results).model_dump(mode="json")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "feedback.json").write_text(json.dumps(feedback, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return feedback
+
+
 def _numbers_in_bundle(bundle: Any) -> list[float]:
     values: list[float] = []
     if hasattr(bundle, "to_dict"):
@@ -303,15 +325,26 @@ def interpret(verdict: Verdict, region_table_or_effect: Any, atlas: str | None =
     return _strip_unapproved_numbers(narrative, results)
 
 
-def run_claim(contract_path: str | Path, data_dir: str | Path, out_dir: str | Path, command: list[str] | None = None) -> Verdict:
+def run_claim(
+    contract_path: str | Path,
+    data_dir: str | Path,
+    out_dir: str | Path,
+    command: list[str] | None = None,
+    *,
+    feedback: bool = False,
+) -> Verdict:
     """Run the full CONFIRM gate chain for one claim contract."""
 
     contract = load_contract(contract_path)
     data_root = Path(data_dir)
+    out_path = Path(out_dir)
     ref_effect = contract.gates.power.ref_effect
     if ref_effect is None and contract.estimand.unit == "scalar":
         ref_effect = lookup_ref_effect(contract_path, contract.claim_id)
     verdict, results, cohort_paths = _execute_contract(contract, data_root, ref_effect=ref_effect)
+    feedback_payload = _maybe_write_feedback(out_path, contract, verdict, results, feedback)
+    if feedback_payload is not None:
+        results["feedback"] = feedback_payload
     receipt = make_receipt(
         contract_path=contract_path,
         cohort_paths=cohort_paths,
@@ -319,11 +352,18 @@ def run_claim(contract_path: str | Path, data_dir: str | Path, out_dir: str | Pa
         seed=SEED,
         results=results,
     )
-    write_receipt(out_dir, receipt)
+    write_receipt(out_path, receipt)
     return verdict
 
 
-def run_question(question: str, data_dir: str | Path, out: str | Path, approve: bool = True) -> Verdict:
+def run_question(
+    question: str,
+    data_dir: str | Path,
+    out: str | Path,
+    approve: bool = True,
+    *,
+    feedback: bool = False,
+) -> Verdict:
     """Draft, optionally approve, execute, interpret, and receipt a natural-language question."""
 
     out_dir = Path(out)
@@ -341,6 +381,9 @@ def run_question(question: str, data_dir: str | Path, out: str | Path, approve: 
     contract_path = out_dir / "drafted_contract.yaml"
     contract_path.write_text(contract_text, encoding="utf-8")
     verdict, results, cohort_paths = _execute_contract(contract, Path(data_dir), ref_effect=contract.gates.power.ref_effect)
+    feedback_payload = _maybe_write_feedback(out_dir, contract, verdict, results, feedback)
+    if feedback_payload is not None:
+        results["feedback"] = feedback_payload
     primary_result = results.get("regions") or results.get("primary")
     narrative = interpret(verdict, primary_result, atlas=contract.estimand.region_set, llm=llm)
     (out_dir / "narrative.txt").write_text(narrative + "\n", encoding="utf-8")

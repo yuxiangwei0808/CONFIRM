@@ -18,13 +18,13 @@ LOGGER = logging.getLogger(__name__)
 
 
 def _cmd_run(args: argparse.Namespace) -> int:
-    verdict = run_claim(args.contract, args.data_dir, args.out, command=sys.argv)
+    verdict = run_claim(args.contract, args.data_dir, args.out, command=sys.argv, feedback=args.feedback == "on")
     print(json.dumps(verdict.to_dict(), indent=2, sort_keys=True))
     return 0 if verdict.label in args.accept_label else 1
 
 
 def _cmd_ask(args: argparse.Namespace) -> int:
-    verdict = run_question(args.question, args.data_dir, args.out, approve=not args.auto)
+    verdict = run_question(args.question, args.data_dir, args.out, approve=not args.auto, feedback=args.feedback == "on")
     print(json.dumps(verdict.to_dict(), indent=2, sort_keys=True))
     return 0 if verdict.label in args.accept_label else 1
 
@@ -58,6 +58,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--data-dir", default="data/canonical")
     run.add_argument("--out", required=True)
     run.add_argument("--accept-label", action="append", default=["confirmed"])
+    run.add_argument("--feedback", choices=["off", "on"], default="off", help="Write deterministic post-verdict feedback.json")
     run.set_defaults(func=_cmd_run)
 
     ask = sub.add_parser("ask", help="Draft and run a claim from a natural-language question")
@@ -66,6 +67,7 @@ def build_parser() -> argparse.ArgumentParser:
     ask.add_argument("--out", required=True)
     ask.add_argument("--auto", action="store_true", help="Skip the contract approval prompt")
     ask.add_argument("--accept-label", action="append", default=["confirmed"])
+    ask.add_argument("--feedback", choices=["off", "on"], default="off", help="Write deterministic post-verdict feedback.json")
     ask.set_defaults(func=_cmd_ask)
 
     ingest = sub.add_parser("ingest", help="Ingest a cohort to canonical parquet")

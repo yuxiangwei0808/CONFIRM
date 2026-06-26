@@ -1,26 +1,29 @@
 {
-  "round": "loop2-round3 (negatives push)",
+  "round": "feedback-loop-round1",
   "status": "completed",
-  "final_score": 8.1,
-  "final_verdict": "ready",
-  "score_progression": [5.5, 5.8, 6.4, 6.8, 7.3, 7.5, 8.1],
-  "outcome": "READY 8.1 — submission-ready methods contribution. Negatives push tightened FCR upper bound 12.8% (0/27) -> 3.1% (1/177).",
+  "final_score": 7.0,
+  "final_verdict": "almost",
+  "score_progression": [7.0],
+  "outcome": "Feedback loop layer implemented and supported by E7 replay plus E8 live six-model repair benchmark. Structured feedback improved valid revisions 3/24 -> 16/24 and appropriate resolutions 3/24 -> 14/24 versus generic retry, with 0 observed false confirmations in retry arms.",
   "what_was_built": [
-    "CONFIRM governance engine + gate ladder (multiplicity+search-provenance, confound, confound-completeness, power, multiverse, cross-cohort replication)",
-    "agentic loop validated across 6 LLMs (governance robust on the false-confirm axis; anti-hallucination guard)",
-    "CONFIRM-as-modular-layer over NeuroClaw (FCR 0.33->0.0, TPR preserved)",
-    "contract-validation layer (static checks + data-aware confound-completeness audit)",
-    "3 confirmed-positive domains (AD, schizophrenia, aging); real NeuroClaw baseline beaten; 150-negative stress benchmark"
+    "deterministic ClaimFeedback schema and feedback mapping",
+    "revision response schema and policy validator",
+    "configurable CONFIRM feedback output via --feedback on|off",
+    "E7 replay over existing artifacts",
+    "E8 live and controlled one-step repair benchmark"
   ],
-  "framing_discipline": "the ~3.1% FCR bound is CONDITIONAL on the synthetic gate-targeted generator on local cohorts -- 'strong internal stress-test validation', NOT a real-world guarantee. 3 positive domains; cross-cohort-nonreplication family small (n=3).",
-  "future_work_for_top_tier": "preregistered EXTERNAL adversarial benchmark of ~100-200 REAL claims across UNSEEN cohorts, frozen gates, run once -> 'field-level evidence' (vs current strong internal validation).",
-  "next_step": "paper writeup with the calibrated framing (the loop is complete; the contribution is submission-ready).",
+  "framing_discipline": "Claim safer scientific repair/triage, not guaranteed repair or higher confirmation rate. Controlled feedback-following is a schema sanity check, not live-agent evidence.",
+  "remaining_limitations": [
+    "structured live run still has 5/24 policy violations and 3 revision-draft errors",
+    "external secondary Codex review was blocked by data-export policy",
+    "policy validator checks structural gaming but cannot prove no p-value-driven choice of a newly proposed cohort"
+  ],
   "key_artifacts": {
-    "final_review": "review-stage/loop2-round3-negatives-review.md",
-    "auto_review_log": "review-stage/AUTO_REVIEW.md",
-    "negatives": "review-stage/negatives-expansion/",
-    "agentic_multillm": "review-stage/agentic-multillm/",
-    "confirm_layer": "review-stage/confirm-layer/"
+    "summary": "review-stage/feedback-loop-fullscale-20260626/EXPERIMENT_SUMMARY.md",
+    "replay": "review-stage/feedback-loop-fullscale-20260626/replay/feedback_replay.json",
+    "live_e8": "review-stage/feedback-loop-fullscale-20260626/agentic-feedback-live-v2/agentic_feedback_benchmark_full_scale_live_v2.json",
+    "controlled_e8": "review-stage/feedback-loop-fullscale-20260626/agentic-feedback-controlled-v4/agentic_feedback_benchmark_full_scale_controlled_v4.json",
+    "local_review": "review-stage/feedback-loop-fullscale-20260626/local-review-round1.md"
   },
-  "timestamp": "2026-06-18T20:30:00-07:00"
+  "timestamp": "2026-06-26T11:17:55-07:00"
 }
