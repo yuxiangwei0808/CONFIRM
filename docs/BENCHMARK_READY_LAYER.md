@@ -1,7 +1,7 @@
 # Benchmark-Ready Data Layer
 
 Date built: 2026-06-16  
-Builder: `scripts/build_benchmark_ready_layer.py`
+Builder: `nbs_data/build_benchmark_ready_layer.py`
 
 ## Purpose
 
@@ -88,4 +88,3 @@ It does not modify:
 This layer is intentionally data-only. The next step is to teach the benchmark
 runner to consume these cohort parquet files and claim inventory entries. No
 benchmark statistics were run as part of this data-preparation step.
-

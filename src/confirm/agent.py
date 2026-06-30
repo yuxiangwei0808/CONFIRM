@@ -14,10 +14,11 @@ import pandas as pd
 import yaml
 
 from bench.claim_library import lookup_ref_effect
+from confirm.candidate_preflight import CandidatePreflightContext
 from confirm.analysis import audit_confound_completeness, run_primary
 from confirm.brainwide import run_brainwide
+from confirm.claim_search import CandidateClaimProposal, CandidateEvaluator, ClaimSearchConfig, build_claim_search_artifacts
 from confirm.contract import ClaimContract, load_contract
-from confirm.feedback import feedback_from_verdict
 from confirm.llm import LLMClient, get_llm
 from confirm.multiverse import run_brainwide_multiverse, run_multiverse
 from confirm.power import power_check
@@ -252,19 +253,73 @@ def _execute_contract(
     return verdict, {"contract": contract.model_dump(), **results}, [discovery_path, *replication_paths]
 
 
-def _maybe_write_feedback(
+def _jsonable(value: Any) -> Any:
+    if hasattr(value, "to_dict"):
+        return _jsonable(value.to_dict())
+    if hasattr(value, "model_dump"):
+        return _jsonable(value.model_dump(mode="json"))
+    if isinstance(value, dict):
+        return {str(key): _jsonable(val) for key, val in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_jsonable(item) for item in value]
+    return value
+
+
+def _candidate_contract_evaluator(data_root: Path) -> CandidateEvaluator:
+    def evaluator(candidate: CandidateClaimProposal) -> dict[str, Any]:
+        if candidate.proposed_contract is None:
+            raise ValueError("candidate has no executable proposed_contract")
+        ref_effect = candidate.proposed_contract.gates.power.ref_effect
+        verdict, results, _ = _execute_contract(candidate.proposed_contract, data_root, ref_effect=ref_effect)
+        return {"final_label": verdict.label, "gate_results": _jsonable(results)}
+
+    return evaluator
+
+
+def _maybe_write_claim_search(
     out_dir: Path,
+    data_root: Path,
     contract: ClaimContract,
     verdict: Verdict,
     results: dict[str, Any],
     enabled: bool,
+    config: ClaimSearchConfig,
+    llm: LLMClient | None = None,
+    external_data_root: Path | None = None,
 ) -> dict[str, Any] | None:
     if not enabled:
         return None
-    feedback = feedback_from_verdict(contract.claim_id, verdict.to_dict(), results).model_dump(mode="json")
+    if llm is None:
+        try:
+            llm = get_llm()
+        except Exception:
+            llm = None
+    preflight_roots = [data_root]
+    if external_data_root is not None:
+        preflight_roots.append(external_data_root)
+    artifacts = build_claim_search_artifacts(
+        contract,
+        verdict.to_dict(),
+        results,
+        config=config,
+        llm=llm,
+        evaluator=_candidate_contract_evaluator(data_root),
+        external_evaluator=_candidate_contract_evaluator(external_data_root) if external_data_root is not None else None,
+        preflight_context=CandidatePreflightContext.from_roots(preflight_roots),
+    )
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "feedback.json").write_text(json.dumps(feedback, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return feedback
+    for name, payload in artifacts.items():
+        if name in {"llm_candidate_prompts", "llm_candidate_responses"}:
+            (out_dir / f"{name}.jsonl").write_text(
+                "".join(json.dumps(item, sort_keys=True) + "\n" for item in payload),
+                encoding="utf-8",
+            )
+        else:
+            (out_dir / f"{name}.json").write_text(
+                json.dumps(payload, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+    return artifacts
 
 
 def _numbers_in_bundle(bundle: Any) -> list[float]:
@@ -331,7 +386,9 @@ def run_claim(
     out_dir: str | Path,
     command: list[str] | None = None,
     *,
-    feedback: bool = False,
+    claim_search: bool = False,
+    claim_search_config: ClaimSearchConfig | None = None,
+    claim_search_external_data_dir: str | Path | None = None,
 ) -> Verdict:
     """Run the full CONFIRM gate chain for one claim contract."""
 
@@ -342,9 +399,18 @@ def run_claim(
     if ref_effect is None and contract.estimand.unit == "scalar":
         ref_effect = lookup_ref_effect(contract_path, contract.claim_id)
     verdict, results, cohort_paths = _execute_contract(contract, data_root, ref_effect=ref_effect)
-    feedback_payload = _maybe_write_feedback(out_path, contract, verdict, results, feedback)
-    if feedback_payload is not None:
-        results["feedback"] = feedback_payload
+    search_payload = _maybe_write_claim_search(
+        out_path,
+        data_root,
+        contract,
+        verdict,
+        results,
+        claim_search,
+        claim_search_config or ClaimSearchConfig(),
+        external_data_root=Path(claim_search_external_data_dir) if claim_search_external_data_dir is not None else None,
+    )
+    if search_payload is not None:
+        results.update(search_payload)
     receipt = make_receipt(
         contract_path=contract_path,
         cohort_paths=cohort_paths,
@@ -362,7 +428,9 @@ def run_question(
     out: str | Path,
     approve: bool = True,
     *,
-    feedback: bool = False,
+    claim_search: bool = False,
+    claim_search_config: ClaimSearchConfig | None = None,
+    claim_search_external_data_dir: str | Path | None = None,
 ) -> Verdict:
     """Draft, optionally approve, execute, interpret, and receipt a natural-language question."""
 
@@ -381,9 +449,19 @@ def run_question(
     contract_path = out_dir / "drafted_contract.yaml"
     contract_path.write_text(contract_text, encoding="utf-8")
     verdict, results, cohort_paths = _execute_contract(contract, Path(data_dir), ref_effect=contract.gates.power.ref_effect)
-    feedback_payload = _maybe_write_feedback(out_dir, contract, verdict, results, feedback)
-    if feedback_payload is not None:
-        results["feedback"] = feedback_payload
+    search_payload = _maybe_write_claim_search(
+        out_dir,
+        Path(data_dir),
+        contract,
+        verdict,
+        results,
+        claim_search,
+        claim_search_config or ClaimSearchConfig(),
+        llm=llm,
+        external_data_root=Path(claim_search_external_data_dir) if claim_search_external_data_dir is not None else None,
+    )
+    if search_payload is not None:
+        results.update(search_payload)
     primary_result = results.get("regions") or results.get("primary")
     narrative = interpret(verdict, primary_result, atlas=contract.estimand.region_set, llm=llm)
     (out_dir / "narrative.txt").write_text(narrative + "\n", encoding="utf-8")

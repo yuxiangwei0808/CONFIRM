@@ -29,7 +29,7 @@ The copied files total about 226 MB and cover:
 
 ## Prepared fMRI Descriptor Bundles
 
-These are local parquet files built by `scripts/prepare_remote_tables.py`. They join metadata with descriptor CSVs and preserve features as `fc_*` or `raw_fmri_*` columns.
+These are local parquet files built by `nbs_data/prepare_remote_tables.py`. They join metadata with descriptor CSVs and preserve features as `fc_*` or `raw_fmri_*` columns.
 
 | Cohort | Rows | Columns | Feature Columns | Rows With Any Feature | Output |
 |---|---:|---:|---:|---:|---|

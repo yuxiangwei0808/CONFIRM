@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 from collections.abc import Callable
 from typing import Any, Protocol
@@ -39,6 +40,29 @@ class OpenAIClient:
             messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
             temperature=0,
             max_tokens=self.max_tokens,
+        )
+        return response.choices[0].message.content or ""
+
+    def complete_structured(self, system: str, user: str, response_model: type[Any]) -> str:
+        """Return JSON constrained by a Pydantic response model when supported."""
+
+        from openai import OpenAI
+
+        client = OpenAI(timeout=self.timeout)
+        response = _create_chat_completion_with_param_fallback(
+            client.chat.completions.create,
+            model=self.model,
+            messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+            temperature=0,
+            max_tokens=self.max_tokens,
+            response_format={
+                "type": "json_schema",
+                "json_schema": {
+                    "name": response_model.__name__,
+                    "strict": True,
+                    "schema": _openai_strict_json_schema(response_model),
+                },
+            },
         )
         return response.choices[0].message.content or ""
 
@@ -102,6 +126,8 @@ class StandInClient:
     model = "stand-in-offline"
 
     def complete(self, system: str, user: str) -> str:
+        if "generate scientifically connected follow-up claim candidates" in system.lower():
+            return _standin_candidate_response(user)
         if "interpret" in system.lower() or "narrative" in system.lower():
             return "CONFIRM verdict: see the engine-computed result bundle for effect estimates and gate decisions."
         if "site-confound null/control" in user or "site NYU" in user:
@@ -239,6 +265,116 @@ reporting_language_allowed: [confirmed, non_replicated, under_powered, fragile]
 """
 
 
+def _standin_candidate_response(user: str) -> str:
+    try:
+        payload = json.loads(user)
+        contract = payload["original_contract"]
+        localization = payload["failure_localization"]
+        max_candidates = int(payload.get("max_candidates") or 2)
+    except Exception:
+        contract = {}
+        localization = {}
+        max_candidates = 2
+    estimand = contract.get("estimand") if isinstance(contract, dict) else {}
+    outcome = estimand.get("outcome", "original_outcome") if isinstance(estimand, dict) else "original_outcome"
+    if isinstance(outcome, list):
+        outcome_text = str(outcome[0]) if outcome else "original_outcome"
+    else:
+        outcome_text = str(outcome)
+    modality = outcome_text.split("_", 1)[0] if "_" in outcome_text else outcome_text
+    group = estimand.get("group") if isinstance(estimand, dict) else None
+    if isinstance(group, dict):
+        contrast = f"{group.get('case')} vs {group.get('control')}"
+    else:
+        contrast = str(estimand.get("predictor", "original predictor")) if isinstance(estimand, dict) else "original predictor"
+    direction = str(estimand.get("direction", "same_direction")) if isinstance(estimand, dict) else "same_direction"
+    discovery = str(contract.get("discovery_cohort", "original_discovery")) if isinstance(contract, dict) else "original_discovery"
+    replication = contract.get("replication_cohorts", []) if isinstance(contract, dict) else []
+    if not isinstance(replication, list):
+        replication = []
+    domain_core = {
+        "population_or_disease": contrast,
+        "cohort_family": ";".join([discovery, *[str(item) for item in replication]]),
+        "predictor_or_contrast": contrast,
+        "outcome_modality": modality,
+        "outcome_family": outcome_text,
+        "direction_family": direction,
+        "scientific_motivation": str(contract.get("question", "")) if isinstance(contract, dict) else "",
+    }
+    preservation_check = {
+        "preserves_population": True,
+        "preserves_cohort_family": True,
+        "preserves_predictor_or_contrast": True,
+        "preserves_outcome_modality": True,
+        "preserves_direction_family": True,
+        "preserves_scientific_motivation": True,
+        "changed_fields": ["outcome_family"],
+        "allowed_change_rationale": f"Preserves the {contrast} contrast and {modality} outcome modality while narrowing the outcome family.",
+    }
+    evidence = localization.get("evidence") if isinstance(localization, dict) else []
+    if not isinstance(evidence, list):
+        evidence = []
+    proposed_contract_1 = json.loads(json.dumps(contract)) if isinstance(contract, dict) else {}
+    proposed_contract_2 = json.loads(json.dumps(contract)) if isinstance(contract, dict) else {}
+    if proposed_contract_1:
+        proposed_contract_1["claim_id"] = f"{proposed_contract_1.get('claim_id', 'claim')}_narrower_followup"
+        proposed_contract_1["question"] = (
+            f"Under adaptive same-data evaluation, does the {contrast} effect appear in a narrower "
+            f"{modality} outcome family related to {outcome_text}?"
+        )
+        proposed_contract_1.setdefault("search_provenance", {})["selection"] = "discovery_only"
+    if proposed_contract_2:
+        proposed_contract_2["claim_id"] = f"{proposed_contract_2.get('claim_id', 'claim')}_replication_ready_followup"
+        proposed_contract_2["question"] = (
+            f"Does a replication-ready version of the original {contrast} claim for {outcome_text} "
+            "show adaptive support before optional external validation?"
+        )
+        proposed_contract_2.setdefault("search_provenance", {})["selection"] = "discovery_only"
+    candidates = [
+        {
+            "proposal_type": "exploratory_followup_claim",
+            "transform_type": "narrower_outcome_family",
+            "domain_core": domain_core,
+            "preservation_check": preservation_check,
+            "proposed_question": f"Under adaptive same-data evaluation, does the {contrast} effect appear in a narrower predeclared {modality} outcome family related to {outcome_text}?",
+            "proposed_contract": proposed_contract_1,
+            "rationale": "A narrower same-modality follow-up may be scientifically useful and should be labeled exploratory_confirmed unless optional external validation also passes.",
+            "connection_rationale": f"Preserves the {contrast} contrast and {modality} outcome modality while narrowing the outcome family.",
+            "evidence_policy": {
+                "provenance": "post_hoc_followup",
+                "requires_new_evidence": False,
+                "can_confirm_on_current_data": True,
+                "validation_split": "current_data_adaptive",
+            },
+            "supported_by_evidence": evidence[:2],
+            "disposition_label": None,
+        },
+        {
+            "proposal_type": "independent_replication_claim",
+            "transform_type": "stronger_design",
+            "domain_core": domain_core,
+            "preservation_check": {
+                **preservation_check,
+                "changed_fields": ["validation_evidence"],
+                "allowed_change_rationale": "Preserves the scientific claim while moving confirmation to independent evidence.",
+            },
+            "proposed_question": f"Replicate the original {contrast} claim for {outcome_text} in an independent cohort or reserved holdout with unchanged CONFIRM gates.",
+            "proposed_contract": proposed_contract_2,
+            "rationale": "The follow-up keeps the independent-validation target while allowing same-data adaptive screening with an exploratory_confirmed label.",
+            "connection_rationale": f"Preserves the original {contrast} contrast, {modality} modality, and gate stack.",
+            "evidence_policy": {
+                "provenance": "independent_replication",
+                "requires_new_evidence": False,
+                "can_confirm_on_current_data": True,
+                "validation_split": "current_data_adaptive",
+            },
+            "supported_by_evidence": evidence[:2],
+            "disposition_label": None,
+        },
+    ][:max_candidates]
+    return json.dumps({"candidates": candidates}, indent=2, sort_keys=True)
+
+
 def _looks_like_param_error(text: str) -> bool:
     markers = (
         "unsupported",
@@ -257,6 +393,28 @@ def _client_timeout() -> float:
         return float(os.getenv("CONFIRM_LLM_TIMEOUT", "60"))
     except ValueError:
         return 60.0
+
+
+def _openai_strict_json_schema(response_model: type[Any]) -> dict[str, Any]:
+    """Convert a Pydantic JSON schema to OpenAI strict structured-output shape."""
+
+    schema = response_model.model_json_schema()
+    _make_openai_schema_strict(schema)
+    return schema
+
+
+def _make_openai_schema_strict(node: Any) -> None:
+    if isinstance(node, dict):
+        node.pop("default", None)
+        properties = node.get("properties")
+        if isinstance(properties, dict):
+            node["required"] = list(properties.keys())
+            node["additionalProperties"] = False
+        for value in node.values():
+            _make_openai_schema_strict(value)
+    elif isinstance(node, list):
+        for item in node:
+            _make_openai_schema_strict(item)
 
 
 def _create_chat_completion_with_param_fallback(

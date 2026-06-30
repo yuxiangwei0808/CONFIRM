@@ -1,4 +1,6 @@
 import pytest
+from pydantic import BaseModel, ConfigDict, Field
+from typing import Optional
 
 from confirm.llm import (
     AnthropicClient,
@@ -6,6 +8,7 @@ from confirm.llm import (
     OpenRouterClient,
     StandInClient,
     _create_chat_completion_with_param_fallback,
+    _openai_strict_json_schema,
     make_llm,
 )
 
@@ -56,3 +59,27 @@ def test_openai_compatible_param_fallback_drops_brittle_params():
     assert "max_tokens" in calls[1]
     assert "temperature" not in calls[2]
     assert "max_tokens" not in calls[2]
+
+
+def test_openai_strict_json_schema_requires_defaulted_fields():
+    class NestedPayload(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+
+        name: str
+        changed_fields: list[str] = Field(default_factory=list)
+
+    class ResponsePayload(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+
+        nested: NestedPayload
+        optional_text: Optional[str] = None
+
+    schema = _openai_strict_json_schema(ResponsePayload)
+
+    assert set(schema["required"]) == {"nested", "optional_text"}
+    assert schema["additionalProperties"] is False
+    nested_schema = schema["$defs"]["NestedPayload"]
+    assert set(nested_schema["required"]) == {"name", "changed_fields"}
+    assert nested_schema["additionalProperties"] is False
+    assert "default" not in schema["properties"]["optional_text"]
+    assert "default" not in nested_schema["properties"]["changed_fields"]
