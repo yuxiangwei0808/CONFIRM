@@ -201,7 +201,7 @@ def _load_claim_frames(layer: PreparedLayer, row: pd.Series, seed: int) -> tuple
     discovery = str(row["discovery_cohort"])
     replication = str(row["replication_cohort"])
     disc = layer.load_cohort(discovery)
-    if str(row["claim_id"]) in {"asd_fc_abide1_site_split", "asd_fc_mean_abs_abide1_site_split"}:
+    if discovery == replication and str(row["claim_id"]) in {"asd_fc_abide1_site_split", "asd_fc_mean_abs_abide1_site_split"}:
         return _split_site_cohort(disc, seed, discovery, replication)
     if discovery == replication:
         return _split_same_cohort(disc, seed, discovery, replication)

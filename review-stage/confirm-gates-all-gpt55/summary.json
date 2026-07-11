@@ -1,0 +1,21 @@
+{
+  "final_label_counts": {
+    "confirmed": 74,
+    "fragile": 169,
+    "non_replicated": 38,
+    "under_powered": 8
+  },
+  "n_claims": 289,
+  "n_errors": 0,
+  "source_mode_counts": {
+    "literature_grounded": 41,
+    "llm_proposed": 248
+  },
+  "target_family_counts": {
+    "ad_aging": 61,
+    "adhd": 59,
+    "asd": 59,
+    "normative_fmri": 53,
+    "psychosis": 57
+  }
+}

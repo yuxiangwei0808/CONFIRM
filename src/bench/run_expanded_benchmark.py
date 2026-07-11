@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import shutil
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -15,6 +16,7 @@ import pandas as pd
 
 from bench.labels import claim_label_for_claim, label_provenance, scoring_bucket, scoring_label_for_claim
 from bench.metrics import summarize_rows
+from bench.progress import iter_progress
 from bench.run_benchmark_ready import (
     RUNGS,
     AnalysisSpec,
@@ -117,6 +119,25 @@ SKIPPED_REGISTERED_CLAIMS = [
 ]
 
 
+def _map_claims_to_partition_ids(claims: pd.DataFrame, layer: PreparedLayer) -> pd.DataFrame:
+    out = claims.copy()
+
+    def mapped(cohort: object, role: str) -> str:
+        name = str(cohort)
+        if (layer.cohorts_dir / f"{name}.parquet").exists():
+            return name
+        candidate = f"{name}_{role}"
+        if (layer.cohorts_dir / f"{candidate}.parquet").exists():
+            return candidate
+        return name
+
+    out["source_discovery_cohort"] = out["discovery_cohort"].astype(str)
+    out["source_replication_cohort"] = out["replication_cohort"].astype(str)
+    out["discovery_cohort"] = out["discovery_cohort"].map(lambda value: mapped(value, "DISC"))
+    out["replication_cohort"] = out["replication_cohort"].map(lambda value: mapped(value, "REP"))
+    return out
+
+
 @dataclass(frozen=True)
 class SmriTask:
     claim_id: str
@@ -156,15 +177,25 @@ def _oasis3_case_definition(dementia_cdr_min: float | None) -> str:
     return f"OASIS3 Dementia: CDR>={dementia_cdr_min:g}; 0<CDR<{dementia_cdr_min:g} excluded"
 
 
+def _read_role_frame(root: Path, cohort: str, role: str) -> tuple[pd.DataFrame, str]:
+    base_path = root / f"{cohort}.parquet"
+    if base_path.exists():
+        return pd.read_parquet(base_path).copy(), cohort
+    role_path = root / f"{cohort}_{role}.parquet"
+    if role_path.exists():
+        return pd.read_parquet(role_path).copy(), f"{cohort}_{role}"
+    raise FileNotFoundError(f"Expected {base_path} or {role_path}")
+
+
 def _load_smri(
     root: Path,
     *,
     oasis3_dementia_cdr_min: float | None = None,
     oasis3_data_dir: str | Path = DEFAULT_OASIS3_DATA_DIR,
 ) -> tuple[pd.DataFrame, pd.DataFrame, str]:
-    adni = pd.read_parquet(root / "ADNI.parquet").copy()
+    adni, _ = _read_role_frame(root, "ADNI", "DISC")
     if oasis3_dementia_cdr_min is None:
-        oasis = pd.read_parquet(root / "OASIS3.parquet").copy()
+        oasis, _ = _read_role_frame(root, "OASIS3", "REP")
     else:
         oasis = Oasis3Adapter(oasis3_data_dir, dementia_cdr_min=oasis3_dementia_cdr_min).to_canonical()
     for df in [adni, oasis]:
@@ -337,18 +368,19 @@ def _standardize_subject_frame(df: pd.DataFrame, cohort: str) -> pd.DataFrame:
 
 
 def _sex_smri_tasks(root: Path, cluster_root: Path) -> list[SmriTask]:
-    gsp_path = cluster_root / "GSP.parquet"
-    adni_path = root / "ADNI.parquet"
-    oasis_path = root / "OASIS3.parquet"
-    if not gsp_path.exists() or not adni_path.exists() or not oasis_path.exists():
+    try:
+        gsp_raw, gsp_name = _read_role_frame(cluster_root, "GSP", "DISC")
+        adni_raw, adni_name = _read_role_frame(root, "ADNI", "REP")
+        oasis_raw, oasis_name = _read_role_frame(root, "OASIS3", "REP")
+    except FileNotFoundError:
         return []
 
-    gsp = _standardize_subject_frame(pd.read_parquet(gsp_path), "GSP")
+    gsp = _standardize_subject_frame(gsp_raw, gsp_name)
     if "smri_hippocampus_total" in gsp.columns:
         gsp["smri_hippocampus"] = gsp["smri_hippocampus_total"]
-    adni = _standardize_subject_frame(pd.read_parquet(adni_path), "ADNI_CN")
+    adni = _standardize_subject_frame(adni_raw, f"{adni_name}_CN")
     adni = adni[adni["dx"].astype(str).eq("CN")].copy()
-    oasis = _standardize_subject_frame(pd.read_parquet(oasis_path), "OASIS3_CN")
+    oasis = _standardize_subject_frame(oasis_raw, f"{oasis_name}_CN")
     oasis = oasis[oasis["dx"].astype(str).eq("CN")].copy()
     return [
         SmriTask(
@@ -685,11 +717,74 @@ def _wanted(claim_id: str, claim_ids: list[str] | None) -> bool:
     return not claim_ids or claim_id in set(claim_ids)
 
 
+def _evaluate_expanded_worker(payload: dict[str, Any]) -> dict[str, Any]:
+    index = int(payload["index"])
+    total = int(payload["total"])
+    kind = str(payload["kind"])
+    try:
+        if kind == "fmri":
+            layer = PreparedLayer.load(payload["data_root"])
+            row = pd.Series(payload["row"])
+            claim_id = str(row["claim_id"])
+            if not _shared_features(layer, row, payload.get("feature_limit")):
+                return {
+                    "index": index,
+                    "claim_id": claim_id,
+                    "status": "skipped",
+                    "skip": {"claim_id": claim_id, "reason": "no_shared_features"},
+                    "message": f"[skip {index}/{total}] {claim_id}: no shared features",
+                }
+            result = evaluate_claim(
+                layer,
+                row,
+                feature_limit=payload.get("feature_limit"),
+                seed=int(payload["seed"]),
+                harmonize=str(payload["harmonize"]),
+            )
+        elif kind == "smri":
+            task = payload["task"]
+            claim_id = str(task.claim_id)
+            result = evaluate_smri_task(task, str(payload["harmonize"]))
+        else:
+            raise ValueError(f"unknown expanded benchmark task kind: {kind}")
+    except Exception as exc:
+        claim_id = str(payload.get("claim_id") or "unknown")
+        if kind == "smri" and payload.get("task") is not None:
+            claim_id = str(payload["task"].claim_id)
+        elif kind == "fmri" and isinstance(payload.get("row"), dict):
+            claim_id = str(payload["row"].get("claim_id") or claim_id)
+        return {
+            "index": index,
+            "claim_id": claim_id,
+            "status": "error",
+            "error": {"claim_id": claim_id, "error": str(exc)},
+            "message": f"[error {index}/{total}] {claim_id}: {exc}",
+        }
+
+    return {
+        "index": index,
+        "claim_id": result["claim_id"],
+        "status": "ok",
+        "row": result,
+        "message": f"[ok {index}/{total}] {result['claim_id']} final={result['final_label']} features={result['n_features']}",
+    }
+
+
 def run(args: argparse.Namespace) -> dict[str, Any]:
     layer = PreparedLayer.load(args.data_root)
     base_claims = _ready_fmri_claims(layer.claim_inventory)
     extra_claims = pd.DataFrame(EXTRA_FMRI_CLAIMS)
     claims = pd.concat([base_claims, extra_claims], ignore_index=True, sort=False)
+    if args.use_evidence_partitions:
+        claims = _map_claims_to_partition_ids(claims, layer)
+
+    max_workers = max(1, int(getattr(args, "max_workers", 1) or 1))
+    parallel_backend = str(getattr(args, "parallel_backend", "process"))
+    active_parallel_backend = parallel_backend
+    show_progress = not bool(getattr(args, "no_progress", False))
+    if args.limit and max_workers > 1:
+        print("[workers] --limit set; using serial execution to preserve limit semantics", flush=True)
+        max_workers = 1
 
     rows: list[dict[str, Any]] = []
     errors: list[dict[str, str]] = []
@@ -697,47 +792,146 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         item for item in SKIPPED_REGISTERED_CLAIMS if _wanted(item["claim_id"], args.claim_id)
     ]
 
-    for _, row in claims.iterrows():
-        claim_id = str(row["claim_id"])
-        if not _wanted(claim_id, args.claim_id):
-            continue
-        if args.limit and len(rows) >= args.limit:
-            break
-        try:
-            if not _shared_features(layer, row, args.feature_limit):
-                skipped.append({"claim_id": claim_id, "reason": "no_shared_features"})
-                print(f"[skip] {claim_id}: no shared features")
-                continue
-            result = evaluate_claim(
-                layer,
-                row,
-                feature_limit=args.feature_limit,
-                seed=args.seed,
-                harmonize=args.harmonize,
-            )
-            rows.append(result)
-            print(f"[ok] {result['claim_id']} final={result['final_label']} features={result['n_features']}")
-        except Exception as exc:
-            errors.append({"claim_id": claim_id, "error": str(exc)})
-            print(f"[error] {claim_id}: {exc}")
+    claim_rows = [row for _, row in claims.iterrows() if _wanted(str(row["claim_id"]), args.claim_id)]
+    smri_tasks = [
+        task
+        for task in _smri_tasks(
+            Path(args.smri_root),
+            cluster_root=Path(args.cluster_root),
+            oasis3_dementia_cdr_min=args.oasis3_dementia_cdr_min,
+            oasis3_data_dir=args.oasis3_data_dir,
+        )
+        if _wanted(task.claim_id, args.claim_id)
+    ]
 
-    for task in _smri_tasks(
-        Path(args.smri_root),
-        cluster_root=Path(args.cluster_root),
-        oasis3_dementia_cdr_min=args.oasis3_dementia_cdr_min,
-        oasis3_data_dir=args.oasis3_data_dir,
-    ):
-        if not _wanted(task.claim_id, args.claim_id):
-            continue
-        if args.limit and len(rows) >= args.limit:
-            break
+    if max_workers == 1:
+        for row in iter_progress(
+            claim_rows,
+            total=len(claim_rows),
+            desc="no-feedback/fmri",
+            enabled=show_progress,
+            unit="claim",
+        ):
+            claim_id = str(row["claim_id"])
+            if args.limit and len(rows) >= args.limit:
+                break
+            try:
+                if not _shared_features(layer, row, args.feature_limit):
+                    skipped.append({"claim_id": claim_id, "reason": "no_shared_features"})
+                    print(f"[skip] {claim_id}: no shared features")
+                    continue
+                result = evaluate_claim(
+                    layer,
+                    row,
+                    feature_limit=args.feature_limit,
+                    seed=args.seed,
+                    harmonize=args.harmonize,
+                )
+                rows.append(result)
+                print(f"[ok] {result['claim_id']} final={result['final_label']} features={result['n_features']}")
+            except Exception as exc:
+                errors.append({"claim_id": claim_id, "error": str(exc)})
+                print(f"[error] {claim_id}: {exc}")
+
+        for task in iter_progress(
+            smri_tasks,
+            total=len(smri_tasks),
+            desc="no-feedback/smri",
+            enabled=show_progress,
+            unit="claim",
+        ):
+            if args.limit and len(rows) >= args.limit:
+                break
+            try:
+                result = evaluate_smri_task(task, args.harmonize)
+                rows.append(result)
+                print(f"[ok] {result['claim_id']} final={result['final_label']} features={result['n_features']}")
+            except Exception as exc:
+                errors.append({"claim_id": task.claim_id, "error": str(exc)})
+                print(f"[error] {task.claim_id}: {exc}")
+    else:
+        task_payloads: list[dict[str, Any]] = []
+        for row in claim_rows:
+            task_payloads.append(
+                {
+                    "kind": "fmri",
+                    "claim_id": str(row["claim_id"]),
+                    "row": row.to_dict(),
+                    "data_root": str(args.data_root),
+                    "feature_limit": args.feature_limit,
+                    "seed": args.seed,
+                    "harmonize": args.harmonize,
+                }
+            )
+        for task in smri_tasks:
+            task_payloads.append(
+                {
+                    "kind": "smri",
+                    "claim_id": task.claim_id,
+                    "task": task,
+                    "harmonize": args.harmonize,
+                }
+            )
+        for index, payload in enumerate(task_payloads, start=1):
+            payload["index"] = index
+            payload["total"] = len(task_payloads)
+
+        rows_by_index: dict[int, dict[str, Any]] = {}
+        skipped_by_index: dict[int, dict[str, str]] = {}
+        errors_by_index: dict[int, dict[str, str]] = {}
+        worker_count = min(max_workers, len(task_payloads)) if task_payloads else 1
+
+        def record_result(result: dict[str, Any]) -> None:
+            index = int(result["index"])
+            if result["status"] == "ok":
+                rows_by_index[index] = result["row"]
+            elif result["status"] == "skipped":
+                skipped_by_index[index] = result["skip"]
+            else:
+                errors_by_index[index] = result["error"]
+            print(str(result.get("message") or ""), flush=True)
+
+        def run_parallel(backend: str) -> None:
+            nonlocal active_parallel_backend
+            active_parallel_backend = backend
+            executor_cls = ProcessPoolExecutor if backend == "process" else ThreadPoolExecutor
+            print(f"[workers] launching no-feedback {backend} pool workers={worker_count}", flush=True)
+            with executor_cls(max_workers=worker_count) as pool:
+                future_to_task = {pool.submit(_evaluate_expanded_worker, payload): payload for payload in task_payloads}
+                for future in iter_progress(
+                    as_completed(future_to_task),
+                    total=len(future_to_task),
+                    desc=f"no-feedback/{backend}",
+                    enabled=show_progress,
+                    unit="claim",
+                ):
+                    payload = future_to_task[future]
+                    try:
+                        record_result(future.result())
+                    except Exception as exc:
+                        index = int(payload["index"])
+                        claim_id = str(payload.get("claim_id") or "unknown")
+                        record_result(
+                            {
+                                "index": index,
+                                "claim_id": claim_id,
+                                "status": "error",
+                                "error": {"claim_id": claim_id, "error": f"worker failed: {exc}"},
+                                "message": f"[error {index}/{payload['total']}] {claim_id}: worker failed: {exc}",
+                            }
+                        )
+
         try:
-            result = evaluate_smri_task(task, args.harmonize)
-            rows.append(result)
-            print(f"[ok] {result['claim_id']} final={result['final_label']} features={result['n_features']}")
-        except Exception as exc:
-            errors.append({"claim_id": task.claim_id, "error": str(exc)})
-            print(f"[error] {task.claim_id}: {exc}")
+            run_parallel(parallel_backend)
+        except (OSError, PermissionError) as exc:
+            if parallel_backend != "process":
+                raise
+            print(f"[workers] process pool unavailable ({exc}); falling back to thread pool", flush=True)
+            run_parallel("thread")
+
+        rows.extend(rows_by_index[index] for index in sorted(rows_by_index))
+        skipped.extend(skipped_by_index[index] for index in sorted(skipped_by_index))
+        errors.extend(errors_by_index[index] for index in sorted(errors_by_index))
 
     payload = {
         "created_at": datetime.now().isoformat(timespec="seconds"),
@@ -752,6 +946,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "oasis3_dementia_cdr_min": args.oasis3_dementia_cdr_min,
             "oasis3_data_dir": str(args.oasis3_data_dir),
             "cluster_root": str(args.cluster_root),
+            "use_evidence_partitions": bool(args.use_evidence_partitions),
+            "max_workers": max_workers,
+            "parallel_backend": active_parallel_backend,
+            "progress": show_progress,
         },
         **summarize_rows(rows, RUNGS),
         "claims": rows,
@@ -779,6 +977,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--oasis3-dementia-cdr-min", type=float, default=None)
     parser.add_argument("--oasis3-data-dir", default=str(DEFAULT_OASIS3_DATA_DIR))
     parser.add_argument("--cluster-root", default="data/prepared_data/cluster_recovered")
+    parser.add_argument("--use-evidence-partitions", action="store_true")
+    parser.add_argument("--max-workers", type=int, default=1, help="Number of claim/task workers for no-feedback evaluation.")
+    parser.add_argument("--parallel-backend", choices=["process", "thread"], default="process")
+    parser.add_argument("--no-progress", action="store_true", help="Disable progress bars/log progress updates.")
     return parser
 
 

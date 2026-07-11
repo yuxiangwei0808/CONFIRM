@@ -1,7 +1,7 @@
-"""External preregistered benchmark: CONFIRM (frozen gates) on UNSEEN NACC.
+"""Auxiliary external benchmark: CONFIRM gates on NACC.
 
-NACC was never used in CONFIRM development. Three claim groups, all scored
-through the SAME frozen gate ladder, blinded, run once:
+NACC is reserved as external AD/aging evidence in the evidence-partition
+workflow. Three claim groups are scored through the same gate ladder:
 
   * known_positive   - literature/ENIGMA AD & MCI atrophy effects (TPR).
   * random_null      - within-CN random-label negative controls on real NACC
@@ -10,8 +10,9 @@ through the SAME frozen gate ladder, blinded, run once:
                        SPECIFICITY (they carry small real global-atrophy effects,
                        so they are NOT clean nulls and are excluded from FCR).
 
-Discovery and replication are DISJOINT sets of NACC centers (independent-site
-replication). Gates/thresholds are frozen below. Report honestly.
+Discovery and replication are disjoint sets of NACC centers for this auxiliary
+evaluation. The output is not pooled into the main no-feedback baseline unless
+an experiment explicitly opts in.
 """
 from __future__ import annotations
 
@@ -47,10 +48,10 @@ from confirm.verdict import decide
 SEED = 20260619
 COHORT = "data/prepared_data/external/NACC.parquet"
 CLAIMS = "data/external_benchmark/nacc_claims.csv"
-COVARIATES = ["age", "sex", "smri_icv"]
+COVARIATES = ["age", "sex", "eTIV"]
 MIN_PER_GROUP = 10
 RANDOM_NULL_SEEDS = [101, 202]  # x regions -> external random-label null trials
-OUT_DIR = "review-stage/external-nacc"
+OUT_DIR = "review-stage/curated-gate-external-nacc"
 
 
 def clopper_pearson(k: int, n: int) -> tuple[float, float]:
@@ -103,7 +104,7 @@ def build_contract(claim_id: str, outcome: str, group_var: str, case: str, contr
 
 def _prep(df: pd.DataFrame, outcome: str, group_var: str, case: str, control: str) -> pd.DataFrame:
     d = df[df[group_var].isin([case, control])].copy()
-    d = d.dropna(subset=[outcome, "age", "sex", "smri_icv", group_var])
+    d = d.dropna(subset=[outcome, "age", "sex", "eTIV", group_var])
     d["sex"] = normalize_sex(d["sex"])
     return d
 
@@ -123,8 +124,22 @@ def evaluate(disc_all, rep_all, *, claim_id, label_class, outcome, group_var, ca
     mv = run_multiverse(disc, contract)
     rp = replicate(eff, disc, [rep], contract)
     verdict = decide(eff, mv, pw, rp, contract)
+    gate_results = {
+        "contract": contract.model_dump(mode="json"),
+        "primary": eff.to_dict(),
+        "power": pw.to_dict(),
+        "multiverse": {
+            "fraction_consistent": float(mv.fraction_consistent),
+            "passed": bool(mv.passed),
+            "specs": [item.to_dict() for item in mv.specs],
+        },
+        "replication": rp.to_dict(),
+        "verdict": verdict.to_dict(),
+    }
     return {
         "claim_id": claim_id, "label_class": label_class, "outcome": outcome,
+        "ground_truth": label_class, "scoring_label": label_class,
+        "label_authority": "external_nacc", "modality": "sMRI",
         "contrast": f"{case} vs {control}", "expected_sign": direction,
         "n_disc_case": _n(disc, group_var, case), "n_disc_control": _n(disc, group_var, control),
         "n_rep_case": _n(rep, group_var, case), "n_rep_control": _n(rep, group_var, control),
@@ -135,6 +150,10 @@ def evaluate(disc_all, rep_all, *, claim_id, label_class, outcome, group_var, ca
         "final_label": verdict.label, "confirmation_subtype": verdict.confirmation_subtype,
         "baseline_significant": bool(eff.p <= 0.05 and directionally_consistent(eff.beta, contract)),
         "rationale": verdict.rationale,
+        "gate_state": verdict.gates,
+        "gate_verdict": verdict.to_dict(),
+        "gate_results": gate_results,
+        "contract": contract.model_dump(mode="json"),
     }
 
 
@@ -148,7 +167,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     df = pd.read_parquet(COHORT)
     df["site"] = df["site"].astype(str)
     claims = pd.read_csv(CLAIMS)
-    regions = [c for c in df.columns if c.startswith("smri_") and c != "smri_icv"]
+    regions = [c for c in df.columns if c.startswith("smri_")]
     disc_all, rep_all = center_split(df, SEED)
 
     rows: list[dict[str, Any]] = []
@@ -221,7 +240,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "claims": rows,
     }
 
-    out = Path(OUT_DIR); out.mkdir(parents=True, exist_ok=True)
+    out = Path(getattr(args, "out_dir", OUT_DIR)); out.mkdir(parents=True, exist_ok=True)
     (out / "nacc_external_results.json").write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
     res.to_csv(out / "nacc_external_audit.csv", index=False)
     print(json.dumps({k: summary[k] for k in
@@ -232,5 +251,6 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
 
 
 if __name__ == "__main__":
-    argparse.ArgumentParser(description=__doc__).parse_args()
-    run(argparse.Namespace())
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--out-dir", default=OUT_DIR)
+    run(parser.parse_args())

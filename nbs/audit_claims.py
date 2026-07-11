@@ -15,20 +15,17 @@ def cp(k, n):
 paper = re.sub(r"\s+", " ", " ".join(open(f).read() for f in sorted(glob.glob("paper/sec/*.tex"))))
 
 R = "review-stage"
-nc = json.load(open(f"{R}/round5-neuroclaw/neuroclaw_comparison.json"))
-lay = json.load(open(f"{R}/confirm-layer/confirm_layer_result.json"))
-ml = json.load(open(f"{R}/agentic-multillm/agentic_multillm_summary_full_sweep_v2.json"))
-nacc = json.load(open(f"{R}/external-nacc/nacc_external_results.json"))
-cnp = json.load(open(f"{R}/external-cnp/CNP_external_results.json"))
+nacc = json.load(open(f"{R}/curated-gate-external-nacc/nacc_external_results.json"))
+cnp = json.load(open(f"{R}/curated-gate-external-cnp/CNP_external_results.json"))
 # MAIN benchmark audit
-mb = pd.read_csv(f"{R}/round5-combat/combined_benchmark_audit.csv")
+mb = pd.read_csv(f"{R}/curated-gate-benchmark-combat/combined_benchmark_audit.csv")
 mb = mb[mb.label_authority.astype(str).str.lower() == "main"]
 mpos = mb[mb.scoring_label == "known_positive"]
 mneg = mb[mb.scoring_label.isin(["known_null", "fragile"])]
 main_tpr = (mpos.final_label == "confirmed").sum()
 main_fcr = (mneg.final_label == "confirmed").sum()
 # negatives stress (150) + combined 177
-na = pd.read_csv(sorted(glob.glob(f"{R}/negatives-expansion/negatives_expansion_audit_2026*.csv"))[-1])
+na = pd.read_csv(f"{R}/curated-gate-synthetic-stress/negatives_expansion_audit.csv")
 stress_fcr = int((na.final_label == "confirmed").sum())
 nacc_pos = nacc["CONFIRM_external"]["TPR_known_positive"]
 nacc_fcr = nacc["CONFIRM_external"]["FCR_random_null"]
@@ -42,11 +39,6 @@ CHECKS = [
     ("MAIN TPR", f"{main_tpr}/{len(mpos)}", ["10/10"], []),
     ("MAIN FCR", f"{main_fcr}/{len(mneg)} CI{cp(main_fcr,len(mneg))}", ["0/27"], []),
     ("Stress-suite FCR", f"{stress_fcr}/177 CI{cp(stress_fcr,177)}", ["0/177", "2.1"], ["1/177", "0.6\\%", "3.1\\%"]),
-    ("NeuroClaw TPR/FCR", f"{nc['neuroclaw_TPR']['count']}/{nc['neuroclaw_TPR']['denominator']} & {nc['neuroclaw_FCR']['count']}/{nc['neuroclaw_FCR']['denominator']}", ["9/10", "5/15"], []),
-    ("CONFIRM shared TPR/FCR", f"{nc['confirm_TPR_on_shared_set']['count']}/10 & {nc['confirm_FCR_on_shared_set']['count']}/15", ["10/10", "0/15"], []),
-    ("Layer FCR", f"{lay['neuroclaw_alone_FCR']['rate']:.3f}->{lay['neuroclaw_confirm_layer_FCR']['rate']:.3f}", ["0.33", "0.0"], []),
-    ("Multi-LLM agreement", f"{ml['cross_model_verdict_agreement_count']}/{ml['cross_model_verdict_agreement_denominator']}", ["7/9"], []),
-    ("Anti-hallucination", f"{ml['anti_hallucination_catch_count']}", ["$40$"], []),
     ("NACC TPR", f"{nacc_pos['k']}/{nacc_pos['n']}", ["9/9"], []),
     ("NACC FCR", f"{nacc_fcr['k']}/{nacc_fcr['n']} CI{tuple(round(x,3) for x in nacc_fcr['ci95'])}", ["0/28"], []),
     ("NACC baseline FCR", f"{nacc_base['k']}/{nacc_base['n']}", ["2/28"], []),

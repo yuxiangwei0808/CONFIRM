@@ -3,8 +3,9 @@ from __future__ import annotations
 import json
 from statsmodels.stats.power import TTestPower
 
-SRC = ["review-stage/round5-combat/expanded_benchmark_results.json",
-       "review-stage/round5-combat/multimodal_benchmark_results.json"]
+SRC = [
+    "review-stage/curated-gate-benchmark-combat/expanded_benchmark_results.json",
+]
 _tp = TTestPower()
 
 

@@ -26,6 +26,21 @@ IDP_PREFIXES: tuple[str, ...] = ("smri_", "pet_", "fc_")
 RAW_IDP_PREFIXES: tuple[str, ...] = ("raw_",)
 BEHAVIORAL_PREFIXES: tuple[str, ...] = ("beh_",)
 
+# Provider tables sometimes use alternate names for scientifically equivalent
+# structural measures. Keep the source columns for provenance, but expose one
+# canonical name to contracts and gate execution.
+CANONICAL_COLUMN_ALIASES: dict[str, tuple[str, ...]] = {
+    "eTIV": ("smri_icv",),
+    "smri_midtemp": ("smri_midtemporal",),
+    "smri_ventricles": ("smri_lateralventricle",),
+}
+NONCANONICAL_IDP_ALIASES: frozenset[str] = frozenset(
+    alias
+    for aliases in CANONICAL_COLUMN_ALIASES.values()
+    for alias in aliases
+    if alias.startswith(IDP_PREFIXES)
+)
+
 CANONICAL_IDPS: dict[str, str] = {
     "smri_meanthickness": "Global mean cortical thickness.",
     "smri_gm_total": "Total gray-matter proxy from VBM maps.",
@@ -76,7 +91,50 @@ def normalize_sex(series: pd.Series) -> pd.Series:
 def idp_columns(columns: Iterable[str]) -> list[str]:
     """Return canonical imaging-derived phenotype columns."""
 
-    return [col for col in columns if col.startswith(IDP_PREFIXES + RAW_IDP_PREFIXES)]
+    return [
+        col
+        for col in columns
+        if col.startswith(IDP_PREFIXES + RAW_IDP_PREFIXES) and col not in NONCANONICAL_IDP_ALIASES
+    ]
+
+
+def columns_with_canonical_aliases(columns: Iterable[str]) -> list[str]:
+    """Append canonical names whose physical source aliases are available."""
+
+    out = list(columns)
+    available = set(out)
+    for canonical, aliases in CANONICAL_COLUMN_ALIASES.items():
+        if canonical not in available and any(alias in available for alias in aliases):
+            out.append(canonical)
+            available.add(canonical)
+    return out
+
+
+def physical_column_for(column: str, available_columns: Iterable[str]) -> str | None:
+    """Resolve a canonical contract column to a physical parquet column."""
+
+    available = set(available_columns)
+    if column in available:
+        return column
+    for alias in CANONICAL_COLUMN_ALIASES.get(column, ()):
+        if alias in available:
+            return alias
+    return None
+
+
+def harmonize_canonical_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """Expose canonical structural-MRI names without rewriting source data."""
+
+    out = df.copy()
+    for canonical, aliases in CANONICAL_COLUMN_ALIASES.items():
+        source = next((alias for alias in aliases if alias in out.columns), None)
+        if source is None:
+            continue
+        if canonical not in out.columns:
+            out[canonical] = out[source]
+        else:
+            out[canonical] = out[canonical].combine_first(out[source])
+    return out
 
 
 def behavioral_columns(columns: Iterable[str]) -> list[str]:
@@ -93,7 +151,7 @@ def validate_canonical(df: pd.DataFrame) -> pd.DataFrame:
     invalid sex encodings, or absence of imaging-derived phenotypes.
     """
 
-    out = df.copy()
+    out = harmonize_canonical_columns(df)
     missing = [col for col in REQUIRED_COLUMNS if col not in out.columns]
     if missing:
         raise ValueError(f"Missing required canonical columns: {missing}")

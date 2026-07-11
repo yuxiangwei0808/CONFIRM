@@ -17,9 +17,9 @@ class GroupSpec(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    var: str
-    case: str
-    control: str
+    var: str = Field(description="Column containing the case/control labels, for example 'dx' or 'sex'.")
+    case: str = Field(description="Label treated as the case or numerator group. Must exist in every selected cohort.")
+    control: str = Field(description="Label treated as the control or reference group. Must exist in every selected cohort.")
 
 
 class Estimand(BaseModel):
@@ -27,13 +27,34 @@ class Estimand(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    type: Literal["association", "group_diff"]
-    outcome: Union[str, list[str]]
-    predictor: str
-    group: Optional[GroupSpec] = None
-    direction: Literal["negative", "positive", "two_sided"]
-    unit: Literal["scalar", "brainwide"] = "scalar"
-    region_set: Optional[str] = None
+    type: Literal["association", "group_diff"] = Field(
+        description=(
+            "Use 'association' only for numeric continuous predictors such as age or cognition. "
+            "Use 'group_diff' for categorical contrasts such as diagnosis, sex, ASD/HC, ADHD/control, or SZ/HC."
+        )
+    )
+    outcome: Union[str, list[str]] = Field(
+        description=(
+            "Scalar contracts use one exact IDP column. Brainwide contracts should usually use a prefix/glob "
+            "that is visibly present in the selected cohorts, such as 'smri_' or a local FC prefix, rather than "
+            "inventing a long list or appending unseen suffixes."
+        )
+    )
+    predictor: str = Field(
+        description=(
+            "Primary predictor column. For association it must be numeric after filtering. "
+            "For group_diff it is usually the same as group.var."
+        )
+    )
+    group: Optional[GroupSpec] = Field(
+        default=None,
+        description="Required for group_diff and null for association.",
+    )
+    direction: Literal["negative", "positive", "two_sided"] = Field(
+        description="Expected direction for the primary effect. Use two_sided when direction is not justified."
+    )
+    unit: Literal["scalar", "brainwide"] = Field(default="scalar", description="Use scalar for one IDP column; brainwide for a regional/profile family.")
+    region_set: Optional[str] = Field(default=None, description="Optional named region family for brainwide contracts; otherwise null.")
 
     @model_validator(mode="after")
     def validate_estimand(self) -> "Estimand":
@@ -121,16 +142,24 @@ class ClaimContract(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    claim_id: str
-    question: str
+    claim_id: str = Field(description="Stable machine-readable identifier for this frozen claim.")
+    question: str = Field(description="Original natural-language claim question being frozen into this contract.")
     estimand: Estimand
-    covariates: list[str]
-    inclusion: Optional[str] = None
-    discovery_cohort: str
-    replication_cohorts: list[str]
+    covariates: list[str] = Field(description="Adjustment covariates that must be real columns in every selected cohort. Do not include interactions like 'age:sex'.")
+    inclusion: Optional[str] = Field(
+        default=None,
+        description=(
+            "Null or a simple pandas-query-compatible subgroup filter over real columns, e.g. "
+            "'sex == \"M\"' or 'age >= 65'. Do not use prose, tautologies like 'dx == dx', or filters that remove case/control groups."
+        ),
+    )
+    discovery_cohort: str = Field(description="Exact discovery cohort name from the available data catalog.")
+    replication_cohorts: list[str] = Field(description="Exact replication cohort names from the available data catalog.")
     search_provenance: SearchProvenance = Field(default_factory=SearchProvenance)
     gates: Gates
-    reporting_language_allowed: list[Literal["confirmed", "non_replicated", "under_powered", "fragile"]]
+    reporting_language_allowed: list[Literal["confirmed", "non_replicated", "under_powered", "fragile"]] = Field(
+        description="Allowed final labels; gate logic, not the LLM, decides the final label."
+    )
 
     @model_validator(mode="after")
     def validate_contract(self) -> "ClaimContract":

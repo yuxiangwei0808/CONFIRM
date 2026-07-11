@@ -6,7 +6,7 @@ import hashlib
 import json
 from collections import Counter
 from collections.abc import Callable, Mapping
-from typing import Any, Literal, Optional
+from typing import Any, Literal, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -40,6 +40,8 @@ ValidationSplit = Literal[
 StoppedReason = Literal[
     "confirmed",
     "exploratory_confirmed",
+    "holdout_confirmed",
+    "external_confirmed",
     "max_rounds_exhausted",
     "no_excluded_validation_evidence",
     "no_evaluator",
@@ -55,12 +57,27 @@ Rules:
 - The goal is to generate scientifically connected next claims.
 - Failed-claim evidence may be used only for diagnosis and hypothesis generation.
 - Post-hoc candidates may be evaluated on the same data, but same-data support must be labeled exploratory_confirmed, not confirmed.
-- External or holdout evidence is optional; a same candidate can be upgraded to confirmed only if it also passes external/holdout evaluation.
+- External or holdout evidence is optional; a same-data supported candidate can be upgraded only to holdout_confirmed or external_confirmed if it also passes excluded evaluation.
 - Preserve the original disease/cohort family, outcome modality, biological direction family, and scientific motivation.
 - Return structured JSON only. Do not use markdown fences.
 - Do not invent p-values, effect sizes, cohorts, or gate results.
 - Do not weaken CONFIRM gates, drop confound covariates, reverse direction, switch to unrelated outcomes, or present same-data adaptive support as final confirmation.
+- Preserve immutable contract fields unless the proposal is a true contract correction: predictor, group contrast, direction, covariates, gates, search family size, and cohort family.
+- For patch-like follow-ups, proposed_contract must keep the parent discovery and replication cohorts; holdout/external cohorts are evaluation evidence, not ordinary contract cohorts.
 """
+
+
+def _proposal_type_shape_errors(proposal_type: str, transform_type: str) -> list[str]:
+    """Return schema-level errors for incompatible proposal/transform pairs."""
+
+    if transform_type == "contract_correction" and proposal_type != "corrected_contract":
+        return ["contract_correction transform must use corrected_contract proposal type."]
+    if transform_type in {"narrower_outcome_family", "moderator_or_subgroup", "fixed_estimand"}:
+        if proposal_type != "exploratory_followup_claim":
+            return ["Exploratory transforms must use exploratory_followup_claim proposal type."]
+    if transform_type == "stronger_design" and proposal_type != "independent_replication_claim":
+        return ["stronger_design transform must use independent_replication_claim proposal type."]
+    return []
 
 
 class ClaimSearchConfig(BaseModel):
@@ -116,13 +133,11 @@ class CandidateEvidencePolicy(BaseModel):
     validation_split: ValidationSplit
 
 
-class LLMCandidateProposal(BaseModel):
-    """Strict schema for one LLM-generated follow-up candidate."""
+class _LLMCandidateProposalBase(BaseModel):
+    """Fields shared by all structured LLM candidate variants."""
 
     model_config = ConfigDict(extra="forbid")
 
-    proposal_type: CandidateProposalType
-    transform_type: TransformType
     domain_core: CandidateDomainCore
     preservation_check: CandidatePreservationCheck
     proposed_question: str
@@ -132,6 +147,34 @@ class LLMCandidateProposal(BaseModel):
     evidence_policy: CandidateEvidencePolicy
     supported_by_evidence: list[str] = Field(default_factory=list)
     disposition_label: Optional[str] = None
+
+
+class LLMExploratoryCandidateProposal(_LLMCandidateProposalBase):
+    """Structured exploratory candidate with only exploratory transforms."""
+
+    proposal_type: Literal["exploratory_followup_claim"]
+    transform_type: Literal["narrower_outcome_family", "moderator_or_subgroup", "fixed_estimand"]
+
+
+class LLMIndependentReplicationCandidateProposal(_LLMCandidateProposalBase):
+    """Structured independent-replication candidate."""
+
+    proposal_type: Literal["independent_replication_claim"]
+    transform_type: Literal["stronger_design"]
+
+
+class LLMCorrectedContractCandidateProposal(_LLMCandidateProposalBase):
+    """Structured true contract-correction candidate."""
+
+    proposal_type: Literal["corrected_contract"]
+    transform_type: Literal["contract_correction"]
+
+
+LLMCandidateProposal = Union[
+    LLMExploratoryCandidateProposal,
+    LLMIndependentReplicationCandidateProposal,
+    LLMCorrectedContractCandidateProposal,
+]
 
 
 class LLMCandidateGenerationResponse(BaseModel):
@@ -160,6 +203,9 @@ class CandidateClaimProposal(NewClaimProposal):
 
     @model_validator(mode="after")
     def validate_candidate_shape(self) -> "CandidateClaimProposal":
+        errors = _proposal_type_shape_errors(self.proposal_type, self.transform_type)
+        if errors:
+            raise ValueError(" ".join(errors))
         if self.parent_claim_id == self.candidate_id:
             raise ValueError("candidate_id must differ from parent_claim_id")
         if self.evidence_policy.provenance != self.provenance:
@@ -188,13 +234,35 @@ class CandidateEvaluation(BaseModel):
     validation_split: ValidationSplit
     blocked_reason: Optional[str] = None
     execution_error: Optional[str] = None
+    excluded_evidence_error: Optional[str] = None
     exploratory_label: Optional[str] = None
     exploratory_gate_results: Optional[dict[str, Any]] = None
     exploratory_confirmed: bool = False
+    holdout_label: Optional[str] = None
+    holdout_gate_results: Optional[dict[str, Any]] = None
+    holdout_confirmed: bool = False
     external_label: Optional[str] = None
     external_gate_results: Optional[dict[str, Any]] = None
     external_confirmed: bool = False
+    resolved_discovery_path: Optional[str] = None
+    resolved_replication_paths: list[str] = Field(default_factory=list)
+    same_underlying_data: Optional[bool] = None
+    excluded_evidence_kind: Optional[Literal["holdout", "external"]] = None
+    excluded_evidence_used: bool = False
+    external_evidence_used: bool = False
     confirmed: bool = False
+
+
+class DuplicateCandidateRecord(BaseModel):
+    """Candidate omitted because its scientific specification was already seen."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str
+    duplicate_of: str
+    parent_claim_id: str
+    round_index: int
+    scientific_signature: str
 
 
 class ClaimSearchState(BaseModel):
@@ -203,10 +271,12 @@ class ClaimSearchState(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     original_claim: ClaimContract
+    source_metadata: dict[str, Any] = Field(default_factory=dict)
     failure_localization: Optional[FailureLocalization] = None
     lineage_graph: dict[str, Any]
     used_evidence: list[str] = Field(default_factory=list)
     candidate_history: list[CandidateClaimProposal] = Field(default_factory=list)
+    duplicate_candidates: list[DuplicateCandidateRecord] = Field(default_factory=list)
     evaluations: list[CandidateEvaluation] = Field(default_factory=list)
     confirmed_candidates: list[str] = Field(default_factory=list)
     llm_candidate_prompts: list[dict[str, Any]] = Field(default_factory=list)
@@ -378,9 +448,15 @@ def generate_connected_candidates(
 class LLMClaimCandidateGenerator:
     """LLM-backed generator for connected follow-up candidates."""
 
-    def __init__(self, llm: LLMClient, preflight_context: CandidatePreflightContext | None = None) -> None:
+    def __init__(
+        self,
+        llm: LLMClient,
+        preflight_context: CandidatePreflightContext | None = None,
+        validation_evidence_catalog: dict[str, Any] | None = None,
+    ) -> None:
         self.llm = llm
         self.preflight_context = preflight_context
+        self.validation_evidence_catalog = validation_evidence_catalog
         self.candidate_history: list[CandidateClaimProposal] = []
         self.validation_feedback: dict[str, Any] | None = None
         self.prompt_records: list[dict[str, Any]] = []
@@ -412,6 +488,7 @@ class LLMClaimCandidateGenerator:
                     if self.preflight_context is not None
                     else None
                 ),
+                validation_evidence_catalog=self.validation_evidence_catalog,
                 validation_feedback=self.validation_feedback,
             )
             prompt_record = {
@@ -482,6 +559,7 @@ def build_candidate_generation_prompt(
     schema_error: str | None = None,
     previous_response: str | None = None,
     executable_catalog: dict[str, Any] | None = None,
+    validation_evidence_catalog: dict[str, Any] | None = None,
     validation_feedback: dict[str, Any] | None = None,
 ) -> tuple[str, str]:
     """Build the auditable prompt for LLM follow-up claim generation."""
@@ -496,6 +574,21 @@ def build_candidate_generation_prompt(
         "candidate_history": [
             item.model_dump(mode="json") for item in (candidate_history or [])
         ],
+        "immutable_contract_fields": {
+            "estimand_type": contract.estimand.type,
+            "predictor": contract.estimand.predictor,
+            "group": contract.estimand.group.model_dump(mode="json") if contract.estimand.group else None,
+            "direction": contract.estimand.direction,
+            "covariates": list(contract.covariates),
+            "required_confound_covariates": list(contract.gates.confound.require_covariates),
+            "discovery_cohort": contract.discovery_cohort,
+            "replication_cohorts": list(contract.replication_cohorts),
+            "multiplicity": contract.gates.multiplicity.model_dump(mode="json"),
+            "power": contract.gates.power.model_dump(mode="json"),
+            "multiverse": contract.gates.multiverse.model_dump(mode="json"),
+            "replication": contract.gates.replication.model_dump(mode="json"),
+            "search_provenance": contract.search_provenance.model_dump(mode="json"),
+        },
         "allowed_proposal_types": _executable_proposal_types(localization.allowed_proposal_types),
         "allowed_transform_types": [
             "narrower_outcome_family",
@@ -505,22 +598,38 @@ def build_candidate_generation_prompt(
             "contract_correction",
         ],
         "generation_policy": [
-            "Generate 2-5 candidates unless no scientifically valid candidate exists.",
+            (
+                f"Generate up to {config.max_candidates_per_round} scientifically distinct candidates. "
+                f"Aim for exactly {config.max_candidates_per_round} when that many valid candidates exist; "
+                "otherwise return fewer candidates or an empty list."
+            ),
             "Every candidate must be connected to the original disease/cohort family, outcome modality, direction family, and motivation.",
             "Every candidate must include domain_core, preservation_check, and evidence_policy.",
+            "For patch-like follow-up candidates, preserve immutable_contract_fields exactly.",
+            "For patch-like current_data_adaptive or excluded_validation candidates, proposed_contract.discovery_cohort and proposed_contract.replication_cohorts must remain the parent cohorts from immutable_contract_fields.",
+            "For every non-external-only proposal, proposed_contract.discovery_cohort must exactly equal immutable_contract_fields.discovery_cohort and proposed_contract.replication_cohorts must exactly equal immutable_contract_fields.replication_cohorts.",
+            "It is acceptable for proposed_question to mention holdout/external evaluation evidence, but proposed_contract must still use the parent discovery/replication cohorts unless this is a true external-only independent_replication_claim.",
+            "Novelty should come only from a narrower same-modality outcome, a justified subgroup/inclusion, a fixed analysis specification, a stronger validation design, or a true contract correction.",
             "Every candidate intended for current_data_adaptive or current_data_contract_repair evaluation must include an executable proposed_contract.",
-            "The proposed_contract must be executable against executable_data_catalog when that field is present.",
-            "Use only cohorts, outcomes, predictors, group variables, covariates, and inclusion terms present in executable_data_catalog.",
+            "Patch-like proposed_contracts must be executable against executable_data_catalog when that field is present.",
+            "Use only outcomes, predictors, group variables, covariates, and inclusion terms present in executable_data_catalog.",
+            "Use validation_evidence_catalog only to describe excluded evaluation evidence. Do not copy holdout cohorts into proposed_contract unless this is a true external-only independent_replication_claim.",
+            "True external-only independent_replication_claim contracts may use external cohorts listed in validation_evidence_catalog.external_partitions, but must preserve predictor/group, outcome modality, direction, covariates, gates, and family size.",
+            "For stronger_design follow-ups, prefer validation_split=excluded_validation with the parent-compatible proposed_contract; the evaluator will map it to holdout/external evidence.",
+            "Set disposition_label to null for generated candidates; do not emit downgrade labels.",
+            "If preserving the original predictor/group contrast is impossible with the executable catalog, return candidates=[] instead of substituting a new predictor.",
             "Do not emit placeholder variables such as bench_group, bench_predictor, low_motion_subset, or free-text inclusion descriptions unless they are actual catalog columns.",
             "String values in inclusion filters must be quoted, for example sex == \"F\" rather than sex == female.",
             "Post-hoc follow-up candidates may set validation_split=current_data_adaptive, requires_new_evidence=false, and can_confirm_on_current_data=true.",
             "Same-data adaptive support is labeled exploratory_confirmed by the pipeline, never plain confirmed.",
-            "External or holdout evaluation is optional and can upgrade an exploratory_confirmed candidate to confirmed.",
+            "External or holdout evaluation is optional and can upgrade an exploratory_confirmed candidate to holdout_confirmed or external_confirmed.",
+            "When validation_evidence_catalog is present, use it only to describe eligible follow-up validation evidence; do not invent holdout results.",
             "Use current_data_contract_repair only for true contract_correction proposals that preserve the original scientific question.",
             "Use only evidence strings supplied in failure_localization.evidence for supported_by_evidence.",
         ],
         "forbidden_actions": [
             "Do not switch to an unrelated outcome modality.",
+            "Do not change the predictor or group contrast for exploratory follow-up candidates.",
             "Do not reverse biological direction after seeing results.",
             "Do not weaken gates or lower thresholds.",
             "Do not drop original covariates or required confound covariates.",
@@ -528,12 +637,16 @@ def build_candidate_generation_prompt(
             "Do not label same-data adaptive support as final confirmation.",
             "Do not invent cohorts, p-values, effect sizes, or gate results.",
             "Do not invent columns, filters, group labels, or data subsets.",
+            "Do not put *_HOLDOUT, *_HOLDOUT_DISC, *_HOLDOUT_REP, *_EXTERNAL_DISC, or *_EXTERNAL_REP cohorts into proposed_contract for ordinary exploratory follow-ups.",
+            "Do not use disposition_label unless the output schema explicitly requires a downgrade disposition; for this task use null.",
         ],
         "output_model": "LLMCandidateGenerationResponse",
         "output_schema": LLMCandidateGenerationResponse.model_json_schema(),
     }
     if executable_catalog is not None:
         payload["executable_data_catalog"] = executable_catalog
+    if validation_evidence_catalog is not None:
+        payload["validation_evidence_catalog"] = validation_evidence_catalog
     if validation_feedback is not None:
         payload["candidate_validation_retry"] = validation_feedback
     if schema_error is not None:
@@ -617,7 +730,7 @@ def validate_candidate_claim(
     violations.extend(_domain_core_violations(original, candidate))
     violations.extend(_connection_violations(original, candidate))
     if candidate.proposed_contract is not None and candidate.proposal_type != "corrected_contract":
-        violations.extend(_followup_contract_connection_violations(original, candidate.proposed_contract))
+        violations.extend(_followup_contract_connection_violations(original, candidate))
     if candidate.proposed_contract is not None and preflight_context is not None:
         preflight = preflight_context.validate_contract(candidate.proposed_contract)
         violations.extend(preflight.violations)
@@ -646,8 +759,10 @@ def run_claim_search(
     llm: LLMClient | None = None,
     evaluator: CandidateEvaluator | None = None,
     external_evaluator: CandidateEvaluator | None = None,
+    excluded_evidence_kind: Literal["holdout", "external"] = "external",
     excluded_validation_available: bool = False,
     preflight_context: CandidatePreflightContext | None = None,
+    validation_evidence_catalog: dict[str, Any] | None = None,
 ) -> ClaimSearchState:
     """Run a bounded iterative candidate-generation loop."""
 
@@ -671,10 +786,16 @@ def run_claim_search(
                 used_evidence=localization.evidence,
                 stopped_reason="llm_unavailable",
             )
-        generator: CandidateGenerator = LLMClaimCandidateGenerator(llm, preflight_context=preflight_context)
+        generator: CandidateGenerator = LLMClaimCandidateGenerator(
+            llm,
+            preflight_context=preflight_context,
+            validation_evidence_catalog=validation_evidence_catalog,
+        )
     else:
         generator = candidate_generator
+    effective_excluded_validation_available = excluded_validation_available or external_evaluator is not None
     history: list[CandidateClaimProposal] = []
+    duplicate_candidates: list[DuplicateCandidateRecord] = []
     evaluations: list[CandidateEvaluation] = []
     confirmed: list[str] = []
     lineage = {"nodes": [contract.claim_id], "edges": []}
@@ -683,6 +804,7 @@ def run_claim_search(
     for round_index in range(1, cfg.max_rounds + 1):
         candidate_validations: list[tuple[CandidateClaimProposal, ProposalValidation]] = []
         candidates: list[CandidateClaimProposal] = []
+        round_duplicates: list[DuplicateCandidateRecord] = []
         for validation_attempt in range(cfg.llm_schema_retries + 1):
             try:
                 if hasattr(generator, "candidate_history"):
@@ -693,6 +815,7 @@ def run_claim_search(
                 break
             candidates = [_candidate_for_current_data_adaptive(candidate) for candidate in candidates]
             candidates = candidates[: cfg.max_candidates_per_round]
+            candidates, round_duplicates = _deduplicate_candidates(candidates, history)
             candidate_validations = [
                 (
                     candidate,
@@ -701,15 +824,16 @@ def run_claim_search(
                         candidate,
                         localization,
                         cfg,
-                        excluded_validation_available=excluded_validation_available,
+                        excluded_validation_available=effective_excluded_validation_available,
                         preflight_context=preflight_context,
                     ),
                 )
                 for candidate in candidates
             ]
-            if not _should_retry_after_preflight(candidate_validations, validation_attempt, cfg, generator):
+            if not _should_retry_after_validation(candidate_validations, validation_attempt, cfg, generator):
                 break
             setattr(generator, "validation_feedback", _validation_retry_feedback(candidate_validations))
+        duplicate_candidates.extend(round_duplicates)
         if stopped == "candidate_generation_failed":
             break
         if not candidates:
@@ -726,32 +850,46 @@ def run_claim_search(
                     "round_index": candidate.round_index,
                 }
             )
-            eligible = _eligible_for_evaluation(candidate, validation, cfg, evaluator, excluded_validation_available)
+            eligible = _eligible_for_evaluation(candidate, validation, cfg, evaluator, effective_excluded_validation_available)
             evaluation = CandidateEvaluation(
                 candidate_id=candidate.candidate_id,
                 proposal=candidate,
                 validation=validation,
                 eligible_for_confirmation=eligible,
                 validation_split=candidate.validation_split,
-                blocked_reason=None if eligible else _blocked_reason(candidate, validation, evaluator, excluded_validation_available),
+                blocked_reason=None if eligible else _blocked_reason(candidate, validation, evaluator, effective_excluded_validation_available),
             )
             if eligible and evaluator is not None:
                 try:
-                    _evaluate_candidate(candidate, evaluation, evaluator, external_evaluator)
+                    _evaluate_candidate(
+                        candidate,
+                        evaluation,
+                        evaluator,
+                        external_evaluator,
+                        excluded_evidence_kind=excluded_evidence_kind,
+                    )
                     if evaluation.confirmed:
                         confirmed.append(candidate.candidate_id)
                 except Exception as exc:
-                    evaluation.execution_error = str(exc)
+                    if candidate.validation_split == "excluded_validation":
+                        evaluation.execution_error = _excluded_evidence_error(exc)
+                    else:
+                        evaluation.execution_error = str(exc)
                     evaluation.evaluated = True
             evaluations.append(evaluation)
             if evaluation.confirmed and cfg.stop_on_first_confirmed:
-                stopped = "confirmed" if evaluation.final_label == "confirmed" else "exploratory_confirmed"
+                stopped = (
+                    str(evaluation.final_label)
+                    if evaluation.final_label in {"exploratory_confirmed", "holdout_confirmed", "external_confirmed"}
+                    else "confirmed"
+                )
                 return ClaimSearchState(
                     original_claim=contract,
                     failure_localization=localization,
                     lineage_graph=lineage,
                     used_evidence=localization.evidence,
                     candidate_history=history,
+                    duplicate_candidates=duplicate_candidates,
                     evaluations=evaluations,
                     confirmed_candidates=confirmed,
                     llm_candidate_prompts=_generator_prompt_records(generator),
@@ -768,6 +906,7 @@ def run_claim_search(
         lineage_graph=lineage,
         used_evidence=localization.evidence,
         candidate_history=history,
+        duplicate_candidates=duplicate_candidates,
         evaluations=evaluations,
         confirmed_candidates=confirmed,
         llm_candidate_prompts=_generator_prompt_records(generator),
@@ -786,7 +925,9 @@ def build_claim_search_artifacts(
     candidate_generator: CandidateGenerator | None = None,
     evaluator: CandidateEvaluator | None = None,
     external_evaluator: CandidateEvaluator | None = None,
+    excluded_evidence_kind: Literal["holdout", "external"] = "external",
     preflight_context: CandidatePreflightContext | None = None,
+    validation_evidence_catalog: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build serializable claim-search artifacts with optional candidate execution."""
 
@@ -800,14 +941,17 @@ def build_claim_search_artifacts(
         llm=llm,
         evaluator=evaluator,
         external_evaluator=external_evaluator,
+        excluded_evidence_kind=excluded_evidence_kind,
         excluded_validation_available=external_evaluator is not None,
         preflight_context=preflight_context,
+        validation_evidence_catalog=validation_evidence_catalog,
     )
     return {
         "claim_search_config": cfg.model_dump(mode="json"),
         "failure_localization": state.failure_localization.model_dump(mode="json") if state.failure_localization else None,
         "claim_search_trace": state.model_dump(mode="json"),
         "candidate_claims": [item.model_dump(mode="json") for item in state.candidate_history],
+        "duplicate_candidates": [item.model_dump(mode="json") for item in state.duplicate_candidates],
         "proposal_validation": [item.validation.model_dump(mode="json") for item in state.evaluations],
         "candidate_evaluations": [item.model_dump(mode="json") for item in state.evaluations],
         "claim_lineage": state.lineage_graph,
@@ -820,34 +964,92 @@ def summarize_claim_search(states: list[ClaimSearchState]) -> dict[str, Any]:
     """Summarize iterative search traces."""
 
     evaluations = [evaluation for state in states for evaluation in state.evaluations]
+    effective_evaluations = [evaluation for evaluation in evaluations if not evaluation.execution_error]
     candidates = [candidate for state in states for candidate in state.candidate_history]
+    duplicates = [duplicate for state in states for duplicate in state.duplicate_candidates]
     valid = [evaluation for evaluation in evaluations if evaluation.validation.ok]
     connected = [evaluation for evaluation in valid if not any("connection" in item.lower() for item in evaluation.validation.violations)]
     gaming = [
         evaluation
         for evaluation in evaluations
-        if any(
-            "current data" in item
-            or "weakened" in item
-            or "unrelated" in item
-            or "independent from the discovery" in item
-            for item in evaluation.validation.violations
-        )
+        if any(_is_hacking_violation(item) for item in evaluation.validation.violations)
     ]
     no_holdout = [evaluation for evaluation in evaluations if evaluation.blocked_reason == "no_excluded_validation_evidence"]
-    confirmed = [evaluation for evaluation in evaluations if evaluation.confirmed]
-    exploratory_confirmed = [evaluation for evaluation in evaluations if evaluation.final_label == "exploratory_confirmed"]
-    external_confirmed = [evaluation for evaluation in evaluations if evaluation.external_confirmed]
+    any_supported = [
+        evaluation
+        for evaluation in evaluations
+        if not evaluation.execution_error
+        and (
+            evaluation.final_label in {"exploratory_confirmed", "confirmed", "holdout_confirmed", "external_confirmed"}
+            or evaluation.external_confirmed
+            or evaluation.holdout_confirmed
+        )
+    ]
+    final_confirmed = [
+        evaluation
+        for evaluation in evaluations
+        if not evaluation.execution_error and evaluation.final_label in {"confirmed", "holdout_confirmed", "external_confirmed"}
+    ]
+    exploratory_confirmed = [
+        evaluation for evaluation in evaluations if not evaluation.execution_error and evaluation.final_label == "exploratory_confirmed"
+    ]
+    same_data_exploratory = [
+        evaluation
+        for evaluation in exploratory_confirmed
+        if evaluation.validation_split == "current_data_adaptive" or evaluation.same_underlying_data is True
+    ]
+    external_confirmed = [evaluation for evaluation in evaluations if not evaluation.execution_error and evaluation.external_confirmed]
+    holdout_confirmed = [evaluation for evaluation in evaluations if not evaluation.execution_error and evaluation.holdout_confirmed]
+    excluded_confirmed = [
+        evaluation
+        for evaluation in evaluations
+        if not evaluation.execution_error
+        and (
+            evaluation.final_label in {"holdout_confirmed", "external_confirmed"}
+            or evaluation.external_confirmed
+            or evaluation.holdout_confirmed
+        )
+    ]
+    contract_repair_confirmed = [
+        evaluation
+        for evaluation in effective_evaluations
+        if evaluation.final_label == "confirmed" and evaluation.validation_split == "current_data_contract_repair"
+    ]
     execution_errors = [evaluation for evaluation in evaluations if evaluation.execution_error]
+    excluded_evidence_errors = [evaluation for evaluation in evaluations if evaluation.excluded_evidence_error]
+    execution_error_types = Counter(
+        str(evaluation.execution_error).split(":", 1)[0]
+        for evaluation in execution_errors
+    )
+    excluded_evidence_error_types = Counter(
+        str(evaluation.excluded_evidence_error).split(":", 1)[0]
+        for evaluation in excluded_evidence_errors
+    )
     preflight_blocked = [
         evaluation
         for evaluation in evaluations
         if any(str(violation).startswith("Preflight:") for violation in evaluation.validation.violations)
     ]
     preflight_pass_count = len(evaluations) - len(preflight_blocked)
+    searches_by_target = Counter(str(state.source_metadata.get("target_family") or "unknown") for state in states)
+    searches_by_source_mode = Counter(str(state.source_metadata.get("source_mode") or "unknown") for state in states)
+    raw_final_label_counts = Counter(str(evaluation.final_label or "none") for evaluation in evaluations)
+    effective_final_label_counts = Counter(str(evaluation.final_label or "none") for evaluation in effective_evaluations)
+    raw_final_labels_by_target: dict[str, dict[str, int]] = {}
+    effective_final_labels_by_target: dict[str, dict[str, int]] = {}
+    for state in states:
+        target = str(state.source_metadata.get("target_family") or "unknown")
+        for evaluation in state.evaluations:
+            label = str(evaluation.final_label or "none")
+            raw_final_labels_by_target.setdefault(target, {})
+            raw_final_labels_by_target[target][label] = raw_final_labels_by_target[target].get(label, 0) + 1
+            if not evaluation.execution_error:
+                effective_final_labels_by_target.setdefault(target, {})
+                effective_final_labels_by_target[target][label] = effective_final_labels_by_target[target].get(label, 0) + 1
     return {
         "n_searches": len(states),
         "candidate_count": len(candidates),
+        "duplicate_candidate_count": len(duplicates),
         "valid_connected_candidate_count": len(connected),
         "valid_connected_candidate_rate": len(connected) / len(candidates) if candidates else 0.0,
         "preflight_pass_candidate_count": preflight_pass_count,
@@ -855,15 +1057,32 @@ def summarize_claim_search(states: list[ClaimSearchState]) -> dict[str, Any]:
         "preflight_block_count": len(preflight_blocked),
         "admissible_evaluation_count": sum(1 for item in evaluations if item.eligible_for_confirmation),
         "exploratory_confirmed_count": len(exploratory_confirmed),
-        "confirmed_count": len(confirmed),
+        "same_data_exploratory_confirmed_count": len(same_data_exploratory),
+        "confirmed_count": len(final_confirmed),
+        "final_confirmed_count": len(final_confirmed),
+        "supported_candidate_count": len(any_supported),
+        "any_supported_candidate_count": len(any_supported),
+        "contract_repair_confirmed_count": len(contract_repair_confirmed),
+        "holdout_confirmed_count": len(holdout_confirmed),
+        "external_confirmed_count": len(external_confirmed),
         "confirmed_on_external_evidence_count": len(external_confirmed),
-        "confirmed_on_excluded_evidence_count": len(external_confirmed),
+        "confirmed_on_excluded_evidence_count": len(excluded_confirmed),
         "false_current_data_confirmation_count": sum(1 for item in evaluations if _false_current_data_confirmation(item)),
         "hacking_block_count": len(gaming),
         "no_holdout_abstention_count": len(no_holdout),
         "execution_error_count": len(execution_errors),
-        "final_label_counts": dict(Counter(str(evaluation.final_label or "none") for evaluation in evaluations)),
+        "execution_error_type_counts": dict(execution_error_types),
+        "excluded_evidence_error_count": len(excluded_evidence_errors),
+        "excluded_evidence_error_type_counts": dict(excluded_evidence_error_types),
+        "raw_final_label_counts": dict(raw_final_label_counts),
+        "effective_final_label_counts": dict(effective_final_label_counts),
+        "final_label_counts": dict(effective_final_label_counts),
         "stopped_reason_counts": dict(Counter(state.stopped_reason for state in states)),
+        "searches_by_target_family": dict(searches_by_target),
+        "searches_by_source_mode": dict(searches_by_source_mode),
+        "raw_candidate_final_label_counts_by_target_family": raw_final_labels_by_target,
+        "effective_candidate_final_label_counts_by_target_family": effective_final_labels_by_target,
+        "candidate_final_label_counts_by_target_family": effective_final_labels_by_target,
     }
 
 
@@ -914,6 +1133,49 @@ def _candidate_from_llm_payload(
         "supported_by_evidence": payload.supported_by_evidence,
     }
     return CandidateClaimProposal.model_validate(data)
+
+
+def _candidate_scientific_signature(candidate: CandidateClaimProposal) -> str:
+    contract = candidate.proposed_contract.model_dump(mode="json")
+    contract.pop("claim_id", None)
+    contract.pop("question", None)
+    payload = {
+        "proposal_type": candidate.proposal_type,
+        "transform_type": candidate.transform_type,
+        "validation_split": candidate.validation_split,
+        "provenance": candidate.provenance,
+        "requires_new_evidence": candidate.requires_new_evidence,
+        "can_confirm_on_current_data": candidate.can_confirm_on_current_data,
+        "contract": contract,
+    }
+    serialized = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
+
+
+def _deduplicate_candidates(
+    candidates: list[CandidateClaimProposal],
+    history: list[CandidateClaimProposal],
+) -> tuple[list[CandidateClaimProposal], list[DuplicateCandidateRecord]]:
+    seen = {_candidate_scientific_signature(candidate): candidate.candidate_id for candidate in history}
+    unique: list[CandidateClaimProposal] = []
+    duplicates: list[DuplicateCandidateRecord] = []
+    for candidate in candidates:
+        signature = _candidate_scientific_signature(candidate)
+        duplicate_of = seen.get(signature)
+        if duplicate_of is not None:
+            duplicates.append(
+                DuplicateCandidateRecord(
+                    candidate_id=candidate.candidate_id,
+                    duplicate_of=duplicate_of,
+                    parent_claim_id=candidate.parent_claim_id,
+                    round_index=candidate.round_index,
+                    scientific_signature=signature,
+                )
+            )
+            continue
+        seen[signature] = candidate.candidate_id
+        unique.append(candidate)
+    return unique, duplicates
 
 
 def _candidate(
@@ -1043,7 +1305,7 @@ def _narrower_outcome_name(contract: ClaimContract) -> str:
 
 
 def _candidate_for_current_data_adaptive(candidate: CandidateClaimProposal) -> CandidateClaimProposal:
-    if candidate.validation_split not in {"future_required", "excluded_validation"}:
+    if candidate.validation_split != "future_required":
         return candidate
     if candidate.proposal_type not in {"exploratory_followup_claim", "independent_replication_claim"}:
         return candidate
@@ -1069,12 +1331,43 @@ def _evaluate_candidate(
     evaluation: CandidateEvaluation,
     evaluator: CandidateEvaluator,
     external_evaluator: CandidateEvaluator | None,
+    *,
+    excluded_evidence_kind: Literal["holdout", "external"] = "external",
 ) -> None:
+    if candidate.validation_split == "excluded_validation":
+        if external_evaluator is None:
+            evaluation.evaluated = True
+            evaluation.final_label = None
+            evaluation.blocked_reason = "no_excluded_validation_evidence"
+            return
+        result = dict(external_evaluator(candidate))
+        evaluation.evaluated = True
+        raw_label = str(result.get("final_label", result.get("label", "unknown")))
+        gate_results = result.get("gate_results")
+        evaluation.gate_results = gate_results if isinstance(gate_results, dict) else None
+        _apply_evidence_scope(evaluation, evaluation.gate_results)
+        actual_evidence_kind = _excluded_evidence_kind_from_gate_results(evaluation.gate_results, excluded_evidence_kind)
+        evaluation.excluded_evidence_kind = actual_evidence_kind
+        evaluation.excluded_evidence_used = True
+        evaluation.final_label = _excluded_final_label(raw_label, actual_evidence_kind)
+        if actual_evidence_kind == "holdout":
+            evaluation.holdout_label = raw_label
+            evaluation.holdout_gate_results = evaluation.gate_results
+            evaluation.holdout_confirmed = raw_label == "confirmed"
+        else:
+            evaluation.external_label = raw_label
+            evaluation.external_gate_results = evaluation.gate_results
+            evaluation.external_confirmed = raw_label == "confirmed"
+            evaluation.external_evidence_used = True
+        evaluation.confirmed = evaluation.final_label in {"holdout_confirmed", "external_confirmed"} and not evaluation.execution_error
+        return
+
     result = dict(evaluator(candidate))
     evaluation.evaluated = True
     raw_label = str(result.get("final_label", result.get("label", "unknown")))
     gate_results = result.get("gate_results")
     evaluation.gate_results = gate_results if isinstance(gate_results, dict) else None
+    _apply_evidence_scope(evaluation, evaluation.gate_results)
 
     if candidate.validation_split == "current_data_adaptive":
         evaluation.exploratory_label = raw_label
@@ -1086,14 +1379,31 @@ def _evaluate_candidate(
                 external_result = dict(external_evaluator(candidate))
                 external_label = str(external_result.get("final_label", external_result.get("label", "unknown")))
                 external_gate_results = external_result.get("gate_results")
-                evaluation.external_label = external_label
-                evaluation.external_gate_results = external_gate_results if isinstance(external_gate_results, dict) else None
-                evaluation.external_confirmed = external_label == "confirmed"
-                if evaluation.external_confirmed:
-                    evaluation.final_label = "confirmed"
+                actual_evidence_kind = _excluded_evidence_kind_from_gate_results(
+                    external_gate_results if isinstance(external_gate_results, dict) else None,
+                    excluded_evidence_kind,
+                )
+                evaluation.excluded_evidence_kind = actual_evidence_kind
+                evaluation.excluded_evidence_used = True
+                evaluation.external_evidence_used = actual_evidence_kind == "external"
+                if actual_evidence_kind == "holdout":
+                    evaluation.holdout_label = external_label
+                    evaluation.holdout_gate_results = external_gate_results if isinstance(external_gate_results, dict) else None
+                    evaluation.holdout_confirmed = external_label == "confirmed"
+                    if evaluation.holdout_confirmed:
+                        evaluation.final_label = "holdout_confirmed"
+                else:
+                    evaluation.external_label = external_label
+                    evaluation.external_gate_results = external_gate_results if isinstance(external_gate_results, dict) else None
+                    evaluation.external_confirmed = external_label == "confirmed"
+                    if evaluation.external_confirmed:
+                        evaluation.final_label = "external_confirmed"
             except Exception as exc:
-                evaluation.execution_error = f"external_evaluator: {exc}"
-        evaluation.confirmed = evaluation.final_label in {"exploratory_confirmed", "confirmed"}
+                evaluation.excluded_evidence_error = _excluded_evidence_error(exc)
+        evaluation.confirmed = (
+            evaluation.final_label in {"exploratory_confirmed", "holdout_confirmed", "external_confirmed"}
+            and not evaluation.execution_error
+        )
         return
 
     evaluation.final_label = raw_label
@@ -1102,12 +1412,49 @@ def _evaluate_candidate(
             external_result = dict(external_evaluator(candidate))
             external_label = str(external_result.get("final_label", external_result.get("label", "unknown")))
             external_gate_results = external_result.get("gate_results")
-            evaluation.external_label = external_label
-            evaluation.external_gate_results = external_gate_results if isinstance(external_gate_results, dict) else None
-            evaluation.external_confirmed = external_label == "confirmed"
+            actual_evidence_kind = _excluded_evidence_kind_from_gate_results(
+                external_gate_results if isinstance(external_gate_results, dict) else None,
+                excluded_evidence_kind,
+            )
+            evaluation.excluded_evidence_kind = actual_evidence_kind
+            evaluation.excluded_evidence_used = True
+            evaluation.external_evidence_used = actual_evidence_kind == "external"
+            if actual_evidence_kind == "holdout":
+                evaluation.holdout_label = external_label
+                evaluation.holdout_gate_results = external_gate_results if isinstance(external_gate_results, dict) else None
+                evaluation.holdout_confirmed = external_label == "confirmed"
+                if evaluation.holdout_confirmed:
+                    evaluation.final_label = "holdout_confirmed"
+            else:
+                evaluation.external_label = external_label
+                evaluation.external_gate_results = external_gate_results if isinstance(external_gate_results, dict) else None
+                evaluation.external_confirmed = external_label == "confirmed"
+                if evaluation.external_confirmed:
+                    evaluation.final_label = "external_confirmed"
         except Exception as exc:
-            evaluation.execution_error = f"external_evaluator: {exc}"
-    evaluation.confirmed = evaluation.final_label == "confirmed"
+            evaluation.excluded_evidence_error = _excluded_evidence_error(exc)
+    evaluation.confirmed = evaluation.final_label in {"confirmed", "holdout_confirmed", "external_confirmed"} and not evaluation.execution_error
+
+
+def _excluded_evidence_error(exc: Exception) -> str:
+    return f"excluded_evidence_unavailable_for_candidate: {exc}"
+
+
+def _excluded_final_label(raw_label: str, excluded_evidence_kind: Literal["holdout", "external"]) -> str:
+    if raw_label != "confirmed":
+        return raw_label
+    return "holdout_confirmed" if excluded_evidence_kind == "holdout" else "external_confirmed"
+
+
+def _excluded_evidence_kind_from_gate_results(
+    gate_results: dict[str, Any] | None,
+    fallback: Literal["holdout", "external"],
+) -> Literal["holdout", "external"]:
+    if isinstance(gate_results, dict):
+        scope = gate_results.get("evidence_scope")
+        if isinstance(scope, dict) and scope.get("scope") in {"holdout", "external"}:
+            return scope["scope"]
+    return fallback
 
 
 def _eligible_for_evaluation(
@@ -1147,7 +1494,7 @@ def _blocked_reason(
     return None
 
 
-def _should_retry_after_preflight(
+def _should_retry_after_validation(
     candidate_validations: list[tuple[CandidateClaimProposal, ProposalValidation]],
     validation_attempt: int,
     config: ClaimSearchConfig,
@@ -1159,12 +1506,22 @@ def _should_retry_after_preflight(
         return False
     if not candidate_validations:
         return False
+    if any(_only_proposal_shape_violations(validation) for _, validation in candidate_validations):
+        return True
     if any(validation.ok for _, validation in candidate_validations):
         return False
-    return any(
-        any(str(violation).startswith("Preflight:") for violation in validation.violations)
-        for _, validation in candidate_validations
+    return any(validation.violations for _, validation in candidate_validations)
+
+
+def _only_proposal_shape_violations(validation: ProposalValidation) -> bool:
+    if not validation.violations:
+        return False
+    snippets = (
+        "contract_correction transform must use corrected_contract proposal type",
+        "Exploratory transforms must use exploratory_followup_claim proposal type",
+        "stronger_design transform must use independent_replication_claim proposal type",
     )
+    return all(any(snippet in violation for snippet in snippets) for violation in validation.violations)
 
 
 def _validation_retry_feedback(
@@ -1181,9 +1538,11 @@ def _validation_retry_feedback(
         )
     return {
         "instruction": (
-            "The previous candidates were schema-valid but not executable or admissible. "
-            "Return corrected JSON using only executable_data_catalog fields. "
-            "Do not reuse nonexistent cohorts, columns, group variables, or invalid inclusion strings."
+            "The previous candidates were schema-valid but failed deterministic validation. "
+            "Return corrected JSON that fixes every listed violation while preserving immutable_contract_fields. "
+            "Use only executable_data_catalog fields when present, and do not change predictor, group contrast, direction, gates, or covariates. "
+            "If a violation says the discovery or replication cohort changed, keep proposed_contract on the parent cohorts and use validation_split=excluded_validation for holdout/external evaluation. "
+            "Use compatible proposal/transform pairs: stronger_design requires independent_replication_claim; narrower_outcome_family, moderator_or_subgroup, and fixed_estimand require exploratory_followup_claim; contract_correction requires corrected_contract."
         ),
         "failed_candidates": failures,
     }
@@ -1197,6 +1556,21 @@ def _generator_prompt_records(generator: CandidateGenerator) -> list[dict[str, A
 def _generator_response_records(generator: CandidateGenerator) -> list[dict[str, Any]]:
     records = getattr(generator, "response_records", None)
     return list(records) if isinstance(records, list) else []
+
+
+def _apply_evidence_scope(evaluation: CandidateEvaluation, gate_results: dict[str, Any] | None) -> None:
+    if not isinstance(gate_results, dict):
+        return
+    data_paths = gate_results.get("data_paths")
+    if not isinstance(data_paths, dict):
+        return
+    discovery = data_paths.get("discovery")
+    replication = data_paths.get("replication")
+    replication_paths = [str(path) for path in replication] if isinstance(replication, list) else []
+    evaluation.resolved_discovery_path = str(discovery) if discovery is not None else None
+    evaluation.resolved_replication_paths = replication_paths
+    if evaluation.resolved_discovery_path and replication_paths:
+        evaluation.same_underlying_data = any(path == evaluation.resolved_discovery_path for path in replication_paths)
 
 
 def _domain_core_from_contract(contract: ClaimContract) -> CandidateDomainCore:
@@ -1259,13 +1633,6 @@ def _connection_violations(original: ClaimContract, candidate: CandidateClaimPro
     violations: list[str] = []
     if candidate.transform_type == "contract_correction":
         return violations
-    text = " ".join(
-        str(value or "")
-        for value in [candidate.proposed_question, candidate.rationale, candidate.connection_rationale]
-    ).lower()
-    required_terms = [term for term in [_modality(_outcome_name(original)), _contrast_text(original).lower()] if term]
-    if required_terms and not any(term in text for term in required_terms):
-        violations.append("Candidate is not connected to the original domain core.")
     if candidate.transform_type == "contract_correction" and candidate.proposal_type != "corrected_contract":
         violations.append("contract_correction transform must use corrected_contract proposal type.")
     if candidate.transform_type in {"narrower_outcome_family", "moderator_or_subgroup", "fixed_estimand"}:
@@ -1276,8 +1643,23 @@ def _connection_violations(original: ClaimContract, candidate: CandidateClaimPro
     return violations
 
 
-def _followup_contract_connection_violations(original: ClaimContract, candidate_contract: ClaimContract) -> list[str]:
+def _followup_contract_connection_violations(original: ClaimContract, candidate: CandidateClaimProposal) -> list[str]:
+    candidate_contract = candidate.proposed_contract
     violations: list[str] = []
+    if candidate_contract is None:
+        return violations
+    candidate_cohorts = [candidate_contract.discovery_cohort, *candidate_contract.replication_cohorts]
+    if any(_is_holdout_cohort(cohort) for cohort in candidate_cohorts):
+        violations.append(
+            "Candidate contract uses holdout partitions as ordinary cohorts; keep parent cohorts and set validation_split=excluded_validation."
+        )
+    external_contract = any(_is_external_eval_cohort(cohort) for cohort in candidate_cohorts)
+    if external_contract and not (
+        candidate.proposal_type == "independent_replication_claim"
+        and candidate.transform_type == "stronger_design"
+        and candidate.validation_split == "excluded_validation"
+    ):
+        violations.append("Candidate contract uses external evaluation cohorts outside a true external independent-replication proposal.")
     if _modality(_outcome_name(original)) != _modality(_outcome_name(candidate_contract)):
         violations.append("Candidate contract switches outcome modality outside the original domain core.")
     if original.estimand.direction != candidate_contract.estimand.direction:
@@ -1288,8 +1670,16 @@ def _followup_contract_connection_violations(original: ClaimContract, candidate_
         violations.append("Candidate contract changes predictor.")
     if _group_dict(original) != _group_dict(candidate_contract):
         violations.append("Candidate contract changes disease/group contrast.")
-    if original.discovery_cohort != candidate_contract.discovery_cohort:
-        violations.append("Candidate contract changes discovery cohort.")
+    if original.discovery_cohort != candidate_contract.discovery_cohort and not external_contract:
+        violations.append(
+            "Candidate contract changes discovery cohort. Keep proposed_contract on the parent discovery/replication cohorts; holdout evidence is mapped by the evaluator."
+        )
+    if external_contract and candidate_contract.discovery_cohort == original.discovery_cohort:
+        violations.append("External independent-replication contracts must use external discovery evidence when using external cohorts.")
+    if not external_contract and list(original.replication_cohorts) != list(candidate_contract.replication_cohorts):
+        violations.append(
+            "Candidate contract changes replication cohorts. Keep proposed_contract on the parent discovery/replication cohorts; holdout evidence is mapped by the evaluator."
+        )
     if candidate_contract.discovery_cohort in set(candidate_contract.replication_cohorts):
         violations.append("Candidate contract uses the discovery cohort as replication evidence.")
     if candidate_contract.gates.multiplicity.alpha > original.gates.multiplicity.alpha:
@@ -1328,10 +1718,18 @@ def _followup_contract_connection_violations(original: ClaimContract, candidate_
     return violations
 
 
+def _is_holdout_cohort(cohort: str) -> bool:
+    return "_HOLDOUT" in str(cohort)
+
+
+def _is_external_eval_cohort(cohort: str) -> bool:
+    return "_EXTERNAL_" in str(cohort)
+
+
 def _false_current_data_confirmation(evaluation: CandidateEvaluation) -> bool:
-    if evaluation.final_label != "confirmed":
+    if evaluation.final_label not in {"confirmed", "holdout_confirmed", "external_confirmed"}:
         return False
-    if evaluation.external_confirmed or evaluation.validation_split == "excluded_validation":
+    if evaluation.external_confirmed or evaluation.holdout_confirmed or evaluation.validation_split == "excluded_validation":
         return False
     if (
         evaluation.validation_split == "current_data_contract_repair"
@@ -1340,6 +1738,43 @@ def _false_current_data_confirmation(evaluation: CandidateEvaluation) -> bool:
     ):
         return False
     return True
+
+
+def _is_hacking_violation(violation: str) -> bool:
+    """Return whether a deterministic violation represents policy gaming."""
+
+    text = str(violation).lower()
+    if text.startswith("preflight:"):
+        return False
+    markers = (
+        "current data",
+        "same-data",
+        "weakened",
+        "shrank multiplicity",
+        "shrank search-provenance",
+        "drops required confound",
+        "drops original covariates",
+        "changes biological direction",
+        "changes predictor",
+        "changes disease/group contrast",
+        "changes discovery cohort",
+        "changes replication cohorts",
+        "uses the discovery cohort as replication",
+        "uses holdout partitions as ordinary cohorts",
+        "uses external evaluation cohorts outside",
+        "switches outcome modality",
+        "removes same-sign",
+        "removes ci-overlap",
+        "removes declared search provenance",
+        "relabels post-hoc search as preregistered",
+        "does not preserve",
+        "domain_core changes",
+        "evidence that was not supplied",
+        "unsupported numeric values",
+        "unrelated",
+        "independent from the discovery",
+    )
+    return any(marker in text for marker in markers)
 
 
 def _outcome_name(contract: ClaimContract) -> str:

@@ -16,6 +16,7 @@ DEFAULT_INPUT = "review-stage/claim-search-llm-20260626/llm-candidate-replay/ite
 
 def _case_for_state(state: dict[str, Any]) -> dict[str, Any]:
     claim = state.get("original_claim", {})
+    metadata = state.get("source_metadata") or {}
     localization = state.get("failure_localization") or {}
     candidates = state.get("candidate_history", [])
     evaluations = state.get("evaluations", [])
@@ -25,6 +26,9 @@ def _case_for_state(state: dict[str, Any]) -> dict[str, Any]:
     candidate_summaries = [_candidate_summary(candidate, evaluation) for candidate, evaluation in zip(candidates, evaluations)]
     return {
         "claim_id": claim.get("claim_id"),
+        "target_family": metadata.get("target_family"),
+        "source_mode": metadata.get("source_mode"),
+        "source_result_path": metadata.get("source_result_path"),
         "original_claim": claim.get("question"),
         "failed_gates": ";".join(str(item) for item in localization.get("failed_gates") or []),
         "localized_failure": localization.get("failure_kind"),
@@ -58,7 +62,12 @@ def _candidate_summary(candidate: dict[str, Any], evaluation: dict[str, Any]) ->
         "provenance": str(candidate.get("provenance")),
         "validation_split": str(candidate.get("validation_split")),
         "validation_ok": str(validation.get("ok")),
+        "final_label": str(evaluation.get("final_label") or ""),
+        "exploratory_label": str(evaluation.get("exploratory_label") or ""),
+        "holdout_label": str(evaluation.get("holdout_label") or ""),
+        "external_label": str(evaluation.get("external_label") or ""),
         "blocked_reason": str(evaluation.get("blocked_reason") or ""),
+        "execution_error": str(evaluation.get("execution_error") or ""),
         "violations": ";".join(str(item) for item in violations),
     }
 
@@ -74,6 +83,7 @@ def _write_markdown(cases: list[dict[str, Any]], path: Path) -> None:
                 f"## {_md(row.get('claim_id'))}",
                 "",
                 f"- Original claim: {_md(row.get('original_claim'))}",
+                f"- Target/source: {_md(row.get('target_family'))} / {_md(row.get('source_mode'))}",
                 f"- Failed gates: {_md(row.get('failed_gates'))}",
                 f"- Localized failure: {_md(row.get('localized_failure'))}",
                 f"- Diagnosis: {_md(row.get('failure_diagnosis'))}",
@@ -81,13 +91,13 @@ def _write_markdown(cases: list[dict[str, Any]], path: Path) -> None:
                 f"- LLM prompt excerpt: {_md(row.get('llm_prompt_excerpt'))}",
                 f"- Final status: {_md(row.get('stopped_reason'))}",
                 "",
-                "| Round | Transform | Proposal type | Validation | Blocked reason | Violations | Proposed question |",
-                "| ---: | --- | --- | --- | --- | --- | --- |",
+                "| Round | Transform | Proposal type | Validation | Final label | Holdout | External | Blocked/error | Violations | Proposed question |",
+                "| ---: | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
             ]
         )
         for candidate in row.get("candidate_proposals") or []:
             lines.append(
-                "| {round_index} | {transform_type} | {proposal_type} | {validation_ok} | {blocked_reason} | {violations} | {proposed_question} |".format(
+                "| {round_index} | {transform_type} | {proposal_type} | {validation_ok} | {final_label} | {holdout_label} | {external_label} | {blocked_reason} {execution_error} | {violations} | {proposed_question} |".format(
                     **{key: _md(value) for key, value in candidate.items()}
                 )
             )

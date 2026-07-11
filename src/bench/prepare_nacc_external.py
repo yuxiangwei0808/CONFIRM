@@ -6,8 +6,8 @@ diagnosis (investigator_ftldlbd, which carries NACCUDSD/NACCALZD/CDRGLOB),
 matching each MRI session to its nearest clinical visit, and writes a single
 CONFIRM-ready table.
 
-Output: data/prepared_data/external/NACC.parquet with columns
-  subject_id, cohort, site, age, sex, dx, smri_icv, smri_* (ROIs)
+Output: data/prepared_data/external/NACC.parquet with canonical FreeSurfer
+volume columns in mm3, including eTIV and smri_* regional volumes.
 where dx in {AD, MCI, CN, other}.
 """
 from __future__ import annotations
@@ -27,10 +27,10 @@ ROI_MAP = {
     "smri_hippocampus": ["HIPPOVOL"],            # AD positive (gold, d~-1.5)
     "smri_entorhinal": ["LENT", "RENT"],          # AD positive (d~-1.5)
     "smri_parahippocampal": ["LPARHIP", "RPARHIP"],  # AD positive
-    "smri_midtemporal": ["LMIDTEMP", "RMIDTEMP"],    # AD positive
+    "smri_midtemp": ["LMIDTEMP", "RMIDTEMP"],       # AD positive
     "smri_inferiortemporal": ["LINFTEMP", "RINFTEMP"],  # AD positive
     "smri_fusiform": ["LFUS", "RFUS"],            # AD positive
-    "smri_lateralventricle": ["LATVENT"],         # AD positive (enlargement)
+    "smri_ventricles": ["LATVENT"],               # AD positive (enlargement)
     "smri_wholebrain": ["NACCBRNV"],              # AD positive (global atrophy)
     # AD-spared primary sensorimotor / visual cortices -> known-null / negative controls
     "smri_pericalcarine": ["LPERCAL", "RPERCAL"],
@@ -40,6 +40,13 @@ ROI_MAP = {
     "smri_cuneus": ["LCUN", "RCUN"],
     "smri_cerebellum": ["CERETISS"],            # AD-spared (negative control)
 }
+CM3_TO_MM3 = 1000.0
+
+
+def cm3_to_mm3(values: pd.Series) -> pd.Series:
+    """Convert provider-reported cubic-centimeter volumes to cubic millimeters."""
+
+    return values * CM3_TO_MM3
 
 DX_COLS = ["NACCID", "NACCVNUM", "VISITYR", "VISITMO", "VISITDAY",
            "NACCUDSD", "NACCALZD", "CDRGLOB", "SEX", "BIRTHYR", "EDUC"]
@@ -94,7 +101,9 @@ def main() -> None:
             bad = bad | np.isclose(s, sentinel, rtol=1e-4, atol=1e-4)
         return s.where(~bad & (s > 0))
 
-    out["smri_icv"] = _clean(out["NACCICV"])
+    # NACC investigator MRI volumes are reported in cm3. CONFIRM's structural
+    # volume contract is mm3, matching FreeSurfer/ADNI/OASIS outputs.
+    out["eTIV"] = cm3_to_mm3(_clean(out["NACCICV"]))
 
     # ROIs: mask NACC missing codes per source column BEFORE bilateral sum,
     # so a subject needs both hemispheres valid (NaN propagates otherwise).
@@ -105,10 +114,10 @@ def main() -> None:
             for s in srcs:
                 cleaned = _clean(out[s])
                 vals = cleaned if vals is None else (vals + cleaned)
-            out[name] = vals
+            out[name] = cm3_to_mm3(vals)
             roi_cols.append(name)
 
-    keep = ["subject_id", "cohort", "site", "age", "sex", "dx", "smri_icv", *roi_cols]
+    keep = ["subject_id", "cohort", "site", "age", "sex", "dx", "eTIV", *roi_cols]
     final = out[keep].copy()
     Path(OUT).parent.mkdir(parents=True, exist_ok=True)
     final.to_parquet(OUT, index=False)
@@ -118,7 +127,7 @@ def main() -> None:
     print("n sites (centers):", final["site"].nunique())
     print("ROI columns:", roi_cols)
     print("\nmean ROI by dx (AD vs CN sanity — AD should be LOWER on temporal/hippo):")
-    for col in ["smri_hippocampus", "smri_entorhinal", "smri_lateralventricle", "smri_pericalcarine"]:
+    for col in ["smri_hippocampus", "smri_entorhinal", "smri_ventricles", "smri_pericalcarine"]:
         if col in final.columns:
             g = final[final.dx.isin(["AD", "CN"])].groupby("dx")[col].mean()
             print(f"  {col}: CN={g.get('CN', float('nan')):.0f}  AD={g.get('AD', float('nan')):.0f}")

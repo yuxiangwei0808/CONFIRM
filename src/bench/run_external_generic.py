@@ -1,18 +1,18 @@
-"""Generalized external preregistered benchmark: CONFIRM (frozen gates) on any
-UNSEEN disease cohort with a CONFIRM-ready parquet + an ENIGMA-anchored claims CSV.
+"""Generalized auxiliary external benchmark for a CONFIRM-ready disease cohort.
 
 Generalizes run_nacc_external.py to arbitrary cohorts. The cohort parquet must
 have columns: subject_id, site, dx, age, sex, smri_icv, smri_<region>...
 The claims CSV must have: claim_id, label_class, outcome, case, control, expected_sign.
 
-Same frozen gate ladder, disjoint-center discovery/replication, blinded, run once.
+Same gate ladder, disjoint-center discovery/replication, and random-label
+negative controls drawn within the --control-dx group.
 Random-label negative controls are drawn within the --control-dx group.
 
 Example:
   PYTHONPATH=src python -m bench.run_external_generic \
     --cohort data/prepared_data/external/ds000030.parquet \
     --claims data/external_benchmark/ds000030_claims.csv \
-    --control-dx CONTROL --cohort-name CNP --out-dir review-stage/external-cnp
+    --control-dx CONTROL --cohort-name CNP --out-dir review-stage/curated-gate-external-cnp
 """
 from __future__ import annotations
 
@@ -26,6 +26,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 from scipy.stats import beta as beta_dist
+
+from confirm.schema import harmonize_canonical_columns
 
 from confirm.analysis import directionally_consistent, fit_effect
 from confirm.contract import (
@@ -51,7 +53,7 @@ def clopper_pearson(k: int, n: int) -> tuple[float, float]:
     return (lo, hi)
 
 
-def center_split(df: pd.DataFrame, seed: int) -> tuple[pd.DataFrame, pd.DataFrame]:
+def center_split(df: pd.DataFrame, seed: int, cohort_stem: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     sites = sorted(df["site"].dropna().astype(str).unique())
     rng = np.random.default_rng(seed)
     rng.shuffle(sites)
@@ -69,11 +71,22 @@ def center_split(df: pd.DataFrame, seed: int) -> tuple[pd.DataFrame, pd.DataFram
     else:
         disc = df[df["site"].astype(str).isin(left)].copy()
         rep = df[df["site"].astype(str).isin(right)].copy()
-    disc["cohort"], rep["cohort"] = "DISC", "REP"
+    disc["cohort"], rep["cohort"] = f"{cohort_stem}_DISC", f"{cohort_stem}_REP"
     return disc, rep
 
 
-def build_contract(claim_id, outcome, group_var, case, control, direction, covariates) -> ClaimContract:
+def build_contract(
+    claim_id,
+    outcome,
+    group_var,
+    case,
+    control,
+    direction,
+    covariates,
+    *,
+    discovery_cohort: str,
+    replication_cohort: str,
+) -> ClaimContract:
     est = Estimand(type="group_diff", outcome=outcome, predictor=group_var,
                    group=GroupSpec(var=group_var, case=case, control=control),
                    direction=direction, unit="scalar")
@@ -86,13 +99,28 @@ def build_contract(claim_id, outcome, group_var, case, control, direction, covar
     )
     return ClaimContract(
         claim_id=claim_id, question=claim_id, estimand=est, covariates=covariates, inclusion=None,
-        discovery_cohort="DISC", replication_cohorts=["REP"],
+        discovery_cohort=discovery_cohort, replication_cohorts=[replication_cohort],
         search_provenance={"declared": True, "family_size": 1, "selection": "preregistered"},
         gates=gates, reporting_language_allowed=["confirmed", "non_replicated", "under_powered", "fragile"],
     )
 
 
-def evaluate(disc_all, rep_all, *, claim_id, label_class, outcome, group_var, case, control, direction, covariates) -> dict[str, Any]:
+def evaluate(
+    disc_all,
+    rep_all,
+    *,
+    claim_id,
+    label_class,
+    outcome,
+    group_var,
+    case,
+    control,
+    direction,
+    covariates,
+    discovery_cohort: str,
+    replication_cohort: str,
+    cohort_name: str,
+) -> dict[str, Any]:
     def prep(df):
         d = df[df[group_var].isin([case, control])].copy()
         d = d.dropna(subset=[outcome, *covariates, group_var])
@@ -102,14 +130,38 @@ def evaluate(disc_all, rep_all, *, claim_id, label_class, outcome, group_var, ca
     n = lambda d, v: int((d[group_var] == v).sum())
     if min(n(disc, case), n(disc, control), n(rep, case), n(rep, control)) < MIN_PER_GROUP:
         return {"claim_id": claim_id, "label_class": label_class, "outcome": outcome, "final_label": "skipped_n"}
-    contract = build_contract(claim_id, outcome, group_var, case, control, direction, covariates)
+    contract = build_contract(
+        claim_id,
+        outcome,
+        group_var,
+        case,
+        control,
+        direction,
+        covariates,
+        discovery_cohort=discovery_cohort,
+        replication_cohort=replication_cohort,
+    )
     eff = fit_effect(disc, contract, covariates=covariates, model="ols")
     pw = power_check(eff, contract)
     mv = run_multiverse(disc, contract)
     rp = replicate(eff, disc, [rep], contract)
     verdict = decide(eff, mv, pw, rp, contract)
+    gate_results = {
+        "contract": contract.model_dump(mode="json"),
+        "primary": eff.to_dict(),
+        "power": pw.to_dict(),
+        "multiverse": {
+            "fraction_consistent": float(mv.fraction_consistent),
+            "passed": bool(mv.passed),
+            "specs": [item.to_dict() for item in mv.specs],
+        },
+        "replication": rp.to_dict(),
+        "verdict": verdict.to_dict(),
+    }
     return {
         "claim_id": claim_id, "label_class": label_class, "outcome": outcome,
+        "ground_truth": label_class, "scoring_label": label_class,
+        "label_authority": f"external_{cohort_name.lower()}", "modality": "sMRI",
         "contrast": f"{case} vs {control}", "expected_sign": direction,
         "n_disc_case": n(disc, case), "n_disc_control": n(disc, control),
         "n_rep_case": n(rep, case), "n_rep_control": n(rep, control),
@@ -120,22 +172,31 @@ def evaluate(disc_all, rep_all, *, claim_id, label_class, outcome, group_var, ca
         "final_label": verdict.label, "confirmation_subtype": verdict.confirmation_subtype,
         "baseline_significant": bool(eff.p <= 0.05 and directionally_consistent(eff.beta, contract)),
         "rationale": verdict.rationale,
+        "gate_state": verdict.gates,
+        "gate_verdict": verdict.to_dict(),
+        "gate_results": gate_results,
+        "contract": contract.model_dump(mode="json"),
     }
 
 
 def run(args: argparse.Namespace) -> dict[str, Any]:
     covariates = [c.strip() for c in args.covariates.split(",")]
-    df = pd.read_parquet(args.cohort)
+    cohort_stem = Path(args.cohort).stem
+    discovery_cohort = f"{cohort_stem}_DISC"
+    replication_cohort = f"{cohort_stem}_REP"
+    df = harmonize_canonical_columns(pd.read_parquet(args.cohort))
     df["site"] = df["site"].astype(str)
     claims = pd.read_csv(args.claims)
     regions = [c for c in df.columns if c.startswith("smri_") and c != "smri_icv"]
-    disc_all, rep_all = center_split(df, SEED)
+    disc_all, rep_all = center_split(df, SEED, cohort_stem)
     rows: list[dict[str, Any]] = []
 
     for _, c in claims.iterrows():
         rows.append(evaluate(disc_all, rep_all, claim_id=str(c["claim_id"]), label_class=str(c["label_class"]),
                              outcome=str(c["outcome"]), group_var="dx", case=str(c["case"]),
-                             control=str(c["control"]), direction=str(c["expected_sign"]), covariates=covariates))
+                             control=str(c["control"]), direction=str(c["expected_sign"]), covariates=covariates,
+                             discovery_cohort=discovery_cohort, replication_cohort=replication_cohort,
+                             cohort_name=args.cohort_name))
 
     ctrl_disc = disc_all[disc_all["dx"] == args.control_dx]
     ctrl_rep = rep_all[rep_all["dx"] == args.control_dx]
@@ -145,7 +206,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         for region in regions:
             rows.append(evaluate(d_disc, d_rep, claim_id=f"random_{region.replace('smri_','')}_s{seed}",
                                  label_class="random_null", outcome=region, group_var="rand_group",
-                                 case="case", control="control", direction="two_sided", covariates=covariates))
+                                 case="case", control="control", direction="two_sided", covariates=covariates,
+                                 discovery_cohort=discovery_cohort, replication_cohort=replication_cohort,
+                                 cohort_name=args.cohort_name))
 
     res = pd.DataFrame(rows)
     scored = res[~res["final_label"].isin(["skipped_n", "error"])]
@@ -167,6 +230,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "prereg_bar": {"FCR_upper95_below_0.10": clopper_pearson(rate(rnull)["k"], rate(rnull)["n"])[1] < 0.10,
                        "TPR_above_0.70": (rate(pos)["rate"] or 0) > 0.70},
         "lockfile": {"seed": SEED, "covariates": covariates, "control_dx": args.control_dx,
+            "contract_discovery_cohort": discovery_cohort, "contract_replication_cohort": replication_cohort,
             "claims_sha256": hashlib.sha256(Path(args.claims).read_bytes()).hexdigest(),
             "cohort_sha256": hashlib.sha256(Path(args.cohort).read_bytes()).hexdigest()},
         "claims": rows,
@@ -185,6 +249,6 @@ if __name__ == "__main__":
     ap.add_argument("--claims", required=True)
     ap.add_argument("--control-dx", required=True, help="dx value for the healthy/control group (random-null arm)")
     ap.add_argument("--cohort-name", default="EXT")
-    ap.add_argument("--out-dir", default="review-stage/external-generic")
-    ap.add_argument("--covariates", default="age,sex,smri_icv")
+    ap.add_argument("--out-dir", default="review-stage/curated-gate-external-generic")
+    ap.add_argument("--covariates", default="age,sex,eTIV")
     run(ap.parse_args())

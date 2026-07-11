@@ -126,6 +126,8 @@ class StandInClient:
     model = "stand-in-offline"
 
     def complete(self, system: str, user: str) -> str:
+        if "pubmed abstracts into literature-grounded confirm claim seeds" in system.lower():
+            return _standin_literature_extraction_response(user)
         if "generate scientifically connected follow-up claim candidates" in system.lower():
             return _standin_candidate_response(user)
         if "interpret" in system.lower() or "narrative" in system.lower():
@@ -263,6 +265,55 @@ gates:
     dice_min: 0.0
 reporting_language_allowed: [confirmed, non_replicated, under_powered, fragile]
 """
+
+
+def _standin_literature_extraction_response(user: str) -> str:
+    try:
+        payload = json.loads(user)
+        record = payload.get("record", {})
+    except Exception:
+        record = {}
+    target_family = str(record.get("target_family") or "ad_aging")
+    pmid = str(record.get("pmid") or "0")
+    title = str(record.get("title") or "stand-in PubMed record")
+    doi = str(record.get("doi") or "")
+    year = str(record.get("year") or "")
+    if target_family == "ad_aging":
+        outcome_modality = "sMRI"
+        predictor_or_group = "Alzheimer disease diagnosis versus cognitively normal controls"
+        outcome_family = "hippocampal volume"
+        expected_direction = "negative"
+        question = "AD diagnosis is associated with lower hippocampal volume."
+    else:
+        outcome_modality = "fMRI-FC"
+        predictor_or_group = "case-control diagnosis"
+        outcome_family = "functional connectivity"
+        expected_direction = "two_sided"
+        question = "Diagnosis is associated with functional connectivity differences."
+    return json.dumps(
+        {
+            "claims": [
+                {
+                    "seed_id": f"pmid_{pmid}_seed_1",
+                    "source_pmid": pmid,
+                    "source_doi": doi,
+                    "source_title": title,
+                    "source_year": year,
+                    "target_family": target_family,
+                    "outcome_modality": outcome_modality,
+                    "predictor_or_group": predictor_or_group,
+                    "outcome_family": outcome_family,
+                    "expected_direction": expected_direction,
+                    "covariates": ["age", "sex"],
+                    "candidate_question": question,
+                    "evidence_snippet": str(record.get("abstract") or question)[:300],
+                    "support_level": "direct",
+                    "rationale": "Offline stand-in extraction for local smoke tests.",
+                }
+            ]
+        },
+        sort_keys=True,
+    )
 
 
 def _standin_candidate_response(user: str) -> str:

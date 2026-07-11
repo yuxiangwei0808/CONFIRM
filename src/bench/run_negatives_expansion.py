@@ -7,6 +7,7 @@ import json
 import math
 import shutil
 from collections import Counter, defaultdict
+from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -98,6 +99,8 @@ def evaluate_negative_task(task: NegativeStressTask) -> dict[str, Any]:
         "expected_gate": task.expected_gate,
         "modality": label_row["modality"],
         "claim_type": "synthetic_negative",
+        "target_family": "synthetic_stress",
+        "source_mode": "synthetic_stress",
         "ground_truth": scoring_label,
         "scoring_label": scoring_label,
         "scoring_bucket": scoring_bucket(scoring_label),
@@ -149,6 +152,39 @@ def evaluate_negative_task(task: NegativeStressTask) -> dict[str, Any]:
         "replication": replication.to_dict(),
         "contract": task.contract.model_dump(mode="json"),
     }
+
+
+def materialize_negative_task(task: NegativeStressTask, data_root: Path) -> NegativeStressTask:
+    """Persist one synthetic task under unique cohort names for claim-search replay."""
+
+    data_root.mkdir(parents=True, exist_ok=True)
+    prefix = "".join(char if char.isalnum() or char in {"_", "-"} else "_" for char in task.claim_id)
+    discovery_cohort = f"{prefix}_DISC"
+    replication_cohort = f"{prefix}_REP"
+    discovery = task.discovery.copy()
+    replication = task.replication.copy()
+    discovery["cohort"] = discovery_cohort
+    replication["cohort"] = replication_cohort
+
+    contract_payload = task.contract.model_dump(mode="json")
+    contract_payload["discovery_cohort"] = discovery_cohort
+    contract_payload["replication_cohorts"] = [replication_cohort]
+    contract = ClaimContract.model_validate(contract_payload)
+
+    label_row = dict(task.label_row)
+    label_row["cohorts"] = f"{discovery_cohort};{replication_cohort}"
+    label_row["discovery_cohort"] = discovery_cohort
+    label_row["replication_cohort"] = replication_cohort
+
+    discovery.to_parquet(data_root / f"{discovery_cohort}.parquet", index=False)
+    replication.to_parquet(data_root / f"{replication_cohort}.parquet", index=False)
+    return replace(
+        task,
+        discovery=discovery,
+        replication=replication,
+        contract=contract,
+        label_row=label_row,
+    )
 
 
 def _group_counts(df: pd.DataFrame, contract: ClaimContract) -> dict[str, int]:
@@ -231,8 +267,11 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
 
     rows: list[dict[str, Any]] = []
     errors: list[dict[str, str]] = []
+    materialize_root = Path(args.materialize_data_root) if args.materialize_data_root else None
     for i, task in enumerate(tasks, start=1):
         try:
+            if materialize_root is not None:
+                task = materialize_negative_task(task, materialize_root)
             row = evaluate_negative_task(task)
             rows.append(row)
             print(f"[ok {i:03d}/{len(tasks):03d}] {row['claim_id']} final={row['final_label']} +replication={row['+replication']}")
@@ -250,6 +289,7 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
             "limit": args.limit,
             "fishing_feature_limit": args.fishing_feature_limit,
             "underpowered_cohort_limit": args.underpowered_cohort_limit,
+            "materialize_data_root": str(materialize_root) if materialize_root is not None else None,
         },
         "n_generated": len(rows),
         "family_counts": dict(Counter(row["family"] for row in rows)),
@@ -403,10 +443,15 @@ def _render_report(payload: dict[str, Any]) -> str:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", default=".")
-    parser.add_argument("--out-dir", default="review-stage/negatives-expansion")
+    parser.add_argument("--out-dir", default="review-stage/curated-gate-synthetic-stress")
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--fishing-feature-limit", type=int, default=24)
     parser.add_argument("--underpowered-cohort-limit", type=int, default=7)
+    parser.add_argument(
+        "--materialize-data-root",
+        default=None,
+        help="Optional directory for unique synthetic discovery/replication parquet files used by claim-search replay.",
+    )
     return parser
 
 

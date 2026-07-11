@@ -19,6 +19,7 @@ from confirm.analysis import audit_confound_completeness, run_primary
 from confirm.brainwide import run_brainwide
 from confirm.claim_search import CandidateClaimProposal, CandidateEvaluator, ClaimSearchConfig, build_claim_search_artifacts
 from confirm.contract import ClaimContract, load_contract
+from confirm.derived_columns import add_virtual_columns, columns_with_virtuals, confirm_dx_levels
 from confirm.llm import LLMClient, get_llm
 from confirm.multiverse import run_brainwide_multiverse, run_multiverse
 from confirm.power import power_check
@@ -50,7 +51,8 @@ def _cohort_path(data_dir: Path, cohort: str) -> Path:
 
 
 def _load_canonical(path: Path) -> pd.DataFrame:
-    return validate_canonical(pd.read_parquet(path))
+    df = validate_canonical(pd.read_parquet(path))
+    return add_virtual_columns(df, path.stem)
 
 
 def build_data_catalog(data_dir: str | Path) -> dict[str, Any]:
@@ -70,7 +72,7 @@ def build_data_catalog(data_dir: str | Path) -> dict[str, Any]:
                 "cohort": path.stem,
                 "file": str(path),
                 "n": int(len(df)),
-                "columns": list(df.columns),
+                "columns": columns_with_virtuals(path.stem, df.columns, df["dx"].dropna().unique() if "dx" in df.columns else []),
                 "idps": idps,
                 "region_names": idps,
                 "atlases": sorted({("smri" if col.startswith("smri_") else "pet" if col.startswith("pet_") else "fc") for col in idps}),
@@ -138,7 +140,20 @@ _EXAMPLE_CONTRACT = {
 def _contract_prompt(question: str, catalog: dict[str, Any], previous_error: str | None = None) -> str:
     cohorts = [c for c in catalog.get("cohorts", []) if "cohort" in c]
     names = [c["cohort"] for c in cohorts]
-    details = {c["cohort"]: {"n": c.get("n"), "idps": c.get("idps", []), "dx_levels": c.get("dx_levels", [])} for c in cohorts}
+    details = {
+        c["cohort"]: {
+            "n": c.get("n"),
+            "idps": c.get("idps", []),
+            "dx_levels": c.get("dx_levels", []),
+            "confirm_dx_levels": confirm_dx_levels(c["cohort"], c.get("dx_levels", [])),
+            "filter_columns": [
+                col
+                for col in c.get("columns", [])
+                if col not in set(c.get("idps", []))
+            ],
+        }
+        for c in cohorts
+    }
     instructions = (
         "Output ONLY one YAML object (no prose, no markdown fences). It must have EXACTLY these "
         "top-level keys: claim_id, question, estimand, covariates, inclusion, discovery_cohort, "
@@ -148,8 +163,24 @@ def _contract_prompt(question: str, catalog: dict[str, Any], previous_error: str
         "for a 'replicate across cohorts' question, include at least one).\n"
         "- estimand.predictor is the variable name (for group_diff use the grouping variable, e.g. 'dx'); "
         "estimand.group is {var, case, control} for group_diff, else null. estimand.direction is negative|positive|two_sided.\n"
+        "- Use estimand.type='association' only when estimand.predictor is numeric after filtering, such as age or cognition. "
+        "Use estimand.type='group_diff' for sex, diagnosis/dx, ASD/control, ADHD/control, SZ/HC, or any other categorical contrast.\n"
+        "- For ADHD, ASD, Alzheimer/dementia, schizophrenia, or psychosis case/control contrasts, use the virtual normalized "
+        "column confirm_dx when it appears in filter_columns: estimand.predictor='confirm_dx', estimand.group.var='confirm_dx', "
+        "case='case', control='control'. Do not use raw dx labels like 0/1/2/3, ASD/HC, CN/Dementia, or SZ/HC when confirm_dx is available.\n"
         "- estimand.outcome MUST be an IDP name that exists in BOTH the discovery and replication cohorts' idps. "
-        "For a brain-wide pattern set estimand.unit='brainwide' and estimand.outcome to a region prefix like 'smri_'.\n"
+        "For a brain-wide pattern set estimand.unit='brainwide' and set estimand.outcome to an observed prefix/glob "
+        "such as 'smri_' or the local FC prefix shown in the cohort idps, not a long list. Never append suffixes "
+        "unless the exact suffix appears in the cohort idps.\n"
+        "- estimand.predictor, every covariate, and every gates.confound.require_covariate MUST be exact columns present in all selected cohorts. "
+        "Do not invent columns and do not use interaction terms such as 'age:sex'. If a requested covariate is unavailable in any selected cohort, omit it.\n"
+        "- For fMRI/FC outcomes, use covariates from age, sex, and site when available. Do not use eTIV for fMRI/FC claims; reserve eTIV for structural MRI/PET claims where it is present in all selected cohorts.\n"
+        "- inclusion is either null or a pandas.DataFrame.query-compatible subgroup filter over real filter_columns. "
+        "Use simple executable expressions only, such as 'sex == \"M\"', 'sex == \"F\"', 'age >= 65', "
+        "or 'dx in [\"CN\", \"Dementia\"]'. Quote all string values. Never write prose such as "
+        "'ADHD cases and controls with available fMRI'. Never use tautologies such as 'dx == dx'.\n"
+        "- For group_diff claims, do not use inclusion to remove the case or control group. Put the contrast in "
+        "estimand.group, and use inclusion only for a separate subgroup condition such as sex, age, or site.\n"
         "- gates is an OBJECT (not a list) exactly like the EXAMPLE. reporting_language_allowed is the list in the EXAMPLE.\n"
         "- Match the EXACT structure of EXAMPLE_CONTRACT below; only change values, never key names."
     )

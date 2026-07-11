@@ -6,7 +6,7 @@ ENIGMA-relevant subcortical volumes + eTIV, joins participants.tsv diagnosis,
 and writes a CONFIRM-ready table.
 
 Output: data/prepared_data/external/ds000030.parquet with columns
-  subject_id, cohort, site, age, sex, dx, smri_icv, smri_<region>
+  subject_id, cohort, site, age, sex, dx, eTIV, smri_<region>
 where dx in {CONTROL, SCHZ, BIPOLAR, ADHD}.
 """
 from __future__ import annotations
@@ -32,7 +32,7 @@ ROI_MAP = {
     "smri_pallidum": ["Left-Pallidum", "Right-Pallidum"],
     "smri_caudate": ["Left-Caudate", "Right-Caudate"],
     "smri_putamen": ["Left-Putamen", "Right-Putamen"],
-    "smri_lateralventricle": ["Left-Lateral-Ventricle", "Right-Lateral-Ventricle"],
+    "smri_ventricles": ["Left-Lateral-Ventricle", "Right-Lateral-Ventricle"],
 }
 
 
@@ -90,7 +90,7 @@ def main() -> None:
             "age": pd.to_numeric(r.get("age"), errors="coerce"),
             "sex": str(r.get("gender", "")).strip().upper()[:1],
             "dx": str(r.get("diagnosis", "")).strip(),
-            "smri_icv": etiv,
+            "eTIV": etiv,
         }
         for name, srcs in ROI_MAP.items():
             present = [s for s in srcs if s in vols]  # only the 2 (L+R) that exist for this FS version
@@ -99,7 +99,7 @@ def main() -> None:
 
     df = pd.DataFrame(rows)
     roi_cols = [c for c in ROI_MAP if c in df.columns]
-    keep = ["subject_id", "cohort", "site", "age", "sex", "dx", "smri_icv", *roi_cols]
+    keep = ["subject_id", "cohort", "site", "age", "sex", "dx", "eTIV", *roi_cols]
     df = df[keep].copy()
     Path(OUT).parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(OUT, index=False)
@@ -109,7 +109,7 @@ def main() -> None:
     print("sites:", df["site"].nunique(), "| sex:", df["sex"].value_counts(dropna=False).to_dict())
     print("ROI cols:", roi_cols)
     print("\nsanity (SCHZ should be LOWER hippo, HIGHER ventricle vs CONTROL):")
-    for col in ["smri_hippocampus", "smri_lateralventricle", "smri_amygdala"]:
+    for col in ["smri_hippocampus", "smri_ventricles", "smri_amygdala"]:
         if col in df.columns:
             g = df[df.dx.isin(["SCHZ", "CONTROL"])].groupby("dx")[col].mean()
             print(f"  {col}: CONTROL={g.get('CONTROL', float('nan')):.0f}  SCHZ={g.get('SCHZ', float('nan')):.0f}")

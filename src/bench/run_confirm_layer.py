@@ -113,7 +113,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", default="review-stage/round5-neuroclaw/neuroclaw_comparison.json")
+    parser.add_argument("--input", required=True)
     parser.add_argument("--out-dir", default="review-stage/confirm-layer")
     return parser
 

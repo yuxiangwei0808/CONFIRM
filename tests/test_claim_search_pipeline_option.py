@@ -280,6 +280,7 @@ def test_run_claim_writes_claim_search_artifacts_when_enabled(tmp_path, monkeypa
     assert (out_dir / "failure_localization.json").exists()
     assert (out_dir / "claim_search_trace.json").exists()
     assert (out_dir / "candidate_claims.json").exists()
+    assert (out_dir / "duplicate_candidates.json").exists()
     assert (out_dir / "proposal_validation.json").exists()
     assert (out_dir / "candidate_evaluations.json").exists()
     assert (out_dir / "claim_lineage.json").exists()
@@ -287,5 +288,7 @@ def test_run_claim_writes_claim_search_artifacts_when_enabled(tmp_path, monkeypa
     assert (out_dir / "llm_candidate_responses.jsonl").exists()
     trace = json.loads((out_dir / "claim_search_trace.json").read_text(encoding="utf-8"))
     receipt = json.loads((out_dir / "receipt.json").read_text(encoding="utf-8"))
-    assert trace["stopped_reason"] == "max_rounds_exhausted"
+    assert trace["stopped_reason"] == "no_candidates"
+    assert len(trace["duplicate_candidates"]) == 1
     assert "candidate_claims" in receipt["results"]
+    assert "duplicate_candidates" in receipt["results"]

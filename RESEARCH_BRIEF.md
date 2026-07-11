@@ -1,57 +1,37 @@
-# Research Brief — Agentic Framework for Reproducible Neuroimaging Analysis
+# Research Brief
 
-**Created:** 2026-06-01
-**Owner:** yuxiang.wei@joinhandshake.com
+Updated: 2026-07-02
 
-## Problem statement / direction
-Build a **general agentic (LLM-driven) framework for reproducible neuroimaging analysis**.
-Core contribution = a **reproducible-analysis agent**: given a scientific/clinical question
-+ a neuroimaging cohort, the agent autonomously **plans → executes → QCs → interprets** a
-reproducible statistical analysis, operating mostly on **precomputed derivatives** (so the
-core loop runs on CPU/laptop, no heavy preprocessing).
+CONFIRM is a claim-governance pipeline for agentic neuroimaging analysis. It
+turns LLM- or literature-derived scientific questions into frozen structured
+claim contracts, evaluates those contracts with deterministic statistical
+gates, and abstains or downgrades when evidence is insufficient.
 
-This is deliberately positioned on the **analysis / interpretation / discovery** part of the
-lifecycle (post-preprocessing), NOT radiology, segmentation, or presurgical mapping. Rationale:
-the user's data are large *research cohorts* (already curated), so the value and novelty live
-in the analysis/decision layer, not preprocessing cleanup.
+The current full initial-claim run has three active stages:
 
-## What we are NOT doing (non-goals)
-- Not a clinical/diagnostic decision system, not presurgical eloquent-cortex mapping.
-- Not "just an LLM wrapper that runs fMRIPrep." Preprocessing is largely solved for these cohorts.
-- Not a broad shallow "general framework" with no evaluable core claim.
+- Stage 0: GPT-5.5 extracts literature-grounded claim seeds from PubMed and
+  keeps only locally executable questions for drafting.
+- Stage 1: GPT-5.5 proposes 50 additional questions per target family and
+  drafts all initial questions into Pydantic-validated `ClaimContract`s.
+- Stage 2: unchanged CONFIRM gates evaluate the frozen contracts.
 
-## Data available (the moat)
-- **UK Biobank (UKB)**, **HCP**, **ADNI**, **ABCD**, **OpenNeuro** — on hand.
-- Modalities: **fMRI, sMRI, PET**. Multi-disease (AD/MCI via ADNI; development/psychiatric via
-  ABCD; aging/population via UKB; healthy via HCP; heterogeneous via OpenNeuro).
-- Mostly available as **precomputed derivatives** + rich phenotypic/clinical metadata; longitudinal.
-- **Public-data-first preference (2026-06-01):** lean on openly downloadable cohorts so the benchmark/tool
-  is reproducible by any lab — OASIS-3, AIBL, IXI, CamCAN, ABIDE-I/II, ADHD-200, PPMI, COBRE/SchizConnect,
-  OpenNeuro (+HCP open). Use access-gated UKB/ADNI/ABCD for scale + extra replication.
-- **Breadth goal:** test many biomarkers across many diseases (AD, aging, autism, ADHD, schizophrenia,
-  Parkinson's, development), each with ≥2 independent cohorts to enable cross-cohort replication. Primary
-  substrate = sMRI FreeSurfer IDPs (universally available); PET/FC secondary.
+Current full Stage 2 result:
 
-## Evaluation strategy (the differentiator)
-The agent's output is scored on objective, computable criteria:
-1. **Known-effect recovery** — does it recover well-established effects (aging atrophy, AD
-   hypometabolism/atrophy, sex differences, heritability)?
-2. **Cross-cohort / cross-modal replication** — do findings replicate across UKB↔HCP↔ADNI↔ABCD↔OpenNeuro?
-3. **Reproducibility** — deterministic, provenance-tracked, re-runnable; specification-curve stability.
+- `289` evaluated contracts;
+- `74` confirmed;
+- `169` fragile;
+- `38` non-replicated;
+- `8` under-powered;
+- `0` execution errors.
 
-## Constraints
-- Compute: assume **no/limited GPU** for the core loop (use precomputed derivatives). Pilots
-  are paper-only / lightweight unless the user confirms GPU access.
-- Timeline/venue: TBD. End goal = **research-backed open-source tool** (a paper AND an adopted tool).
-  Weight **novelty + usefulness jointly.**
+The optional feedback-loop layer starts after Stage 2. It diagnoses failed
+claims and asks an LLM to propose connected follow-up candidates. Those
+candidates are separately validated for provenance, anti-hacking constraints,
+and evidence eligibility before any evaluation.
 
-## Decisions locked (2026-06-01)
-- Core framing: **Reproducible-analysis agent** (chosen over biomarker-discovery-only and
-  general-framework-anchored variants; those remain backup framings).
-- End goal: **Both** — research paper/system + open-source tool.
+The project framing should distinguish:
 
-## Pipeline
-research-lit (survey) → idea-creator (brainstorm) → novelty-check → research-review (critique)
-→ research-refine-pipeline (proposal + experiment plan). Orchestrated directly (parallel search
-agents + Codex/gpt-5.5 for cross-model novelty/review) rather than via deep nested skill calls.
-Canonical deliverable: `idea-stage/IDEA_REPORT.md`.
+- initial claim creation from gate evaluation;
+- original confirmed claims from fragile/non-replicated/under-powered outcomes;
+- same-data exploratory support from holdout or external confirmation;
+- main scientific claims from auxiliary synthetic or external stress tests.

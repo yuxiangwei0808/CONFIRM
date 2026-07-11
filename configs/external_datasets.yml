@@ -1,0 +1,177 @@
+version: 1
+remote_output_root: /data/users1/ywei/confirm_external_prep
+
+datasets:
+  - dataset_id: EHBS
+    target_families: [normative_fmri, ad_aging]
+    quarantine: false
+    metadata:
+      adapter: ehbs
+      paths:
+        - /data/users1/ywei/data/EHBS/fmri/metadata_with_text_medical.csv
+      required_columns: [subject_id, age, sex]
+    structural:
+      root: /data/qneuromark/Data/Emory_Healthy_Brain/t1/t1w
+      pattern: "**/T1w.nii"
+      layout: ehbs_single
+    fmri:
+      backend: descriptor_csv
+      descriptor_path: /data/users1/ywei/data/EHBS/fmri/descriptors/fc_self_descriptors.csv
+      descriptor_index_path: /data/users1/ywei/data/EHBS/fmri/TianS3/EHBS_fMRI_metadata.csv
+      descriptor_subject_column: subject
+      descriptor_session_column: session
+      metadata_path: /data/users1/ywei/data/EHBS/fmri/metadata_with_text_medical.csv
+
+  - dataset_id: LA5C
+    target_families: [psychosis]
+    quarantine: false
+    metadata:
+      adapter: cnp
+      paths:
+        - /data/qneuromark/Data/LA5c/participants.tsv
+      required_columns: [participant_id, diagnosis, age, gender]
+    fmri:
+      backend: gift_timecourses
+      ica_dir: /data/qneuromark/Results/ICA/LA5c
+      ica_prefix: LA5c
+      subject_order_path: /data/qneuromark/Results/ICA/LA5c/LA5cSubject.mat
+      subject_id_regex: "/(sub-[^/]+)/"
+      metadata_path: /data/qneuromark/Data/LA5c/participants.tsv
+      component_count: 100
+
+  - dataset_id: ADHD_Suijing
+    target_families: [adhd]
+    quarantine: true
+    quarantine_reasons: [authoritative_phenotype_unavailable, feature_parity_blocked]
+    metadata:
+      adapter: none
+      paths: []
+      required_columns: [subject_id, age, sex, dx]
+    structural:
+      root: /data/qneuromark/Data/ADHD/ADHD_Suijing/Data_BIDS/Raw_Data
+      pattern: "**/ses_01/anat/T1.nii"
+      layout: bids_single_session
+    fmri:
+      backend: gift_timecourses
+      ica_dir: /data/qneuromark/Results/ICA/ADHD_SJ_PK/hm6
+      ica_prefix: ADHD
+      subject_order_path: /data/qneuromark/Results/ICA/ADHD_SJ_PK/hm6/ADHDSubject.mat
+      subject_id_regex: "/(sub[^/]+)/"
+      path_contains: ADHD_Suijing
+      component_count: 100
+      parity_reference: ADHD200
+
+  - dataset_id: PKU_ADHD
+    target_families: [adhd]
+    quarantine: true
+    quarantine_reasons: [incomplete_control_age, feature_parity_blocked]
+    metadata:
+      adapter: none
+      paths:
+        - "/data/qneuromark/Data/ADHD/PKU_ADHD/Data_info/ADHD TRENDS.xlsx"
+      required_columns: [subject_id, age, sex, dx]
+    structural:
+      root: /data/qneuromark/Data/ADHD/PKU_ADHD/Data_BIDS/Raw_Data
+      pattern: "**/ses_01/anat/T1.nii"
+      layout: bids_single_session
+    fmri:
+      backend: gift_timecourses
+      ica_dir: /data/qneuromark/Results/ICA/ADHD_SJ_PK/hm6
+      ica_prefix: ADHD
+      subject_order_path: /data/qneuromark/Results/ICA/ADHD_SJ_PK/hm6/ADHDSubject.mat
+      subject_id_regex: "/(sub[^/]+)/"
+      path_contains: PKU_ADHD
+      component_count: 100
+      parity_reference: ADHD200
+
+  - dataset_id: Olin_ASD_SZ
+    target_families: [asd, psychosis]
+    quarantine: true
+    quarantine_reasons: [authoritative_phenotype_unavailable, feature_parity_blocked]
+    metadata:
+      adapter: none
+      paths: []
+      required_columns: [subject_id, age, sex, dx]
+    structural:
+      root: /data/neuromark2/Data/Olin_ASD_SZ/Data_BIDS/Raw_Data
+      pattern: "**/T1.nii"
+      layout: olin_acquisition
+      preferred_tokens: [MPRAGE_3min, MPRAGE]
+    fmri:
+      backend: gift_timecourses
+      ica_dir: /data/neuromark2/Results/ICA/Olin_ASD_SZ
+      ica_prefix: AS
+      subject_order_path: /data/neuromark2/Results/ICA/Olin_ASD_SZ/ASSubject.mat
+      subject_id_regex: "/Raw_Data/([^/]+)/"
+      component_count: 100
+      parity_reference: ABIDE2
+
+  - dataset_id: BLSA
+    target_families: [ad_aging]
+    quarantine: false
+    metadata:
+      adapter: blsa
+      paths:
+        - /data/qneuromark/Data/BLSA/Data_Info/BLSA_3T-MRI_DTI_MPRAGE_REST.xlsx
+      required_columns: [session, Age, sex]
+    structural:
+      root: /data/qneuromark/Data/BLSA/smri/data
+      pattern: "**/anat/anat.nii"
+      layout: blsa_dated_visit
+    fmri:
+      backend: static_fc_vector
+      static_root: /data/qneuromark/Data/BLSA/fmri/results/fc
+      static_pattern: "*/*/rest/sfc.mat"
+      static_key: sFNC
+      component_count: 53
+
+  - dataset_id: AIBL
+    target_families: [ad_aging]
+    quarantine: false
+    metadata:
+      adapter: aibl
+      paths:
+        - /data/qneuromark/Data/AIBL/demos/AIBL_ALL_2_11_2022.csv
+        - /data/qneuromark/Data/AIBL/demos/aibl_pdxconv_01-Jun-2018.csv
+      required_columns: [Subject, Sex, Age, Acq Date]
+    structural:
+      root: /data/qneuromark/Data/AIBL/smri/data
+      pattern: "**/anat/anat.nii"
+      layout: aibl_dated_visit
+
+  - dataset_id: Shile_Nanjing
+    target_families: [psychosis]
+    quarantine: true
+    quarantine_reasons: [authoritative_phenotype_unavailable]
+    metadata:
+      adapter: none
+      paths: []
+      required_columns: [subject_id, age, sex, dx]
+    structural:
+      root: /data/qneuromark/Data/Shile_Nanjing/Data_BIDS/Raw_Data
+      pattern: "**/ses_01/anat/T1.nii"
+      layout: shile_bids
+      existing_subjects_dir: /data/users1/ywei/confirm_fastsurfer
+    fmri:
+      backend: audit_only
+
+  - dataset_id: PK_MPRC
+    target_families: [psychosis]
+    quarantine: false
+    metadata:
+      adapter: pk_mprc
+      paths:
+        - /data/qneuromark/Data/PK_MPRC/Data_info/Demographics_S123_Zening.xlsx
+      required_columns: [zid, dx(0=crl,1=scz), Age, sex (0=F,1=M)]
+    structural:
+      root: /data/qneuromark/Data/PK_MPRC/sMRI
+      pattern: "**/anat.nii"
+      layout: pk_mprc
+    fmri:
+      backend: gift_timecourses
+      ica_dir: /data/qneuromark/Results/ICA/PK/TRall
+      ica_prefix: PK
+      subject_order_path: /data/qneuromark/Results/ICA/PK/TRall/PKSubject.mat
+      subject_id_regex: "/Scanner[0-9]+_([^/]+)/"
+      session_label: ses-01
+      component_count: 100

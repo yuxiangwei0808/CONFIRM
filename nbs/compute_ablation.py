@@ -10,9 +10,10 @@ import json
 import pandas as pd
 from statsmodels.stats.power import TTestPower
 
-MAIN_SRC = ["review-stage/round5-combat/expanded_benchmark_results.json",
-            "review-stage/round5-combat/multimodal_benchmark_results.json"]
-STRESS_AUDIT = "review-stage/negatives-expansion/negatives_expansion_audit.csv"
+MAIN_SRC = [
+    "review-stage/curated-gate-benchmark-combat/expanded_benchmark_results.json",
+]
+STRESS_AUDIT = "review-stage/curated-gate-synthetic-stress/negatives_expansion_audit.csv"
 MDE, ALPHA, MINPOW, MVMIN = 0.3, 0.05, 0.8, 0.6
 _tp = TTestPower()
 

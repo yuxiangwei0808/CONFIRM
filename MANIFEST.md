@@ -1,38 +1,58 @@
 # Research Output Manifest
 
-Current staged artifact set after cleanup on 2026-06-17.
+Updated: 2026-07-10
 
-| File | Stage | Description |
-|---|---|---|
-| `docs/STAGED_RESULTS_INDEX.md` | organization | Canonical index of current code, result artifacts, metrics, and rerun commands. |
-| `review-stage/README.md` | organization | Review-stage directory guide and current artifact reading order. |
-| `review-stage/REVIEW_STATE.json` | organization | Machine-readable status for the cleaned 24-claim pilot. |
-| `CLAIMS_FROM_RESULTS.md` | review | Narrow claims supported by the cleaned label-aware results. |
-| `EXPERIMENT_AUDIT.md` | review | Independent experiment integrity audit and post-audit fixes. |
-| `review-stage/combined-label-aware-combat/combined_benchmark_results.json` | result | Primary cleaned combined ComBat result. |
-| `review-stage/combined-label-aware-combat/combined_benchmark_audit.csv` | result | Per-claim audit table for the primary combined result. |
-| `review-stage/combined-label-aware-none/combined_benchmark_results.json` | result | No-harmonization comparison for the cleaned combined result. |
-| `review-stage/benchmark-ready-label-aware-combat/benchmark_ready_results.json` | result | fMRI descriptor component result with ComBat harmonization. |
-| `review-stage/benchmark-ready-label-aware-none/benchmark_ready_results.json` | result | fMRI descriptor component result without harmonization. |
-| `review-stage/multimodal-label-aware-combat/multimodal_benchmark_results.json` | result | NACC table-probe component result with ComBat harmonization. |
-| `review-stage/multimodal-label-aware-none/multimodal_benchmark_results.json` | result | NACC table-probe component result without harmonization. |
-| `review-stage/hardening-controls/hardening_controls_results.json` | result | Targeted FDR and power/MDE control checks. |
-| `src/bench/labels.py` | code | Claim label taxonomy and label-aware scoring helpers. |
-| `src/bench/run_benchmark_ready.py` | code | fMRI benchmark-ready runner. |
-| `src/bench/run_multimodal_benchmark.py` | code | NACC table-probe runner. |
-| `src/bench/combine_benchmark_results.py` | code | Combined fMRI plus NACC result summarizer. |
-| `src/bench/run_hardening_controls.py` | code | FDR and power/MDE control checks. |
-| `src/bench/README.md` | code | Benchmark runner code index. |
-| `docs/literature_labels/fmri_claim_label_ledger.md` | data | First-pass fMRI claim label ledger. |
-| `docs/data_manifests/adni_document_20260617_zip_inventory.md` | data | Inventory of useful files visible in the new ADNI document zip. |
-| `docs/DATA_REQUIREMENTS_NEXT.md` | data | Local/remote/needed data requirements for benchmark expansion. |
-| `docs/data_manifests/nacc_access_notes.md` | data | Access notes for NACC data needed later. |
-| `docs/data_manifests/remote_recheck_20260617.md` | data | Read-only remote recheck and revised immediate scope. |
+## Active Documents
 
-Removed stale artifacts:
+| File | Purpose |
+|---|---|
+| `IMPLEMENTATION_NOTES.md` | Detailed description of the current Stage 0/1/2 pipeline and feedback-loop hook. |
+| `RESULTS_MANIFEST.md` | Current result layout, counts, and launch commands. |
+| `RESEARCH_BRIEF.md` | Short project framing. |
+| `EXTERNAL_BENCHMARK_RESULTS.md` | Auxiliary external-evaluation note. |
+| `review-stage/README.md` | Active result-directory index. |
+| `src/bench/README.md` | Benchmark runner/code index. |
 
-- old archive outputs
-- pre-label-aware hardened result folders
-- obsolete timestamped review-state files under `review-stage/`
-- obsolete auto-review render sidecar under `review-stage/`
-- superseded hardening-control timestamp `hardening_controls_results_20260616_152518.json`
+## Active Results
+
+| Directory | Contents |
+|---|---|
+| `review-stage/literature-grounding-gpt55/` | Stage 0 PubMed/literature grounding artifacts. |
+| `review-stage/initial-claims-all-gpt55/` | Stage 1 full initial questions and drafted contracts. |
+| `review-stage/confirm-gates-all-gpt55/` | Stage 2 CONFIRM gate results for drafted contracts. |
+| `review-stage/_archive_20260702_pipeline_cleanup/` | Superseded literature-only and pre-cleanup feedback-loop outputs. |
+
+## Main CONFIRM Launchers
+
+| Script | Purpose |
+|---|---|
+| `scripts/launch_literature_claim_grounding.sh` | Stage 0 literature-grounded claim source generation. |
+| `scripts/launch_initial_claim_drafting.sh` | Stage 1 LLM question generation and `ClaimContract` drafting. |
+| `scripts/launch_confirm_gate_evaluation.sh` | Stage 2 CONFIRM gate evaluation. |
+| `scripts/launch_claim_search_fullscale.sh` | One feedback-loop claim-search run from Stage 2 outputs. |
+| `scripts/launch_claim_search_sweep.sh` | Feedback-loop claim-search parameter sweep. |
+| `scripts/launch_curated_gate_benchmark.sh` | Legacy curated/auxiliary gate benchmark launcher. |
+
+## External Data-Processing Launchers
+
+These are isolated from the main workflow under `scripts/data_processing/`:
+
+| Script | Purpose |
+|---|---|
+| `scripts/data_processing/audit_external_datasets_arcdev.sh` | Remote external registry, metadata, and baseline-scan audit. |
+| `scripts/data_processing/launch_external_fmri_arcdev.sh` | Remote external fMRI descriptor preparation. |
+| `scripts/data_processing/launch_external_freesurfer_arcdev.sh` | Receipt-backed FastSurfer/FreeSurfer preparation. |
+| `scripts/data_processing/sync_external_evidence_arcdev.sh` | Versioned candidate sync and explicit promotion. |
+
+External dataset policy and routing are defined in:
+
+```text
+configs/external_datasets.yml
+configs/evidence_partitions.yml
+```
+
+The canonical feedback-loop input is the full Stage 2 artifact:
+
+```text
+review-stage/confirm-gates-all-gpt55/combined_benchmark_results.json
+```
