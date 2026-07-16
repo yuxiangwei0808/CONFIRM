@@ -11,8 +11,6 @@ from typing import Any
 
 import pandas as pd
 
-DEFAULT_INPUT = "review-stage/claim-search-llm-20260626/llm-candidate-replay/iterative_candidate_replay.json"
-
 
 def _case_for_state(state: dict[str, Any]) -> dict[str, Any]:
     claim = state.get("original_claim", {})
@@ -45,7 +43,13 @@ def _case_for_state(state: dict[str, Any]) -> dict[str, Any]:
             "{candidate_id}:{validation_ok}:{blocked_reason}:{violations}".format(**item) for item in candidate_summaries
         ),
         "candidate_proposals": candidate_summaries,
+        "supported_candidates": ";".join(state.get("supported_candidates") or []),
         "confirmed_candidates": ";".join(state.get("confirmed_candidates") or []),
+        "selected_candidate_id": state.get("selected_candidate_id"),
+        "selection_reason": state.get("selection_reason"),
+        "excluded_evidence_query_count": state.get("excluded_evidence_query_count", 0),
+        "excluded_evidence_status": state.get("excluded_evidence_status"),
+        "evidence_freshness": state.get("evidence_freshness"),
         "stopped_reason": state.get("stopped_reason"),
     }
 
@@ -66,6 +70,9 @@ def _candidate_summary(candidate: dict[str, Any], evaluation: dict[str, Any]) ->
         "exploratory_label": str(evaluation.get("exploratory_label") or ""),
         "holdout_label": str(evaluation.get("holdout_label") or ""),
         "external_label": str(evaluation.get("external_label") or ""),
+        "effective_family_size": str(evaluation.get("effective_family_size") or ""),
+        "excluded_evidence_status": str(evaluation.get("excluded_evidence_status") or ""),
+        "evidence_freshness": str(evaluation.get("evidence_freshness") or ""),
         "blocked_reason": str(evaluation.get("blocked_reason") or ""),
         "execution_error": str(evaluation.get("execution_error") or ""),
         "violations": ";".join(str(item) for item in violations),
@@ -89,15 +96,17 @@ def _write_markdown(cases: list[dict[str, Any]], path: Path) -> None:
                 f"- Diagnosis: {_md(row.get('failure_diagnosis'))}",
                 f"- Generation evidence: {_md(row.get('used_generation_evidence'))}",
                 f"- LLM prompt excerpt: {_md(row.get('llm_prompt_excerpt'))}",
+                f"- Selected candidate: {_md(row.get('selected_candidate_id'))}",
+                f"- Excluded evidence: {_md(row.get('excluded_evidence_status'))} ({_md(row.get('evidence_freshness'))})",
                 f"- Final status: {_md(row.get('stopped_reason'))}",
                 "",
-                "| Round | Transform | Proposal type | Validation | Final label | Holdout | External | Blocked/error | Violations | Proposed question |",
-                "| ---: | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+                "| Round | Transform | Proposal type | Family size | Validation | Final label | Holdout | External | Excluded status | Blocked/error | Violations | Proposed question |",
+                "| ---: | --- | --- | ---: | --- | --- | --- | --- | --- | --- | --- | --- |",
             ]
         )
         for candidate in row.get("candidate_proposals") or []:
             lines.append(
-                "| {round_index} | {transform_type} | {proposal_type} | {validation_ok} | {final_label} | {holdout_label} | {external_label} | {blocked_reason} {execution_error} | {violations} | {proposed_question} |".format(
+                "| {round_index} | {transform_type} | {proposal_type} | {effective_family_size} | {validation_ok} | {final_label} | {holdout_label} | {external_label} | {excluded_evidence_status} | {blocked_reason} {execution_error} | {violations} | {proposed_question} |".format(
                     **{key: _md(value) for key, value in candidate.items()}
                 )
             )
@@ -124,7 +133,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     md_path = out_dir / "claim_search_case_studies.md"
     result = {
         "created_at": datetime.now().isoformat(timespec="seconds"),
-        "description": "E17 LLM iterative claim-search case-study traces.",
+        "description": "LLM iterative claim-search case-study traces.",
         "input": str(source),
         "cases": cases,
     }
@@ -139,8 +148,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", default=DEFAULT_INPUT)
-    parser.add_argument("--out-dir", default="review-stage/claim-search-llm-20260626/case-studies")
+    parser.add_argument("--input", required=True)
+    parser.add_argument("--out-dir", required=True)
     parser.add_argument("--limit", type=int, default=5)
     return parser
 

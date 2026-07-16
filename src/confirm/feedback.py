@@ -46,9 +46,9 @@ def feedback_from_verdict(
         source_verdict=source_verdict,
         failed_gates=failed,
         primary_failure=primary,
-        diagnosis=_diagnosis(primary, rationale),
+        diagnosis=_diagnosis(primary, rationale, results_payload),
         evidence=evidence,
-        next_agent_instruction=_instruction(primary, rationale),
+        next_agent_instruction=_instruction(primary, rationale, results_payload),
     )
 
 
@@ -85,7 +85,7 @@ def _primary_failure(
     return "abstention"
 
 
-def _diagnosis(primary: str, rationale: str) -> str:
+def _diagnosis(primary: str, rationale: str, results: Mapping[str, Any]) -> str:
     if primary == "none":
         return "The claim is already confirmed by the current gate stack."
     if primary == "execution_error":
@@ -103,11 +103,13 @@ def _diagnosis(primary: str, rationale: str) -> str:
     if primary == "replication":
         return "The claim failed because it did not replicate under the declared replication gate."
     if primary == "multiplicity":
+        if _direction_drives_multiplicity_failure(results):
+            return "The primary effect is statistically supported but points opposite to the claim's declared direction."
         return "The primary effect does not survive the declared multiplicity correction."
     return "The current evidence does not support confirmation."
 
 
-def _instruction(primary: str, rationale: str) -> str:
+def _instruction(primary: str, rationale: str, results: Mapping[str, Any]) -> str:
     if primary == "confound" and "nested" in rationale.lower():
         return "Require a balanced independent design; do not treat a nested predictor as confirmatory evidence."
     if primary == "confound":
@@ -121,6 +123,11 @@ def _instruction(primary: str, rationale: str) -> str:
     if primary == "replication":
         return "Require independent replication evidence or report non-replication."
     if primary == "multiplicity":
+        if _direction_drives_multiplicity_failure(results):
+            return (
+                "Preserve the declared direction; do not reverse it after observing the effect. "
+                "Generate only connected follow-ups requiring adaptive or excluded-evidence labels."
+            )
         return "Do not shrink the searched family; require a connected follow-up with excluded validation evidence."
     if primary == "execution_error":
         return "Only true executable contract corrections may be rerun on current data."
@@ -170,6 +177,28 @@ def _mapping(value: Any) -> Mapping[str, Any]:
     return value if isinstance(value, Mapping) else {}
 
 
+def _direction_drives_multiplicity_failure(results: Mapping[str, Any]) -> bool:
+    contract = _mapping(results.get("contract"))
+    estimand = _mapping(contract.get("estimand"))
+    direction = str(estimand.get("direction") or "two_sided")
+    beta = _num(_mapping(results.get("primary")).get("beta"))
+    p_value = _num(_mapping(results.get("primary")).get("p"))
+    multiplicity = _mapping(_mapping(contract.get("gates")).get("multiplicity"))
+    alpha = _num(multiplicity.get("alpha"))
+    result_gates = _mapping(_mapping(results.get("verdict")).get("gates"))
+    family_size = _num(result_gates.get("multiplicity_effective_family_size"))
+    if family_size is None:
+        family_size = _num(multiplicity.get("family_size"))
+    if beta is None or p_value is None or alpha is None:
+        return False
+    corrected_threshold = alpha / max(int(family_size or 1), 1)
+    direction_mismatch = (
+        (direction == "positive" and beta <= 0)
+        or (direction == "negative" and beta >= 0)
+    )
+    return bool(direction_mismatch and p_value <= corrected_threshold)
+
+
 def _evidence_from_results(
     verdict: Mapping[str, Any],
     results: Mapping[str, Any],
@@ -183,7 +212,18 @@ def _evidence_from_results(
 
     primary_result = _mapping(results.get("primary"))
     if "multiplicity" in failed:
-        parts = ["Multiplicity gate failed"]
+        direction_mismatch = _direction_drives_multiplicity_failure(results)
+        parts = [
+            "Directional consistency failed within the multiplicity gate"
+            if direction_mismatch
+            else "Multiplicity gate failed"
+        ]
+        beta = _num(primary_result.get("beta"))
+        if beta is not None:
+            parts.append(f"primary beta={_fmt(beta)}")
+        declared_direction = _mapping(contract.get("estimand")).get("direction")
+        if direction_mismatch and declared_direction:
+            parts.append(f"declared direction={declared_direction}")
         p_value = _num(primary_result.get("p"))
         if p_value is not None:
             parts.append(f"primary p={_fmt(p_value)}")

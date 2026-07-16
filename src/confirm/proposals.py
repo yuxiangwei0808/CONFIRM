@@ -92,6 +92,7 @@ class ProposalValidation(BaseModel):
     checked_contract: bool = False
     useful: bool = False
     accepted_proposal_type: bool = False
+    design_diagnostics: dict[str, Any] = Field(default_factory=dict)
 
 
 def localize_failure(

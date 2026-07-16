@@ -6,6 +6,7 @@ from argparse import Namespace
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from bench import run_iterative_claim_search_replay as replay
 from bench.run_iterative_claim_search_replay import _known_negative_or_fragile_source, _replay_specific_summary
@@ -75,13 +76,55 @@ def test_external_result_row_with_embedded_contract_becomes_executable_source_ro
         "contract": contract.model_dump(mode="json"),
     }
 
-    converted = _source_row(row, Path("review-stage/curated-gate-external-cnp/CNP_external_results.json"))
+    converted = _source_row(row, Path("fixtures/stage2_results.json"))
 
     assert converted is not None
     assert converted["drafted_contract"]["claim_id"] == "external_claim"
     assert converted["gate_results"]["contract"]["claim_id"] == "external_claim"
     assert converted["source_scoring_label"] == "random_null"
     assert converted["source_ground_truth"] == "random_null"
+
+
+def test_source_builder_preserves_embedded_gate_verdict_over_missing_legacy_columns():
+    contract = _contract()
+    row = {
+        "claim_id": contract.claim_id,
+        "final_label": "fragile",
+        "rationale": "Failed gates: multiplicity, multiverse, replication",
+        "gate_verdict": {
+            "label": "fragile",
+            "abstained": True,
+            "rationale": "Failed gates: multiplicity, multiverse, replication",
+            "gates": {
+                "search_provenance": True,
+                "confound": True,
+                "confound_completeness": True,
+                "multiplicity": False,
+                "power": True,
+                "multiverse": False,
+                "replication": False,
+                "multiplicity_effective_family_size": 1,
+            },
+        },
+        "gate_results": {
+            "contract": contract.model_dump(mode="json"),
+            "power": {"achieved_power": 1.0, "under_powered": False},
+        },
+        "contract": contract.model_dump(mode="json"),
+    }
+
+    converted = _source_row(row, Path("stage2.json"))
+
+    assert converted is not None
+    assert converted["gate_verdict"]["gates"] == {
+        "search_provenance": True,
+        "confound": True,
+        "confound_completeness": True,
+        "multiplicity": False,
+        "power": True,
+        "multiverse": False,
+        "replication": False,
+    }
 
 
 def test_cnp_style_split_aliases_resolve_to_external_parquet(tmp_path):
@@ -109,11 +152,31 @@ def test_cnp_style_split_aliases_resolve_to_external_parquet(tmp_path):
     assert result.resolved_data_paths["ds000030_REP"].endswith("ds000030.parquet")
 
 
+def test_excluded_partition_resolution_does_not_fall_back_to_base_alias(tmp_path):
+    root = tmp_path / "cohorts"
+    root.mkdir()
+    base = root / "ADNI.parquet"
+    base.touch()
+
+    assert replay._cohort_path([root], "ADNI_HOLDOUT_DISC", allow_aliases=True) == base
+    with pytest.raises(FileNotFoundError):
+        replay._cohort_path([root], "ADNI_HOLDOUT_DISC", allow_aliases=False)
+
+
 def test_known_negative_uses_source_labels_not_gate_verdict():
     assert not _known_negative_or_fragile_source({"claim_id": "real_claim", "gate_verdict_label": "fragile"})
     assert _known_negative_or_fragile_source({"claim_id": "real_claim", "source_scoring_label": "fragile"})
     assert _known_negative_or_fragile_source({"claim_id": "real_claim", "label_class": "random_null"})
     assert _known_negative_or_fragile_source({"claim_id": "neg_synthetic", "gate_verdict_label": "confirmed"})
+
+
+def test_run_provenance_records_evidence_freshness(tmp_path):
+    source = tmp_path / "source.json"
+    source.write_text("{}", encoding="utf-8")
+
+    provenance = replay._run_provenance(source, None, None, "openai:test", "fresh")
+
+    assert provenance["evidence_freshness"] == "fresh"
 
 
 def test_replay_summary_counts_known_negative_same_data_risk():
@@ -246,7 +309,7 @@ def test_source_builder_keeps_same_base_asd_claim_when_holdout_pair_exists(tmp_p
     assert output["summary"]["excluded_by_evidence_policy"] == 0
 
 
-def test_holdout_evaluator_falls_back_to_external_pair_when_holdout_pair_is_unusable(tmp_path, monkeypatch):
+def test_excluded_evaluator_prefers_external_before_holdout(tmp_path, monkeypatch):
     source_root = tmp_path / "source"
     source_root.mkdir()
     small = pd.DataFrame(
@@ -255,7 +318,7 @@ def test_holdout_evaluator_falls_back_to_external_pair_when_holdout_pair_is_unus
             "cohort": ["ADNI"] * 60,
             "site": [f"site{idx % 3}" for idx in range(60)],
             "age": [70 + idx % 5 for idx in range(60)],
-            "sex": ["F", "M"] * 30,
+            "sex": ["F", "F", "M", "M"] * 15,
             "dx": ["AD", "CN"] * 30,
             "smri_icv": [1000.0 + idx for idx in range(60)],
             "smri_hippocampus": [1.0 + idx for idx in range(60)],
@@ -267,7 +330,7 @@ def test_holdout_evaluator_falls_back_to_external_pair_when_holdout_pair_is_unus
             "cohort": ["NACC"] * 200,
             "site": [f"site{idx % 5}" for idx in range(200)],
             "age": [70 + idx % 5 for idx in range(200)],
-            "sex": ["F", "M"] * 100,
+            "sex": ["F", "F", "M", "M"] * 50,
             "dx": ["AD", "CN"] * 100,
             "smri_icv": [1000.0 + idx for idx in range(200)],
             "smri_hippocampus": [1.0 + idx for idx in range(200)],
@@ -334,7 +397,7 @@ def test_holdout_evaluator_falls_back_to_external_pair_when_holdout_pair_is_unus
     evaluator = replay._candidate_evaluator(
         [tmp_path / "parts" / "cohorts"],
         evidence_manifest=manifest,
-        evidence_kind="holdout",
+        evidence_kind="external",
     )
 
     class Candidate:
@@ -350,3 +413,47 @@ def test_holdout_evaluator_falls_back_to_external_pair_when_holdout_pair_is_unus
     assert mapped_contract.replication_cohorts == ["NACC_EXTERNAL_REP"]
     assert target_family == "ad_aging"
     assert source_contract.discovery_cohort == "ADNI_DISC"
+
+
+def test_validation_prompt_catalog_excludes_holdout_counts_paths_and_seeds(tmp_path):
+    source_root = tmp_path / "source"
+    source_root.mkdir()
+    frame = pd.DataFrame(
+        {
+            "subject_id": [f"sub-{idx}" for idx in range(200)],
+            "cohort": ["ADNI"] * 200,
+            "site": [f"site{idx % 4}" for idx in range(200)],
+            "age": [65 + idx % 8 for idx in range(200)],
+            "sex": ["F", "M"] * 100,
+            "dx": ["AD", "CN"] * 100,
+            "smri_icv": [1000.0 + idx for idx in range(200)],
+            "smri_hippocampus": [float(idx) for idx in range(200)],
+        }
+    )
+    frame.to_parquet(source_root / "ADNI.parquet")
+    config = {
+        "seed": 17,
+        "default_split": {"discovery": 0.6, "replication": 0.2, "holdout": 0.2},
+        "min_rows": {"default_partition_rows": 20, "continuous_rows": 20},
+        "datasets": [
+            {
+                "dataset": "ADNI",
+                "source": str(source_root / "ADNI.parquet"),
+                "target_families": ["ad_aging"],
+            }
+        ],
+    }
+    config_path = tmp_path / "evidence.yml"
+    config_path.write_text(json.dumps(config), encoding="utf-8")
+    manifest = build_evidence_partitions(config_path, tmp_path / "parts")
+    contract = _contract(discovery_cohort="ADNI_DISC", replication_cohorts=["ADNI_REP"])
+
+    catalog = manifest.validation_catalog_for_contract(contract)
+    serialized = json.dumps(catalog)
+
+    assert "ADNI_HOLDOUT_DISC" in serialized
+    assert "smri_hippocampus" in serialized
+    assert '"n_rows"' not in serialized
+    assert '"path"' not in serialized
+    assert '"seed"' not in serialized
+    assert "subject_id_sha256" not in serialized

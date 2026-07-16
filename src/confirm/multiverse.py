@@ -101,9 +101,8 @@ def run_multiverse(df: pd.DataFrame, contract: ClaimContract, forks: dict[str, l
                     error=str(exc),
                 )
             )
-    ok = [spec for spec in spec_results if spec.status == "ok"]
-    consistent = [spec for spec in ok if spec.same_sign and spec.significant]
-    fraction = len(consistent) / len(ok) if ok else 0.0
+    consistent = [spec for spec in spec_results if spec.status == "ok" and spec.same_sign and spec.significant]
+    fraction = len(consistent) / len(spec_results) if spec_results else 0.0
     passed = fraction >= contract.gates.multiverse.min_fraction_consistent
     return MultiverseResult(fraction_consistent=float(fraction), passed=passed, specs=spec_results)
 
@@ -210,9 +209,8 @@ def run_brainwide_multiverse(
                     )
                 )
 
-    ok = [spec for spec in spec_results if spec.status == "ok"]
-    consistent = [spec for spec in ok if spec.same_sign and spec.significant]
-    fraction = len(consistent) / len(ok) if ok else 0.0
+    consistent = [spec for spec in spec_results if spec.status == "ok" and spec.same_sign and spec.significant]
+    fraction = len(consistent) / len(spec_results) if spec_results else 0.0
     return MultiverseResult(
         fraction_consistent=float(fraction),
         passed=fraction >= contract.gates.multiverse.min_fraction_consistent,

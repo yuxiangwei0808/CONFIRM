@@ -143,12 +143,17 @@ def behavioral_columns(columns: Iterable[str]) -> list[str]:
     return [col for col in columns if col.startswith(BEHAVIORAL_PREFIXES)]
 
 
-def validate_canonical(df: pd.DataFrame) -> pd.DataFrame:
+def validate_canonical(
+    df: pd.DataFrame,
+    *,
+    drop_invalid_demographics: bool = False,
+) -> pd.DataFrame:
     """Validate and normalize a canonical subject-level table.
 
     The function returns a defensive copy with canonical defaults and numeric
-    coercions applied. It raises ``ValueError`` for missing required columns,
-    invalid sex encodings, or absence of imaging-derived phenotypes.
+    coercions applied. Strict validation raises ``ValueError`` for invalid
+    demographics. Analysis callers may explicitly drop those rows so execution
+    follows the same complete-case policy used by preflight and design building.
     """
 
     out = harmonize_canonical_columns(df)
@@ -169,14 +174,19 @@ def validate_canonical(df: pd.DataFrame) -> pd.DataFrame:
     out["sex"] = normalize_sex(out["sex"])
 
     invalid_sex = out["sex"].isna()
-    if invalid_sex.any():
+    if invalid_sex.any() and not drop_invalid_demographics:
         raise ValueError(f"Invalid sex encoding in {int(invalid_sex.sum())} rows")
 
     for col in ("age", "field_strength", "eTIV"):
         if col in out.columns:
             out[col] = pd.to_numeric(out[col], errors="coerce")
-    if out["age"].isna().any():
+    invalid_age = out["age"].isna()
+    if invalid_age.any() and not drop_invalid_demographics:
         raise ValueError("Canonical age contains missing or non-numeric values")
+    if drop_invalid_demographics and (invalid_sex | invalid_age).any():
+        out = out.loc[~(invalid_sex | invalid_age)].copy()
+        if out.empty:
+            raise ValueError("Canonical table has no rows with usable age and sex values")
 
     idps = idp_columns(out.columns)
     if not idps:

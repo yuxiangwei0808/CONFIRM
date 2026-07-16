@@ -18,7 +18,7 @@ CLAIM_SEARCH_INPUTS="${CLAIM_SEARCH_INPUTS:-review-stage/confirm-gates-all-gpt55
 EVIDENCE_CONFIG="${EVIDENCE_CONFIG:-configs/evidence_partitions.yml}"
 PARTITION_ROOT="${PARTITION_ROOT:-data/prepared_data/evidence_partitions}"
 PARTITIONED_BENCHMARK_ROOT="${PARTITIONED_BENCHMARK_ROOT:-$PARTITION_ROOT/benchmark_ready}"
-BUILD_EVIDENCE_PARTITIONS="${BUILD_EVIDENCE_PARTITIONS:-on}"
+BUILD_EVIDENCE_PARTITIONS="${BUILD_EVIDENCE_PARTITIONS:-off}"
 
 export PYTHONPATH="$ROOT/src:${PYTHONPATH:-}"
 export PYTHONUNBUFFERED=1
@@ -66,14 +66,16 @@ for max_rounds in $ROUNDS; do
       --max-workers "$MAX_WORKERS" \
       --parallel-backend "$PARALLEL_BACKEND" \
       --data-root "$PARTITIONED_BENCHMARK_ROOT/cohorts" \
-      --data-root "$PARTITION_ROOT/cohorts" \
-      --holdout-data-root "$PARTITION_ROOT/cohorts" \
       --evidence-manifest "$PARTITION_ROOT/manifest.json" \
+      --evidence-freshness unknown \
       ${progress_arg:+"$progress_arg"} \
       2>&1 | tee "$OUT/logs/rounds_${max_rounds}_candidates_${max_candidates}.log"
   done
 done
 
-"$PYTHON" nbs/summarize_claim_search_matrix.py --out-root "$OUT"
+"$PYTHON" nbs/summarize_claim_search_matrix.py \
+  --out-root "$OUT" \
+  --expected-rounds "$ROUNDS" \
+  --expected-candidates "$CANDIDATES"
 
 echo "claim-search sweep complete: $OUT"

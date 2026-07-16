@@ -10,6 +10,7 @@ from typing import Any, Iterable, Optional
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field
 
+from confirm.analysis import AnalysisNonIdentifiableError, build_analysis_design
 from confirm.contract import ClaimContract
 from confirm.derived_columns import CONFIRM_DX, add_virtual_columns, columns_with_virtuals
 from confirm.evidence_partitions import load_evidence_manifest
@@ -34,6 +35,7 @@ class CandidatePreflightResult(BaseModel):
     warnings: list[str] = Field(default_factory=list)
     resolved_data_paths: dict[str, str] = Field(default_factory=dict)
     resolved_outcome_columns: dict[str, list[str]] = Field(default_factory=dict)
+    design_diagnostics: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
 
 class CohortPreflightInfo(BaseModel):
@@ -139,6 +141,7 @@ class CandidatePreflightContext:
             group_var = contract.estimand.group.var
             levels = self.levels(contract.discovery_cohort, group_var)
             group_levels[group_var] = levels[:50]
+        inclusion_examples = self._feasible_inclusion_examples(contract, cohorts)
         return {
             "allowed_cohorts": cohorts,
             "resolved_parent_cohorts": resolved,
@@ -148,7 +151,7 @@ class CandidatePreflightContext:
             "original_group": contract.estimand.group.model_dump(mode="json") if contract.estimand.group else None,
             "observed_group_levels": group_levels,
             "original_covariates": list(contract.covariates),
-            "allowed_inclusion_examples": [None, 'sex == "F"', 'sex == "M"', "age >= 65", "age <= 30"],
+            "allowed_inclusion_examples": inclusion_examples,
             "contract_rules": [
                 "Use only cohorts and columns present in this executable catalog.",
                 "The allowed_cohorts list is limited to the parent discovery/replication contract.",
@@ -158,6 +161,61 @@ class CandidatePreflightContext:
                 "Use Python/pandas-query-compatible inclusion strings with quoted string levels.",
             ],
         }
+
+    def _feasible_inclusion_examples(self, contract: ClaimContract, cohorts: list[str]) -> list[str | None]:
+        """Return parent-data-feasible filters without exposing outcome statistics."""
+
+        tables: list[pd.DataFrame] = []
+        for cohort in cohorts:
+            info = self.resolve(cohort)
+            if info is None:
+                return [None]
+            matched_outcomes = _matched_outcome_columns(contract, info)
+            if not matched_outcomes:
+                return [None]
+            required = list(dict.fromkeys([matched_outcomes[0], *_analysis_columns(contract), "age", "sex"]))
+            try:
+                table = self._read_columns(info, required)
+            except Exception:  # noqa: BLE001
+                return [None]
+            if "age" in table:
+                table["age"] = pd.to_numeric(table["age"], errors="coerce")
+            if "sex" in table:
+                table["sex"] = normalize_sex(table["sex"])
+            tables.append(table)
+
+        base_inclusion = contract.inclusion
+        examples: list[str | None] = [base_inclusion]
+        predicates = ['sex == "F"', 'sex == "M"']
+        discovery_age = tables[0]["age"].dropna() if tables and "age" in tables[0] else pd.Series(dtype=float)
+        if len(discovery_age) >= 40:
+            lower, upper = discovery_age.quantile([0.25, 0.75])
+            predicates.extend([f"age <= {float(lower):.3g}", f"age >= {float(upper):.3g}"])
+
+        for predicate in predicates:
+            candidate_predicate = (
+                f"({base_inclusion}) and ({predicate})"
+                if base_inclusion
+                else predicate
+            )
+            feasible = True
+            for table in tables:
+                try:
+                    subset = table.query(candidate_predicate, engine="python")
+                except Exception:  # noqa: BLE001
+                    feasible = False
+                    break
+                complete_columns = [column for column in table.columns if column in _analysis_columns(contract)]
+                outcome = next((column for column in table.columns if column in _outcomes(contract)), None)
+                if outcome is None and contract.estimand.unit == "brainwide":
+                    outcome = next((column for column in table.columns if column.startswith(tuple(("smri_", "pet_", "fc_")))), None)
+                required = [column for column in [outcome, *complete_columns] if column]
+                if len(subset.dropna(subset=required)) < 20:
+                    feasible = False
+                    break
+            if feasible:
+                examples.append(candidate_predicate)
+        return list(dict.fromkeys(examples))
 
     def resolve(self, cohort: str) -> CohortPreflightInfo | None:
         for alias in _cohort_aliases(cohort):
@@ -177,6 +235,7 @@ class CandidatePreflightContext:
         violations: list[str] = []
         warnings: list[str] = []
         resolved: dict[str, str] = {}
+        design_diagnostics: dict[str, dict[str, Any]] = {}
 
         cohort_infos: dict[str, CohortPreflightInfo] = {}
         for cohort in [contract.discovery_cohort, *contract.replication_cohorts]:
@@ -214,6 +273,7 @@ class CandidatePreflightContext:
                 warnings=warnings,
                 resolved_data_paths=resolved,
                 resolved_outcome_columns=matched_outcomes_by_cohort,
+                design_diagnostics=design_diagnostics,
             )
 
         for cohort, info in cohort_infos.items():
@@ -221,7 +281,7 @@ class CandidatePreflightContext:
             needed = list(dict.fromkeys([*outcome_columns, *analysis_columns, "age", "sex"]))
             try:
                 df = self._read_columns(info, needed)
-                table_violations, table_warnings = _validate_table_slice(
+                table_violations, table_warnings, table_diagnostics = _validate_table_slice(
                     df,
                     contract,
                     cohort,
@@ -230,6 +290,8 @@ class CandidatePreflightContext:
                 )
                 violations.extend(table_violations)
                 warnings.extend(table_warnings)
+                if table_diagnostics is not None:
+                    design_diagnostics[cohort] = table_diagnostics
             except Exception as exc:  # noqa: BLE001
                 violations.append(f"Preflight: cohort {cohort!r} could not be read for executable checks: {exc}")
 
@@ -239,6 +301,7 @@ class CandidatePreflightContext:
             warnings=warnings,
             resolved_data_paths=resolved,
             resolved_outcome_columns=matched_outcomes_by_cohort,
+            design_diagnostics=design_diagnostics,
         )
 
     def _read_columns(self, info: CohortPreflightInfo, columns: list[str]) -> pd.DataFrame:
@@ -273,19 +336,36 @@ def _validate_table_slice(
     min_complete_rows: int,
     *,
     outcome_columns: list[str],
-) -> tuple[list[str], list[str]]:
+) -> tuple[list[str], list[str], dict[str, Any] | None]:
     violations: list[str] = []
     warnings: list[str] = []
     table = df.copy()
+    required_columns = set(_analysis_columns(contract))
+    inclusion_columns, _ = _inclusion_identifiers(contract.inclusion)
+    required_columns.update(inclusion_columns)
     if "age" in table:
         age = pd.to_numeric(table["age"], errors="coerce")
-        if age.isna().any():
-            violations.append(f"Preflight: cohort {cohort!r} has missing or non-numeric age values.")
+        missing_age = int(age.isna().sum())
+        if missing_age and "age" in required_columns:
+            if age.notna().any():
+                warnings.append(
+                    f"Preflight: cohort {cohort!r} excludes {missing_age} rows with missing or non-numeric age "
+                    "during complete-case analysis."
+                )
+            else:
+                violations.append(f"Preflight: cohort {cohort!r} has no numerically usable age values.")
         table["age"] = age
     if "sex" in table:
         sex = normalize_sex(table["sex"])
-        if sex.isna().any():
-            violations.append(f"Preflight: cohort {cohort!r} has invalid sex encodings.")
+        missing_sex = int(sex.isna().sum())
+        if missing_sex and "sex" in required_columns:
+            if sex.notna().any():
+                warnings.append(
+                    f"Preflight: cohort {cohort!r} excludes {missing_sex} rows with missing or invalid sex "
+                    "during complete-case analysis."
+                )
+            else:
+                violations.append(f"Preflight: cohort {cohort!r} has no usable sex values.")
         table["sex"] = sex
 
     if contract.inclusion:
@@ -293,7 +373,7 @@ def _validate_table_slice(
             table = table.query(contract.inclusion, engine="python")
         except Exception as exc:  # noqa: BLE001
             violations.append(f"Preflight: inclusion query {contract.inclusion!r} failed on cohort {cohort!r}: {exc}")
-            return violations, warnings
+            return violations, warnings, None
 
     if contract.estimand.group is not None:
         group = contract.estimand.group
@@ -309,7 +389,7 @@ def _validate_table_slice(
             violations.extend(predictor_violations)
 
     analysis_columns = [col for col in _analysis_columns(contract) if col in table.columns]
-    usable_counts: list[int] = []
+    usable_counts: list[tuple[int, str]] = []
     group_complete_missing: dict[str, list[str]] = {}
     for outcome in outcome_columns:
         if outcome not in table.columns:
@@ -324,8 +404,8 @@ def _validate_table_slice(
             if missing_levels:
                 group_complete_missing[outcome] = missing_levels
                 continue
-        usable_counts.append(len(complete))
-    best_complete = max(usable_counts or [0])
+        usable_counts.append((len(complete), outcome))
+    best_complete = max((count for count, _ in usable_counts), default=0)
     if usable_counts and best_complete < min_complete_rows:
         violations.append(
             f"Preflight: cohort {cohort!r} has too few complete rows after filters "
@@ -345,7 +425,26 @@ def _validate_table_slice(
             )
     elif best_complete < 50:
         warnings.append(f"Preflight: cohort {cohort!r} has only {best_complete} complete rows after filters.")
-    return violations, warnings
+
+    diagnostics: dict[str, Any] | None = None
+    if not violations and usable_counts:
+        _, best_outcome = max(usable_counts, key=lambda item: item[0])
+        estimand = contract.estimand.model_copy(update={"outcome": best_outcome, "unit": "scalar"})
+        design_contract = contract.model_copy(update={"estimand": estimand})
+        try:
+            design = build_analysis_design(table, design_contract, design_contract.covariates)
+            diagnostics = dict(design.diagnostics)
+            diagnostics["representative_outcome"] = best_outcome
+            if diagnostics.get("condition_number_warning"):
+                warnings.append(
+                    f"Preflight: cohort {cohort!r} design has a high standardized condition number "
+                    f"({diagnostics['condition_number_standardized']:.3g})."
+                )
+        except AnalysisNonIdentifiableError as exc:
+            diagnostics = dict(exc.diagnostics)
+            diagnostics["representative_outcome"] = best_outcome
+            violations.append(f"Preflight: cohort {cohort!r} {exc}")
+    return violations, warnings, diagnostics
 
 
 def _outcomes(contract: ClaimContract) -> list[str]:

@@ -429,10 +429,13 @@ def _write_preflight_cohorts(root: Path) -> dict:
         {
             "subject_id": [f"sub-{idx:03d}" for idx in range(n)],
             "age": [60 + idx for idx in range(n)],
-            "sex": ["M" if idx % 2 == 0 else "F" for idx in range(n)],
+            "sex": ["M" if idx % 4 < 2 else "F" for idx in range(n)],
             "dx": ["CN" for _ in range(n)],
-            "eTIV": [1500.0 + idx for idx in range(n)],
-            "smri_hippocampus": [4.0 - idx * 0.01 for idx in range(n)],
+            "eTIV": [1450.0 + ((idx * 37) % 211) for idx in range(n)],
+            "smri_hippocampus": [
+                4.0 - idx * 0.006 + ((idx * 11) % 7) * 0.003
+                for idx in range(n)
+            ],
         }
     )
     for cohort in ("ADNI_DISC", "OASIS3_REP"):
@@ -458,12 +461,18 @@ def _write_stage1_fc_cohorts(root: Path, *, dx_levels: list[str] | None = None) 
         {
             "subject_id": [f"sub-{idx:03d}" for idx in range(n)],
             "cohort": ["cohort"] * n,
-            "site": ["site1" if idx < n // 2 else "site2" for idx in range(n)],
+            "site": [f"site{idx % 3 + 1}" for idx in range(n)],
             "age": [10 + idx for idx in range(n)],
-            "sex": ["M" if idx % 2 == 0 else "F" for idx in range(n)],
+            "sex": ["M" if idx % 4 < 2 else "F" for idx in range(n)],
             "dx": [levels[idx % len(levels)] for idx in range(n)],
-            "fc_fc_Default_Default": [0.1 + idx * 0.001 for idx in range(n)],
-            "fc_fc_Default_DorsAttn": [0.2 + idx * 0.001 for idx in range(n)],
+            "fc_fc_Default_Default": [
+                0.1 + idx * 0.001 + ((idx * 7) % 11) * 0.0003
+                for idx in range(n)
+            ],
+            "fc_fc_Default_DorsAttn": [
+                0.2 + idx * 0.0007 + ((idx * 13) % 17) * 0.0002
+                for idx in range(n)
+            ],
         }
     )
     cohorts = []

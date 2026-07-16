@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pandas as pd
+import pytest
 
 from confirm.candidate_preflight import CandidatePreflightContext
 from confirm.contract import ClaimContract
@@ -77,6 +78,22 @@ def test_validate_canonical_exposes_structural_aliases_without_counting_alias_id
     assert "smri_midtemporal" not in idp_columns(canonical.columns)
     assert "smri_lateralventricle" not in idp_columns(canonical.columns)
     assert "smri_icv" not in idp_columns(canonical.columns)
+
+
+def test_analysis_mode_drops_invalid_demographics_while_default_validation_remains_strict():
+    frame = _nacc_style_frame("NACC")
+    frame["age"] = frame["age"].astype(object)
+    frame.loc[0, "age"] = "unknown"
+    frame.loc[1, "sex"] = "unknown"
+
+    with pytest.raises(ValueError):
+        validate_canonical(frame)
+
+    canonical = validate_canonical(frame, drop_invalid_demographics=True)
+
+    assert len(canonical) == len(frame) - 2
+    assert canonical["age"].notna().all()
+    assert canonical["sex"].notna().all()
 
 
 def test_candidate_preflight_resolves_canonical_smri_names_from_external_parquet(tmp_path):

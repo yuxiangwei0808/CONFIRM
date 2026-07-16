@@ -297,6 +297,8 @@ class NegativeStressTask:
     label_row: dict[str, str]
     covariates_min: list[str]
     metadata: dict[str, Any] = field(default_factory=dict)
+    holdout_discovery: pd.DataFrame = field(default_factory=pd.DataFrame)
+    holdout_replication: pd.DataFrame = field(default_factory=pd.DataFrame)
 
 
 LOCAL_NEGATIVE_COHORT_FILES: tuple[tuple[str, str], ...] = (
@@ -390,9 +392,13 @@ def generate_negative_stress_tasks(
 
 
 def random_label_stress_task(cohort: NegativeCohort, seed: int) -> NegativeStressTask:
-    disc, rep = _split_negative_frame(cohort.frame, seed, cohort.name, cohort.name)
+    disc, rep, holdout_disc, holdout_rep = _split_negative_frame_with_holdout(
+        cohort.frame, seed, cohort.name, cohort.name
+    )
     disc = _assign_bench_group_random(disc, seed)
     rep = _assign_bench_group_random(rep, seed + 10_000)
+    holdout_disc = _assign_bench_group_random(holdout_disc, seed + 110_000)
+    holdout_rep = _assign_bench_group_random(holdout_rep, seed + 120_000)
     outcome = _seeded_feature(cohort.features, seed)
     covariates = _negative_covariates(disc, rep, include_site=True)
     contract = _negative_scalar_contract(
@@ -410,6 +416,8 @@ def random_label_stress_task(cohort: NegativeCohort, seed: int) -> NegativeStres
         cohort=cohort,
         discovery=disc,
         replication=rep,
+        holdout_discovery=holdout_disc,
+        holdout_replication=holdout_rep,
         contract=contract,
         covariates_min=[cov for cov in covariates if cov in {"age", "sex", "eTIV"}],
         seed=seed,
@@ -417,10 +425,14 @@ def random_label_stress_task(cohort: NegativeCohort, seed: int) -> NegativeStres
 
 
 def site_confound_stress_task(cohort: NegativeCohort, seed: int) -> NegativeStressTask:
-    disc, rep = _split_negative_frame(cohort.frame, seed, cohort.name, cohort.name)
+    disc, rep, holdout_disc, holdout_rep = _split_negative_frame_with_holdout(
+        cohort.frame, seed, cohort.name, cohort.name
+    )
     outcome = _seeded_feature(cohort.features, seed + 17)
-    disc = _assign_synthetic_site_confound(disc, outcome)
-    rep = _assign_synthetic_site_confound(rep, outcome)
+    disc = assign_synthetic_site_confound(disc, outcome, seed + 130_000)
+    rep = assign_synthetic_site_confound(rep, outcome, seed + 140_000)
+    holdout_disc = assign_synthetic_site_confound(holdout_disc, outcome, seed + 150_000)
+    holdout_rep = assign_synthetic_site_confound(holdout_rep, outcome, seed + 160_000)
     covariates = _negative_covariates(disc, rep, include_site=False)
     contract = _negative_scalar_contract(
         claim_id=f"neg_site_confound_{_slug(cohort.name)}_s{seed}",
@@ -437,17 +449,27 @@ def site_confound_stress_task(cohort: NegativeCohort, seed: int) -> NegativeStre
         cohort=cohort,
         discovery=disc,
         replication=rep,
+        holdout_discovery=holdout_disc,
+        holdout_replication=holdout_rep,
         contract=contract,
         covariates_min=[cov for cov in covariates if cov in {"age", "sex", "eTIV"}],
         seed=seed,
-        metadata={"site_source": "synthetic_median_split"},
+        metadata={
+            "site_source": "seeded_imperfect_group_site_association",
+            "case_probability_by_site": {"synthetic_site_high": 0.8, "synthetic_site_low": 0.2},
+            "direct_group_effect": 0.0,
+        },
     )
 
 
 def p_fishing_stress_task(cohort: NegativeCohort, seed: int, *, feature_limit: int) -> NegativeStressTask:
-    disc, rep = _split_negative_frame(cohort.frame, seed, cohort.name, cohort.name)
+    disc, rep, holdout_disc, holdout_rep = _split_negative_frame_with_holdout(
+        cohort.frame, seed, cohort.name, cohort.name
+    )
     disc = _assign_bench_group_random(disc, seed + 20_000)
     rep = _assign_bench_group_random(rep, seed + 30_000)
+    holdout_disc = _assign_bench_group_random(holdout_disc, seed + 170_000)
+    holdout_rep = _assign_bench_group_random(holdout_rep, seed + 180_000)
     features = cohort.features[: max(1, min(feature_limit, len(cohort.features)))]
     covariates = _negative_covariates(disc, rep, include_site=True)
     selected, search_scores = _select_best_negative_feature(
@@ -472,6 +494,8 @@ def p_fishing_stress_task(cohort: NegativeCohort, seed: int, *, feature_limit: i
         cohort=cohort,
         discovery=disc,
         replication=rep,
+        holdout_discovery=holdout_disc,
+        holdout_replication=holdout_rep,
         contract=contract,
         covariates_min=[cov for cov in covariates if cov in {"age", "sex", "eTIV"}],
         seed=seed,
@@ -480,11 +504,15 @@ def p_fishing_stress_task(cohort: NegativeCohort, seed: int, *, feature_limit: i
 
 
 def underpowered_stress_task(cohort: NegativeCohort, seed: int) -> NegativeStressTask:
-    disc, rep = _split_negative_frame(cohort.frame, seed, cohort.name, cohort.name)
+    disc, rep, holdout_disc, holdout_rep = _split_negative_frame_with_holdout(
+        cohort.frame, seed, cohort.name, cohort.name
+    )
     rng = np.random.default_rng(seed + 40_000)
     n_per_group = int(rng.integers(15, 26))
     disc = _balanced_subsample(disc, "sex", max_per_group=n_per_group, seed=seed + 41_000)
     rep = _balanced_subsample(rep, "sex", max_per_group=n_per_group, seed=seed + 42_000)
+    holdout_disc = _balanced_subsample(holdout_disc, "sex", max_per_group=n_per_group, seed=seed + 141_000)
+    holdout_rep = _balanced_subsample(holdout_rep, "sex", max_per_group=n_per_group, seed=seed + 142_000)
     outcome = _seeded_feature(cohort.features, seed + 31)
     covariates = _negative_covariates(disc, rep, include_site=True, exclude=("sex",))
     contract = _negative_scalar_contract(
@@ -505,6 +533,8 @@ def underpowered_stress_task(cohort: NegativeCohort, seed: int) -> NegativeStres
         cohort=cohort,
         discovery=disc,
         replication=rep,
+        holdout_discovery=holdout_disc,
+        holdout_replication=holdout_rep,
         contract=contract,
         covariates_min=[cov for cov in covariates if cov in {"age", "eTIV"}],
         seed=seed,
@@ -523,8 +553,16 @@ def cross_cohort_nonreplication_task(
     if not shared:
         raise ValueError("cross-cohort nonreplication requires shared features")
     features = shared[: max(1, min(feature_limit, len(shared)))]
-    disc = _assign_bench_group_random(discovery.frame.copy(), seed + 50_000)
-    rep = _assign_bench_group_random(replication.frame.copy(), seed + 60_000)
+    disc, holdout_disc = _split_frame_half(discovery.frame, seed + 190_000)
+    rep, holdout_rep = _split_frame_half(replication.frame, seed + 200_000)
+    disc["cohort"] = discovery.name
+    holdout_disc["cohort"] = discovery.name
+    rep["cohort"] = replication.name
+    holdout_rep["cohort"] = replication.name
+    disc = _assign_bench_group_random(disc, seed + 50_000)
+    rep = _assign_bench_group_random(rep, seed + 60_000)
+    holdout_disc = _assign_bench_group_random(holdout_disc, seed + 210_000)
+    holdout_rep = _assign_bench_group_random(holdout_rep, seed + 220_000)
     covariates = _negative_covariates(disc, rep, include_site=True)
     claim_id = f"neg_cross_nonrep_{_slug(discovery.name)}_{_slug(replication.name)}_s{seed}"
     selected, search_scores = _select_best_negative_feature(
@@ -558,10 +596,19 @@ def cross_cohort_nonreplication_task(
         expected_gate="replication",
         discovery=disc,
         replication=rep,
+        holdout_discovery=holdout_disc,
+        holdout_replication=holdout_rep,
         contract=contract,
         label_row=label_row,
         covariates_min=[cov for cov in covariates if cov in {"age", "sex", "eTIV"}],
-        metadata={"searched_feature_count": len(features), "selected_outcome": selected, "top_discovery_features": search_scores[:10]},
+        metadata={
+            "seed": seed,
+            "discovery_cohort_path": str(discovery.path),
+            "replication_cohort_path": str(replication.path),
+            "searched_feature_count": len(features),
+            "selected_outcome": selected,
+            "top_discovery_features": search_scores[:10],
+        },
     )
 
 
@@ -573,6 +620,8 @@ def _negative_task(
     cohort: NegativeCohort,
     discovery: pd.DataFrame,
     replication: pd.DataFrame,
+    holdout_discovery: pd.DataFrame,
+    holdout_replication: pd.DataFrame,
     contract: ClaimContract,
     covariates_min: list[str],
     seed: int,
@@ -595,6 +644,8 @@ def _negative_task(
         expected_gate=expected_gate,
         discovery=discovery,
         replication=replication,
+        holdout_discovery=holdout_discovery,
+        holdout_replication=holdout_replication,
         contract=contract,
         label_row=label_row,
         covariates_min=covariates_min,
@@ -642,20 +693,74 @@ def _split_negative_frame(df: pd.DataFrame, seed: int, discovery: str, replicati
     return disc, rep
 
 
+def _split_negative_frame_with_holdout(
+    df: pd.DataFrame,
+    seed: int,
+    discovery: str,
+    replication: str,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Create four subject-disjoint partitions for one synthetic lineage."""
+
+    rng = np.random.default_rng(seed + 70_000)
+    subjects = df["subject_id"].astype(str).drop_duplicates().to_numpy()
+    rng.shuffle(subjects)
+    chunks = np.array_split(subjects, 4)
+    if min(len(chunk) for chunk in chunks) < 20:
+        raise ValueError("cohort too small for disjoint discovery, replication, and holdout pairs")
+    frames = [df[df["subject_id"].astype(str).isin(set(chunk))].copy() for chunk in chunks]
+    frames[0]["cohort"] = f"{discovery}_DISC_s{seed}"
+    frames[1]["cohort"] = f"{replication}_REP_s{seed}"
+    frames[2]["cohort"] = f"{discovery}_HOLDOUT_DISC_s{seed}"
+    frames[3]["cohort"] = f"{replication}_HOLDOUT_REP_s{seed}"
+    return frames[0], frames[1], frames[2], frames[3]
+
+
+def _split_frame_half(df: pd.DataFrame, seed: int) -> tuple[pd.DataFrame, pd.DataFrame]:
+    rng = np.random.default_rng(seed)
+    subjects = df["subject_id"].astype(str).drop_duplicates().to_numpy()
+    rng.shuffle(subjects)
+    left, right = np.array_split(subjects, 2)
+    if min(len(left), len(right)) < 20:
+        raise ValueError("cohort too small for independent source and holdout partitions")
+    left_set = set(left)
+    return (
+        df[df["subject_id"].astype(str).isin(left_set)].copy(),
+        df[~df["subject_id"].astype(str).isin(left_set)].copy(),
+    )
+
+
 def _assign_bench_group_random(df: pd.DataFrame, seed: int) -> pd.DataFrame:
     out = df.copy()
     out["bench_group"] = np.random.default_rng(seed).choice(["case", "control"], size=len(out))
     return out
 
 
-def _assign_synthetic_site_confound(df: pd.DataFrame, outcome: str) -> pd.DataFrame:
+def assign_synthetic_site_confound(df: pd.DataFrame, outcome: str, seed: int) -> pd.DataFrame:
+    """Generate a full-rank site-confounded null with no direct group effect."""
+
     out = df.copy()
-    x = pd.to_numeric(out[outcome], errors="coerce")
-    median = float(x.median())
+    rng = np.random.default_rng(seed)
+    n_rows = len(out)
+    order = rng.permutation(n_rows)
+    site = np.full(n_rows, "synthetic_site_low", dtype=object)
+    site[order[: n_rows // 2]] = "synthetic_site_high"
+    group = np.full(n_rows, "control", dtype=object)
+    for site_name, case_probability in (("synthetic_site_high", 0.8), ("synthetic_site_low", 0.2)):
+        indices = np.flatnonzero(site == site_name)
+        rng.shuffle(indices)
+        n_case = min(max(int(round(case_probability * len(indices))), 1), len(indices) - 1)
+        group[indices[:n_case]] = "case"
+
+    original = pd.to_numeric(out[outcome], errors="coerce")
+    center = float(original.mean()) if original.notna().any() else 0.0
+    scale = float(original.std(ddof=0)) if original.notna().sum() > 1 else 1.0
+    if not np.isfinite(scale) or scale <= 0:
+        scale = 1.0
+    site_effect = np.where(site == "synthetic_site_high", 0.8 * scale, -0.8 * scale)
     out["original_site"] = out["site"].astype(str)
-    out["site"] = np.where(x >= median, "synthetic_site_high", "synthetic_site_low")
-    out["bench_group"] = np.where(x >= median, "case", "control")
-    out.loc[x.isna(), ["site", "bench_group"]] = pd.NA
+    out["site"] = site
+    out["bench_group"] = group
+    out[outcome] = center + site_effect + rng.normal(0.0, scale, size=n_rows)
     return out
 
 

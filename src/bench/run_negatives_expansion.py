@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
-import shutil
 from collections import Counter, defaultdict
 from dataclasses import replace
 from datetime import datetime
@@ -19,6 +19,7 @@ from bench.labels import label_authority, label_provenance, scoring_bucket
 from bench.metrics import DEFAULT_RUNGS, exact_binomial_ci, summarize_rows
 from confirm.analysis import audit_confound_completeness, directionally_consistent, fit_effect, multiplicity_threshold
 from confirm.contract import ClaimContract
+from confirm.evidence_partitions import EvidencePartitionManifest, EvidencePartitionRecord, infer_target_family
 from confirm.multiverse import run_multiverse
 from confirm.power import power_check
 from confirm.replication import replicate
@@ -96,6 +97,7 @@ def evaluate_negative_task(task: NegativeStressTask) -> dict[str, Any]:
     return {
         "claim_id": task.claim_id,
         "family": task.family,
+        "synthetic_failure_family": task.family,
         "expected_gate": task.expected_gate,
         "modality": label_row["modality"],
         "claim_type": "synthetic_negative",
@@ -124,7 +126,7 @@ def evaluate_negative_task(task: NegativeStressTask) -> dict[str, Any]:
         "covariates_full": list(task.contract.covariates),
         "covariates_min": list(task.covariates_min),
         "search_provenance": task.contract.search_provenance.model_dump(mode="json"),
-        "synthetic_metadata": task.metadata,
+        "synthetic_metadata": {key: value for key, value in task.metadata.items() if not key.startswith("_")},
         "best_region": task.contract.estimand.outcome,
         "best_beta": float(primary.beta),
         "best_p": float(primary.p),
@@ -155,16 +157,24 @@ def evaluate_negative_task(task: NegativeStressTask) -> dict[str, Any]:
 
 
 def materialize_negative_task(task: NegativeStressTask, data_root: Path) -> NegativeStressTask:
-    """Persist one synthetic task under unique cohort names for claim-search replay."""
+    """Persist current and subject-disjoint holdout pairs for claim-search replay."""
 
     data_root.mkdir(parents=True, exist_ok=True)
     prefix = "".join(char if char.isalnum() or char in {"_", "-"} else "_" for char in task.claim_id)
     discovery_cohort = f"{prefix}_DISC"
     replication_cohort = f"{prefix}_REP"
+    holdout_discovery_cohort = f"{prefix}_HOLDOUT_DISC"
+    holdout_replication_cohort = f"{prefix}_HOLDOUT_REP"
     discovery = task.discovery.copy()
     replication = task.replication.copy()
+    holdout_discovery = task.holdout_discovery.copy()
+    holdout_replication = task.holdout_replication.copy()
     discovery["cohort"] = discovery_cohort
     replication["cohort"] = replication_cohort
+    if not holdout_discovery.empty:
+        holdout_discovery["cohort"] = holdout_discovery_cohort
+    if not holdout_replication.empty:
+        holdout_replication["cohort"] = holdout_replication_cohort
 
     contract_payload = task.contract.model_dump(mode="json")
     contract_payload["discovery_cohort"] = discovery_cohort
@@ -178,13 +188,116 @@ def materialize_negative_task(task: NegativeStressTask, data_root: Path) -> Nega
 
     discovery.to_parquet(data_root / f"{discovery_cohort}.parquet", index=False)
     replication.to_parquet(data_root / f"{replication_cohort}.parquet", index=False)
+    if not holdout_discovery.empty:
+        holdout_discovery.to_parquet(data_root / f"{holdout_discovery_cohort}.parquet", index=False)
+    if not holdout_replication.empty:
+        holdout_replication.to_parquet(data_root / f"{holdout_replication_cohort}.parquet", index=False)
+
+    total_rows = len(discovery) + len(replication) + len(holdout_discovery) + len(holdout_replication)
+    target_family = infer_target_family(contract)
+    source_path = Path(str(task.metadata.get("cohort_path") or "synthetic"))
+    seed = int(task.metadata.get("seed") or 0)
+    partition_specs = [
+        (discovery_cohort, discovery, "discovery", "discovery", seed),
+        (replication_cohort, replication, "replication", "replication", seed + 1),
+    ]
+    if not holdout_discovery.empty:
+        partition_specs.append(
+            (holdout_discovery_cohort, holdout_discovery, "holdout", "discovery", seed + 100_000)
+        )
+    if not holdout_replication.empty:
+        partition_specs.append(
+            (holdout_replication_cohort, holdout_replication, "holdout", "replication", seed + 100_001)
+        )
+    partition_records = [
+        _synthetic_partition_record(
+            partition_id=partition_id,
+            base_dataset=prefix,
+            target_family=target_family,
+            role=role,
+            evaluation_role=evaluation_role,
+            path=data_root / f"{partition_id}.parquet",
+            source_path=source_path,
+            seed=partition_seed,
+            source_row_count=total_rows,
+            frame=frame,
+        ).model_dump(mode="json")
+        for partition_id, frame, role, evaluation_role, partition_seed in partition_specs
+    ]
+    metadata = dict(task.metadata)
+    metadata["_evidence_partition_records"] = partition_records
     return replace(
         task,
         discovery=discovery,
         replication=replication,
+        holdout_discovery=holdout_discovery,
+        holdout_replication=holdout_replication,
         contract=contract,
         label_row=label_row,
+        metadata=metadata,
     )
+
+
+def _synthetic_partition_record(
+    *,
+    partition_id: str,
+    base_dataset: str,
+    target_family: str,
+    role: str,
+    evaluation_role: str,
+    path: Path,
+    source_path: Path,
+    seed: int,
+    source_row_count: int,
+    frame: pd.DataFrame,
+) -> EvidencePartitionRecord:
+    subject_ids = sorted(frame["subject_id"].astype(str).tolist())
+    columns = list(map(str, frame.columns))
+    idp_columns = [column for column in columns if column.startswith(("smri_", "pet_", "fc_"))]
+    if idp_columns and all(column.startswith("smri_") for column in idp_columns):
+        modality = "sMRI"
+        feature_families = ["regional_volume"]
+    else:
+        modality = "fMRI"
+        feature_families = ["fc"]
+    group_levels = {
+        column: sorted(frame[column].dropna().astype(str).unique().tolist())
+        for column in ("bench_group", "sex")
+        if column in frame.columns
+    }
+    return EvidencePartitionRecord(
+        partition_id=partition_id,
+        base_dataset=base_dataset,
+        target_family=target_family,
+        role=role,
+        evaluation_role=evaluation_role,
+        path=str(path.resolve()),
+        source_path=str(source_path),
+        split_method="synthetic_subject_disjoint",
+        seed=seed,
+        n_rows=len(frame),
+        site_count=int(frame["site"].dropna().astype(str).nunique()) if "site" in frame.columns else 0,
+        exclusion_role="excluded_evaluation" if role == "holdout" else "claim_source",
+        subject_id_sha256=hashlib.sha256("\n".join(subject_ids).encode("utf-8")).hexdigest(),
+        source_row_count=source_row_count,
+        meets_minimum=len(frame) >= 20,
+        notes=[] if len(frame) >= 20 else [f"partition rows {len(frame)} below minimum 20"],
+        columns=columns,
+        schema_sha256=hashlib.sha256("\n".join(sorted(columns)).encode("utf-8")).hexdigest(),
+        content_sha256=_file_content_sha256(path),
+        modality=modality,
+        feature_families=feature_families,
+        units={},
+        group_levels=group_levels,
+    )
+
+
+def _file_content_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def _group_counts(df: pd.DataFrame, contract: ClaimContract) -> dict[str, int]:
@@ -267,11 +380,13 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
 
     rows: list[dict[str, Any]] = []
     errors: list[dict[str, str]] = []
+    partition_records: list[dict[str, Any]] = []
     materialize_root = Path(args.materialize_data_root) if args.materialize_data_root else None
     for i, task in enumerate(tasks, start=1):
         try:
             if materialize_root is not None:
                 task = materialize_negative_task(task, materialize_root)
+                partition_records.extend(task.metadata.get("_evidence_partition_records", []))
             row = evaluate_negative_task(task)
             rows.append(row)
             print(f"[ok {i:03d}/{len(tasks):03d}] {row['claim_id']} final={row['final_label']} +replication={row['+replication']}")
@@ -281,6 +396,17 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
 
     metrics = summarize_rows(rows, RUNGS)
     false_confirms = _false_confirms(rows)
+    evidence_manifest_path = None
+    if materialize_root is not None:
+        manifest = EvidencePartitionManifest(
+            seed=20260615,
+            records=[EvidencePartitionRecord.model_validate(record) for record in partition_records],
+        )
+        evidence_manifest_path = materialize_root.parent / "manifest.json"
+        evidence_manifest_path.write_text(
+            json.dumps(manifest.model_dump(mode="json"), indent=2),
+            encoding="utf-8",
+        )
     return {
         "created_at": datetime.now().isoformat(timespec="seconds"),
         "command": {
@@ -290,6 +416,7 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
             "fishing_feature_limit": args.fishing_feature_limit,
             "underpowered_cohort_limit": args.underpowered_cohort_limit,
             "materialize_data_root": str(materialize_root) if materialize_root is not None else None,
+            "evidence_manifest": str(evidence_manifest_path) if evidence_manifest_path is not None else None,
         },
         "n_generated": len(rows),
         "family_counts": dict(Counter(row["family"] for row in rows)),
@@ -305,31 +432,20 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
 
 def write_outputs(payload: dict[str, Any], out_dir: Path) -> dict[str, str]:
     out_dir.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    json_path = out_dir / f"negatives_expansion_results_{timestamp}.json"
-    csv_path = out_dir / f"negatives_expansion_claims_{timestamp}.csv"
-    audit_path = out_dir / f"negatives_expansion_audit_{timestamp}.csv"
-    report_path = out_dir / f"negatives_expansion_report_{timestamp}.md"
-    latest_json = out_dir / "negatives_expansion_results.json"
-    latest_csv = out_dir / "negatives_expansion_claims.csv"
-    latest_audit = out_dir / "negatives_expansion_audit.csv"
-    latest_report = out_dir / "negatives_expansion_report.md"
+    json_path = out_dir / "negatives_expansion_results.json"
+    csv_path = out_dir / "negatives_expansion_claims.csv"
+    audit_path = out_dir / "negatives_expansion_audit.csv"
+    report_path = out_dir / "negatives_expansion_report.md"
 
     json_path.write_text(json.dumps(_json_safe(payload), indent=2), encoding="utf-8")
     pd.DataFrame(payload["claims"]).to_csv(csv_path, index=False)
     pd.DataFrame(_audit_rows(payload["claims"])).to_csv(audit_path, index=False)
     report_path.write_text(_render_report(payload), encoding="utf-8")
-    shutil.copyfile(json_path, latest_json)
-    shutil.copyfile(csv_path, latest_csv)
-    shutil.copyfile(audit_path, latest_audit)
-    shutil.copyfile(report_path, latest_report)
     return {
         "json": str(json_path),
         "csv": str(csv_path),
         "audit": str(audit_path),
         "report": str(report_path),
-        "latest_json": str(latest_json),
-        "latest_report": str(latest_report),
     }
 
 
@@ -443,7 +559,7 @@ def _render_report(payload: dict[str, Any]) -> str:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", default=".")
-    parser.add_argument("--out-dir", default="review-stage/curated-gate-synthetic-stress")
+    parser.add_argument("--out-dir", required=True)
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--fishing-feature-limit", type=int, default=24)
     parser.add_argument("--underpowered-cohort-limit", type=int, default=7)

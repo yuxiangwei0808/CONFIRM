@@ -25,6 +25,18 @@ def _bool_or_none(value: Any) -> bool | None:
 
 
 def _gate_payload(row: dict[str, Any], contract: ClaimContract) -> dict[str, Any]:
+    embedded_verdict = row.get("gate_verdict")
+    if isinstance(embedded_verdict, dict):
+        embedded_gates = embedded_verdict.get("gates")
+        if isinstance(embedded_gates, dict):
+            boolean_gates = {
+                str(key): bool(value)
+                for key, value in embedded_gates.items()
+                if isinstance(value, bool)
+            }
+            if boolean_gates:
+                return boolean_gates
+
     gate_state = row.get("gate_state")
     if isinstance(gate_state, dict):
         return {str(key): bool(value) for key, value in gate_state.items() if isinstance(value, bool)}
@@ -140,6 +152,8 @@ def _source_row(row: dict[str, Any], source_path: Path) -> dict[str, Any] | None
         "source_scoring_label": row.get("scoring_label") or row.get("label_class"),
         "source_label_class": row.get("label_class"),
         "source_ground_truth": row.get("ground_truth"),
+        "synthetic_failure_family": row.get("synthetic_failure_family") or row.get("family"),
+        "failure_family": row.get("family"),
         "source_modality": row.get("modality"),
         "source_citation": row.get("source_citation"),
         "label_basis": row.get("label_basis"),
@@ -274,7 +288,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         exclusion_reason_by_target[target][reason] = exclusion_reason_by_target[target].get(reason, 0) + 1
     source = {
         "created_at": datetime.now().isoformat(timespec="seconds"),
-        "description": "Claim-search source built from original no-feedback benchmark result artifacts.",
+        "description": "Claim-search source built from frozen Stage 2 CONFIRM gate results.",
         "source_model_spec": args.model_spec,
         "input_result_paths": [str(path) for path in inputs],
         "models": [

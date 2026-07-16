@@ -1,6 +1,6 @@
 # Implementation Notes
 
-Updated: 2026-07-10
+Updated: 2026-07-16
 
 ## Current Pipeline
 
@@ -213,10 +213,45 @@ Labels mean:
 
 ## Optional Feedback Loop
 
-The feedback loop starts from Stage 2 outputs:
+The feedback loop starts from the failed Stage 2 contracts. It first runs a
+same-data candidate-search sweep and only then evaluates the selected canonical
+configuration on excluded evidence. Sweep arms never receive holdout or
+external data roots.
+
+Safety run:
 
 ```bash
-MAX_ROUNDS=1 MAX_CANDIDATES=2 scripts/launch_claim_search_fullscale.sh
+OUT=review-stage/claim-search-safety-gpt55-r10-c10-v5 \
+MODEL=openai:gpt-5.5 MAX_ROUNDS=10 MAX_CANDIDATES=10 MAX_WORKERS=8 \
+scripts/launch_claim_search_safety.sh
+```
+
+Twelve-arm descriptive sweep:
+
+```bash
+OUT=review-stage/claim-search-gpt55-sweep-v5 \
+MODEL=openai:gpt-5.5 \
+ROUNDS="1 3 5 10" CANDIDATES="2 5 10" \
+BUILD_EVIDENCE_PARTITIONS=off MAX_WORKERS=8 \
+scripts/launch_claim_search_sweep.sh
+```
+
+The matrix summarizer writes `selected_config.json`. It selects the smallest
+`rounds * candidates` arm whose valid-connected-executable lineage coverage is
+within one percentage point of the maximum; ties prefer fewer rounds and then
+fewer candidates. Coverage uses every searchable source lineage, including
+worker-skipped lineages in the denominator. The summarizer rejects incomplete
+arms, missing grid cells, mixed source hashes/models, and inconsistent source
+counts. Candidate support counts are not used for this selection.
+
+Canonical excluded-evidence run:
+
+```bash
+OUT=review-stage/claim-search-gpt55-canonical-v5 \
+SELECTION_FILE=review-stage/claim-search-gpt55-sweep-v5/selected_config.json \
+CLAIM_SEARCH_SOURCE=review-stage/claim-search-gpt55-sweep-v5/source/claim_search_source.json \
+BUILD_EVIDENCE_PARTITIONS=off MAX_WORKERS=8 \
+scripts/launch_claim_search_fullscale.sh
 ```
 
 Default input:
@@ -229,6 +264,20 @@ Claim search uses failed-claim evidence for diagnosis and prompt context. LLM
 candidates must remain connected to the original claim and pass deterministic
 validation before evaluation. Same-data adaptive support is labeled separately
 from holdout or external confirmation when those evidence paths are supplied.
+Subgroup candidates may use only complete-case-safe inclusion predicates derived
+from the parent DISC/REP covariates; other transforms preserve the parent
+inclusion exactly.
+Candidates are generated, validated, deduplicated, and tested in deterministic
+round/candidate order. The first current-data-supported candidate is selected;
+the search then makes at most one primary excluded-evidence query and stops.
+If no candidate receives current-data support, excluded evidence is not queried.
+
+Candidate-search multiplicity grows for every distinct candidate tested:
+`effective_family_size = parent_declared_family_size + cumulative_unique_tests`
+(or a larger predeclared value). The same effective contract is reused for the
+excluded evaluation. Exact-rank, finite-statistic, and conditioning diagnostics
+are shared by preflight and execution. Failed multiverse specifications remain
+in the consistency denominator.
 
 Evidence labels are explicit:
 
@@ -236,6 +285,26 @@ Evidence labels are explicit:
 - `holdout_confirmed`: candidate passed on excluded internal holdout evidence;
 - `external_confirmed`: candidate passed on a predeclared primary external set;
 - secondary external sets are robustness checks and cannot upgrade the label.
+
+`supported_candidates` contains same-data exploratory or contract-repair
+support. `confirmed_candidates` contains only `holdout_confirmed` and
+`external_confirmed` candidates. The current internal holdouts, NACC, and CNP
+have been queried in prior development runs, so canonical artifacts mark
+their `evidence_freshness` as `previously_queried`; they are retrospective
+benchmark evidence, not pristine prospective confirmation.
+
+The retained `R=1, C=2` GPT-5.5 readiness smoke is
+`review-stage/claim-search-gpt55-sweep-smoke-v5/`. It completed all 194
+evidence-eligible failed source claims, evaluated 351 valid connected
+candidates, made zero excluded-evidence queries, and had zero execution or
+non-identifiability errors. Its `selected_config.json` is not canonical because
+the smoke contains only one matrix arm.
+
+Each replay writes `run_provenance.json` and
+`excluded_query_ledger.json`, including the command, git state, GPT model,
+static and rendered-prompt/schema hashes, source and manifest hashes, full
+partition checksums, partition seeds, selected candidate, primary/secondary
+evidence-set IDs, evidence path, status, and freshness.
 
 ## Evidence Partitions And External Data
 
@@ -249,6 +318,12 @@ data/prepared_data/evidence_partitions/cohorts/
 
 Internal holdouts are split again into distinct evaluation discovery and
 replication files. The current manifest has 104 records and no subject overlap.
+Excluded evaluation requires the exact materialized partition named by the
+manifest; it cannot fall back to a base-cohort alias. A source contract that
+already used a holdout partition cannot reuse that internal holdout, although a
+separate compatible external set may still be used. This excludes the five
+current ASD Stage 2 contracts that used `ABIDE1_HOLDOUT` from internal-holdout
+confirmation.
 External evidence is selected by `ClaimContract`, not target name alone. A set
 must match target, modality, feature family, predictor/group support, required
 columns, outcome family, and observed group levels on both partitions. The
@@ -370,13 +445,9 @@ Active result folders are:
 review-stage/literature-grounding-gpt55/
 review-stage/initial-claims-all-gpt55/
 review-stage/confirm-gates-all-gpt55/
+review-stage/claim-search-gpt55-sweep-smoke-v5/
 ```
 
-Superseded literature-only and earlier feedback-loop runs were moved to:
-
-```text
-review-stage/_archive_20260702_pipeline_cleanup/
-```
-
-Older historical runs remain under earlier `_archive_*` folders. Archive folders
-are ignored by git and are recoverable local history, not active evidence.
+Superseded experiment folders and prior local archives have been removed. The
+`v5` smoke remains only as a readiness receipt and should be removed after the
+full `v5` sweep is audited and accepted.

@@ -755,7 +755,7 @@ def test_data_preflight_numeric_age_inclusion_accepts_string_age(tmp_path):
             "cohort": ["ADNI"] * 40,
             "site": ["site1"] * 40,
             "age": [str(65 + idx % 5) for idx in range(40)],
-            "sex": ["F", "M"] * 20,
+            "sex": ["F", "F", "M", "M"] * 10,
             "dx": ["Dementia", "CN"] * 20,
             "smri_hippocampus": [1.0 + idx for idx in range(40)],
         }
@@ -769,6 +769,91 @@ def test_data_preflight_numeric_age_inclusion_accepts_string_age(tmp_path):
 
     assert result.ok
     assert not any("inclusion query" in item for item in result.violations)
+
+
+def test_data_preflight_uses_complete_cases_for_partial_age_and_sex_missingness(tmp_path):
+    root = tmp_path / "cohorts"
+    root.mkdir()
+    frame = pd.DataFrame(
+        {
+            "subject_id": [f"sub-{idx}" for idx in range(40)],
+            "cohort": ["ADNI"] * 40,
+            "site": ["site1", "site2"] * 20,
+            "age": ["unknown", *[str(65 + idx % 5) for idx in range(39)]],
+            "sex": ["unknown", *(["F", "F", "M", "M"] * 9), "F", "M", "F"],
+            "dx": ["Dementia", "CN"] * 20,
+            "smri_hippocampus": [1.0 + idx * 0.1 + (idx % 3) * 0.01 for idx in range(40)],
+        }
+    )
+    frame.to_parquet(root / "ADNI.parquet")
+    frame.assign(cohort="OASIS3").to_parquet(root / "OASIS3.parquet")
+    context = CandidatePreflightContext.from_roots([root])
+
+    result = context.validate_contract(_contract(), min_complete_rows=20)
+
+    assert result.ok
+    assert any("complete-case analysis" in item and "age" in item for item in result.warnings)
+    assert any("complete-case analysis" in item and "sex" in item for item in result.warnings)
+
+
+def test_subgroup_candidates_are_limited_to_parent_feasible_inclusions(tmp_path):
+    root = tmp_path / "cohorts"
+    root.mkdir()
+    n = 80
+    frame = pd.DataFrame(
+        {
+            "subject_id": [f"sub-{idx}" for idx in range(n)],
+            "cohort": ["ADNI"] * n,
+            "site": [f"site{idx % 3}" for idx in range(n)],
+            "age": [60 + idx % 20 for idx in range(n)],
+            "sex": ["F" if idx % 4 < 2 else "M" for idx in range(n)],
+            "dx": ["Dementia" if idx % 2 else "CN" for idx in range(n)],
+            "smri_hippocampus": [1.0 + idx * 0.01 + (idx % 7) * 0.001 for idx in range(n)],
+        }
+    )
+    frame.to_parquet(root / "ADNI.parquet")
+    frame.assign(cohort="OASIS3").to_parquet(root / "OASIS3.parquet")
+    context = CandidatePreflightContext.from_roots([root])
+    contract = _contract()
+    localization = localize_failure(contract, _verdict(), _results(contract))
+    allowed = [
+        item
+        for item in context.prompt_catalog(contract)["allowed_inclusion_examples"]
+        if item is not None
+    ]
+    assert allowed
+
+    accepted = _candidate(
+        contract,
+        transform_type="moderator_or_subgroup",
+        proposed_contract=contract.model_copy(update={"inclusion": allowed[0]}),
+    )
+    rejected = _candidate(
+        contract,
+        transform_type="moderator_or_subgroup",
+        proposed_contract=contract.model_copy(update={"inclusion": "age >= 61.234"}),
+    )
+
+    accepted_result = validate_candidate_claim(
+        contract,
+        accepted,
+        localization,
+        ClaimSearchConfig(),
+        excluded_validation_available=False,
+        preflight_context=context,
+    )
+    rejected_result = validate_candidate_claim(
+        contract,
+        rejected,
+        localization,
+        ClaimSearchConfig(),
+        excluded_validation_available=False,
+        preflight_context=context,
+    )
+
+    assert accepted_result.ok, accepted_result.violations
+    assert not rejected_result.ok
+    assert any("parent-data-feasible inclusion" in item for item in rejected_result.violations)
 
 
 def test_llm_candidate_generation_retries_after_preflight_failure(tmp_path):
@@ -819,6 +904,7 @@ def test_llm_candidate_generation_retries_after_deterministic_validation_failure
     assert llm.saw_validation_feedback
     assert state.evaluations[0].validation.ok
     assert state.stopped_reason == "exploratory_confirmed"
+    assert summarize_claim_search([state])["unretained_generated_candidate_count"] == 1
 
 
 def test_independent_replication_candidate_requires_excluded_validation_evidence():
@@ -841,6 +927,53 @@ def test_independent_replication_candidate_requires_excluded_validation_evidence
     assert available.ok
 
 
+def test_external_only_replication_contract_is_routed_through_parent_before_excluded_evaluation():
+    contract = _contract()
+    external_contract = contract.model_copy(
+        update={
+            "discovery_cohort": "NACC_EXTERNAL_DISC",
+            "replication_cohorts": ["NACC_EXTERNAL_REP"],
+        }
+    )
+    current_contracts = []
+
+    def generator(contract, localization, config, round_index, parent_claim_id):
+        return [
+            _candidate(
+                contract,
+                proposal_type="independent_replication_claim",
+                transform_type="stronger_design",
+                provenance="independent_replication",
+                validation_split="excluded_validation",
+                proposed_contract=external_contract,
+                proposed_question="Replicate the parent claim on external evidence.",
+            )
+        ]
+
+    def current_evaluator(candidate):
+        current_contracts.append(candidate.proposed_contract)
+        return {"final_label": "confirmed", "gate_results": {}}
+
+    state = run_claim_search(
+        contract,
+        _verdict(),
+        _results(contract),
+        config=ClaimSearchConfig(max_rounds=1, max_candidates_per_round=1),
+        candidate_generator=generator,
+        evaluator=current_evaluator,
+        external_evaluator=lambda candidate: {
+            "final_label": "confirmed",
+            "gate_results": {"evidence_scope": {"scope": "external"}},
+        },
+        excluded_validation_available=True,
+    )
+
+    assert current_contracts[0].discovery_cohort == contract.discovery_cohort
+    assert current_contracts[0].replication_cohorts == contract.replication_cohorts
+    assert state.evaluations[0].validation.ok
+    assert state.evaluations[0].final_label == "external_confirmed"
+
+
 def test_default_generated_candidate_can_be_exploratory_confirmed_on_same_data():
     contract = _contract()
     state = run_claim_search(
@@ -861,7 +994,8 @@ def test_default_generated_candidate_can_be_exploratory_confirmed_on_same_data()
         },
     )
 
-    assert state.confirmed_candidates
+    assert state.supported_candidates
+    assert not state.confirmed_candidates
     assert state.evaluations[0].validation_split == "current_data_adaptive"
     assert state.evaluations[0].eligible_for_confirmation
     assert state.evaluations[0].final_label == "exploratory_confirmed"
@@ -909,6 +1043,7 @@ def test_duplicate_candidates_are_removed_across_rounds():
 
 def test_controlled_holdout_candidate_can_be_confirmed_by_stub_evaluator():
     contract = _contract()
+    excluded_calls = 0
 
     def generator(contract, localization, config, round_index, parent_claim_id):
         return [
@@ -919,6 +1054,14 @@ def test_controlled_holdout_candidate_can_be_confirmed_by_stub_evaluator():
             )
         ]
 
+    def excluded_evaluator(candidate):
+        nonlocal excluded_calls
+        excluded_calls += 1
+        return {
+            "final_label": "confirmed",
+            "gate_results": {"external_candidate_id": candidate.candidate_id},
+        }
+
     state = run_claim_search(
         contract,
         _verdict(),
@@ -926,10 +1069,7 @@ def test_controlled_holdout_candidate_can_be_confirmed_by_stub_evaluator():
         config=ClaimSearchConfig(max_rounds=2, max_candidates_per_round=2),
         candidate_generator=generator,
         evaluator=lambda candidate: {"final_label": "confirmed", "gate_results": {"candidate_id": candidate.candidate_id}},
-        external_evaluator=lambda candidate: {
-            "final_label": "confirmed",
-            "gate_results": {"external_candidate_id": candidate.candidate_id},
-        },
+        external_evaluator=excluded_evaluator,
         excluded_evidence_kind="holdout",
     )
 
@@ -937,6 +1077,8 @@ def test_controlled_holdout_candidate_can_be_confirmed_by_stub_evaluator():
     assert state.stopped_reason == "holdout_confirmed"
     assert state.evaluations[0].holdout_confirmed
     assert state.evaluations[0].final_label == "holdout_confirmed"
+    assert excluded_calls == 1
+    assert state.excluded_evidence_query_count == 1
 
 
 def test_excluded_evaluator_scope_can_upgrade_to_external_label():
@@ -957,7 +1099,7 @@ def test_excluded_evaluator_scope_can_upgrade_to_external_label():
         _results(contract),
         config=ClaimSearchConfig(max_rounds=1, max_candidates_per_round=1),
         candidate_generator=generator,
-        evaluator=lambda candidate: {"final_label": "fragile", "gate_results": {}},
+        evaluator=lambda candidate: {"final_label": "confirmed", "gate_results": {}},
         external_evaluator=lambda candidate: {
             "final_label": "confirmed",
             "gate_results": {"evidence_scope": {"scope": "external"}},
@@ -978,7 +1120,7 @@ def test_optional_external_error_preserves_exploratory_confirmation():
     contract = _contract()
 
     def external_evaluator(candidate):
-        raise RuntimeError("external unavailable")
+        raise FileNotFoundError("external unavailable")
 
     state = run_claim_search(
         contract,
@@ -994,8 +1136,9 @@ def test_optional_external_error_preserves_exploratory_confirmation():
     assert state.evaluations[0].final_label == "exploratory_confirmed"
     assert state.evaluations[0].exploratory_confirmed
     assert state.evaluations[0].execution_error is None
-    assert "excluded_evidence_unavailable_for_candidate" in str(state.evaluations[0].excluded_evidence_error)
-    assert state.confirmed_candidates
+    assert "excluded_evidence_unavailable" in str(state.evaluations[0].excluded_evidence_error)
+    assert state.supported_candidates
+    assert not state.confirmed_candidates
     summary = summarize_claim_search([state])
     assert summary["raw_final_label_counts"]["exploratory_confirmed"] == 1
     assert summary["effective_final_label_counts"]["exploratory_confirmed"] == 1
@@ -1003,6 +1146,112 @@ def test_optional_external_error_preserves_exploratory_confirmation():
     assert summary["any_supported_candidate_count"] == 1
     assert summary["execution_error_count"] == 0
     assert summary["excluded_evidence_error_count"] == 1
+
+
+def test_excluded_execution_error_is_not_reclassified_as_unavailable():
+    contract = _contract()
+
+    state = run_claim_search(
+        contract,
+        _verdict(),
+        _results(contract),
+        config=ClaimSearchConfig(max_rounds=1, max_candidates_per_round=1),
+        candidate_generator=generate_connected_candidates,
+        evaluator=lambda candidate: {"final_label": "confirmed", "gate_results": {}},
+        external_evaluator=lambda candidate: (_ for _ in ()).throw(RuntimeError("stats engine failed")),
+    )
+
+    evaluation = state.evaluations[0]
+    assert evaluation.excluded_evidence_status == "error"
+    assert evaluation.execution_error == "stats engine failed"
+    assert evaluation.excluded_evidence_error is None
+    assert not state.confirmed_candidates
+
+
+def test_canonical_coverage_requires_successful_current_data_execution():
+    contract = _contract()
+    state = run_claim_search(
+        contract,
+        _verdict(),
+        _results(contract),
+        config=ClaimSearchConfig(max_rounds=1, max_candidates_per_round=1),
+        candidate_generator=generate_connected_candidates,
+        evaluator=lambda candidate: (_ for _ in ()).throw(RuntimeError("stats engine failed")),
+    )
+
+    summary = summarize_claim_search([state])
+    assert summary["valid_connected_candidate_count"] == 1
+    assert summary["valid_connected_executable_candidate_count"] == 0
+    assert summary["valid_connected_lineage_count"] == 0
+    assert summary["valid_connected_lineage_rate"] == 0.0
+
+
+def test_excluded_evidence_is_not_queried_without_current_data_support():
+    contract = _contract()
+    excluded_calls = 0
+
+    def excluded_evaluator(candidate):
+        nonlocal excluded_calls
+        excluded_calls += 1
+        return {"final_label": "confirmed", "gate_results": {}}
+
+    state = run_claim_search(
+        contract,
+        _verdict(),
+        _results(contract),
+        config=ClaimSearchConfig(max_rounds=2, max_candidates_per_round=1),
+        candidate_generator=generate_connected_candidates,
+        evaluator=lambda candidate: {"final_label": "fragile", "gate_results": {}},
+        external_evaluator=excluded_evaluator,
+    )
+
+    assert excluded_calls == 0
+    assert state.excluded_evidence_query_count == 0
+    assert state.excluded_evidence_status == "not_requested"
+    assert state.stopped_reason in {"no_candidates", "no_supported_candidate"}
+
+
+def test_effective_family_size_counts_every_unique_candidate_tested():
+    contract = _contract(search_provenance={"family_size": 3})
+    seen_family_sizes = []
+    seen_selections = []
+
+    def generator(contract, localization, config, round_index, parent_claim_id):
+        outcomes = [
+            f"smri_hippocampus_r{round_index}_c1",
+            f"smri_hippocampus_r{round_index}_c2",
+        ]
+        return [
+            _candidate(
+                contract,
+                candidate_id=f"candidate_r{round_index}_c{index}",
+                round_index=round_index,
+                proposed_contract=contract.model_copy(
+                    update={"estimand": contract.estimand.model_copy(update={"outcome": outcome})}
+                ),
+            )
+            for index, outcome in enumerate(outcomes, start=1)
+        ]
+
+    def evaluator(candidate):
+        seen_family_sizes.append(candidate.proposed_contract.search_provenance.family_size)
+        seen_selections.append(candidate.proposed_contract.search_provenance.selection)
+        return {"final_label": "fragile", "gate_results": {}}
+
+    state = run_claim_search(
+        contract,
+        _verdict(),
+        _results(contract),
+        config=ClaimSearchConfig(max_rounds=2, max_candidates_per_round=2),
+        candidate_generator=generator,
+        evaluator=evaluator,
+    )
+
+    assert seen_family_sizes == [4, 5, 6, 7]
+    assert seen_selections == ["discovery_only"] * 4
+    assert [item.effective_family_size for item in state.evaluations] == [4, 5, 6, 7]
+    assert state.current_data_evaluated_count == 4
+    assert state.excluded_evidence_query_count == 0
 
 
 def test_hacking_metric_counts_holdout_cohort_misuse():

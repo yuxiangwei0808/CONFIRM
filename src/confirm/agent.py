@@ -51,7 +51,7 @@ def _cohort_path(data_dir: Path, cohort: str) -> Path:
 
 
 def _load_canonical(path: Path) -> pd.DataFrame:
-    df = validate_canonical(pd.read_parquet(path))
+    df = validate_canonical(pd.read_parquet(path), drop_invalid_demographics=True)
     return add_virtual_columns(df, path.stem)
 
 

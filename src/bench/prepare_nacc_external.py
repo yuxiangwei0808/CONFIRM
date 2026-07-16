@@ -1,6 +1,6 @@
-"""Prepare the NACC cohort as an UNSEEN external benchmark cohort for CONFIRM.
+"""Prepare the NACC cohort as external evaluation evidence for CONFIRM.
 
-NACC was never used in CONFIRM development. This script joins the provider
+This script joins the provider
 FreeSurfer-style ROI volume table (investigator_mri) to the UDS clinical
 diagnosis (investigator_ftldlbd, which carries NACCUDSD/NACCALZD/CDRGLOB),
 matching each MRI session to its nearest clinical visit, and writes a single

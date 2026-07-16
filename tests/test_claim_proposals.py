@@ -113,6 +113,18 @@ def test_multiplicity_failure_is_evidence_failure_not_current_data_repairable():
     assert "corrected_contract" not in loc.allowed_proposal_types
 
 
+def test_multiplicity_localization_distinguishes_opposite_direction_from_nonsignificance():
+    contract = _contract(estimand={"direction": "positive"})
+    results = _results(contract)
+    results["primary"] = {"p": 0.001, "beta": -0.1, "n": 100}
+
+    loc = localize_failure(contract, _verdict("fragile", ["multiplicity"]), results)
+
+    assert "opposite" in loc.diagnosis
+    assert "Directional consistency failed" in loc.evidence[0]
+    assert "declared direction=positive" in loc.evidence[0]
+
+
 def test_multiverse_failure_allows_fragile_or_future_claim_only():
     contract = _contract()
     loc = localize_failure(contract, _verdict("fragile", ["multiverse"]), _results(contract))

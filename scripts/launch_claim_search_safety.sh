@@ -41,6 +41,8 @@ fi
   --input "$OUT/gates/negatives_expansion_results.json" \
   --out "$OUT/source/claim_search_source.json" \
   --model-spec synthetic-stress \
+  --evidence-manifest "$OUT/data/manifest.json" \
+  --require-excluded-evidence \
   2>&1 | tee "$OUT/logs/build_safety_source.log"
 
 replay_cmd=(
@@ -56,6 +58,9 @@ replay_cmd=(
   --max-workers "$MAX_WORKERS"
   --parallel-backend "$PARALLEL_BACKEND"
   --data-root "$OUT/data/cohorts"
+  --holdout-data-root "$OUT/data/cohorts"
+  --evidence-manifest "$OUT/data/manifest.json"
+  --evidence-freshness fresh
 )
 if [[ "$PROGRESS" == "off" ]]; then
   replay_cmd+=(--no-progress)

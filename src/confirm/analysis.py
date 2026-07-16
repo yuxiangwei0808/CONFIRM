@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Iterable
+from dataclasses import dataclass
 from typing import Any, Literal
 
 import numpy as np
@@ -14,6 +15,29 @@ from confirm.results import EffectResult
 
 ModelKind = Literal["ols", "robust"]
 STRUCTURAL_CONFOUND_COLUMNS = ("site", "scanner", "field_strength", "fs_version")
+CONDITION_NUMBER_WARNING_THRESHOLD = 1e8
+_KNOWN_NUMERIC_COLUMNS = {"age", "eTIV", "field_strength"}
+
+
+class AnalysisNonIdentifiableError(ValueError):
+    """Raised when a requested effect is not identifiable from the design."""
+
+    code = "analysis_non_identifiable"
+
+    def __init__(self, reason: str, diagnostics: dict[str, Any] | None = None) -> None:
+        self.reason = reason
+        self.diagnostics = diagnostics or {}
+        super().__init__(f"{self.code}: {reason}")
+
+
+@dataclass(frozen=True)
+class AnalysisDesign:
+    """Prepared analysis data and deterministic design diagnostics."""
+
+    y: pd.Series
+    x: pd.DataFrame
+    rows: pd.DataFrame
+    diagnostics: dict[str, Any]
 
 
 def direction_sign(contract: ClaimContract) -> int:
@@ -246,7 +270,7 @@ def _analysis_frame(df: pd.DataFrame, contract: ClaimContract, covariates: list[
         if cov in skip_covars:
             continue
         series = data[cov]
-        if pd.api.types.is_numeric_dtype(series):
+        if cov in _KNOWN_NUMERIC_COLUMNS or pd.api.types.is_numeric_dtype(series):
             x_parts.append(pd.Series(pd.to_numeric(series, errors="coerce"), name=cov))
         else:
             dummies = pd.get_dummies(series.astype("string"), prefix=cov, drop_first=True, dtype=float)
@@ -260,6 +284,59 @@ def _analysis_frame(df: pd.DataFrame, contract: ClaimContract, covariates: list[
     if predictor_name not in x.columns:
         raise ValueError("Predictor has no variation after filtering")
     return y, x, data.loc[complete.index]
+
+
+def design_matrix_diagnostics(x: pd.DataFrame) -> dict[str, Any]:
+    """Return rank and scale-insensitive conditioning diagnostics for a design."""
+
+    values = x.to_numpy(dtype=float)
+    n_rows = int(values.shape[0])
+    n_predictors = int(values.shape[1])
+    exog = np.column_stack([np.ones(n_rows, dtype=float), values])
+    n_columns = int(exog.shape[1])
+    finite = bool(np.isfinite(exog).all())
+    rank = int(np.linalg.matrix_rank(exog)) if finite else 0
+
+    condition_number = float("inf")
+    if finite and n_predictors:
+        centered = values - values.mean(axis=0, keepdims=True)
+        scales = centered.std(axis=0, ddof=0)
+        if bool(np.all(np.isfinite(scales))) and bool(np.all(scales > 0)):
+            standardized = centered / scales
+            standardized_exog = np.column_stack([np.ones(n_rows, dtype=float), standardized])
+            condition_number = float(np.linalg.cond(standardized_exog))
+
+    return {
+        "n_rows": n_rows,
+        "n_predictors": n_predictors,
+        "n_columns_with_intercept": n_columns,
+        "rank": rank,
+        "full_rank": bool(finite and rank == n_columns),
+        "finite": finite,
+        "condition_number_standardized": condition_number,
+        "condition_number_warning": bool(
+            math.isfinite(condition_number) and condition_number > CONDITION_NUMBER_WARNING_THRESHOLD
+        ),
+    }
+
+
+def build_analysis_design(
+    df: pd.DataFrame,
+    contract: ClaimContract,
+    covariates: list[str] | None = None,
+) -> AnalysisDesign:
+    """Build and validate the exact design consumed by the regression engine."""
+
+    covars = covariates_for_fitting(contract, contract.covariates if covariates is None else covariates)
+    y, x, rows = _analysis_frame(df, contract, covars)
+    diagnostics = design_matrix_diagnostics(x)
+    if not diagnostics["finite"] or not bool(np.isfinite(y.to_numpy(dtype=float)).all()):
+        raise AnalysisNonIdentifiableError("design or outcome contains non-finite values", diagnostics)
+    if not diagnostics["full_rank"]:
+        raise AnalysisNonIdentifiableError("design matrix is rank deficient", diagnostics)
+    if diagnostics["n_rows"] <= diagnostics["n_columns_with_intercept"]:
+        raise AnalysisNonIdentifiableError("residual degrees of freedom are not positive", diagnostics)
+    return AnalysisDesign(y=y, x=x, rows=rows, diagnostics=diagnostics)
 
 
 def _standardized_effect(beta: float, se: float, dof: float, y: pd.Series, predictor: pd.Series, contract: ClaimContract) -> float:
@@ -311,12 +388,16 @@ def fit_effect(df: pd.DataFrame, contract: ClaimContract, covariates: list[str] 
 
     import statsmodels.api as sm
 
-    covars = covariates_for_fitting(contract, contract.covariates if covariates is None else covariates)
-    y, x, _ = _analysis_frame(df, contract, covars)
+    design = build_analysis_design(df, contract, covariates)
+    y, x = design.y, design.x
     exog = sm.add_constant(x, has_constant="add")
     predictor_col = "__confirm_predictor__"
     if model == "robust":
-        fitted = sm.RLM(y, exog, M=sm.robust.norms.HuberT()).fit()
+        # NumPy 2.0 may emit spurious floating-point warnings from ``pinv``
+        # for tall, finite, full-rank matrices even when the result is finite.
+        # The fitted statistics are checked explicitly below.
+        with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+            fitted = sm.RLM(y, exog, M=sm.robust.norms.HuberT()).fit()
         dof = float(len(y) - exog.shape[1])
     else:
         fitted = sm.OLS(y, exog).fit()
@@ -332,8 +413,12 @@ def fit_effect(df: pd.DataFrame, contract: ClaimContract, covariates: list[str] 
     se = float(bse[predictor_col])
     p = float(pvalues[predictor_col])
     ci = ci_all.loc[predictor_col]
+    fitted_values = [beta, se, p, float(ci.iloc[0]), float(ci.iloc[1]), dof]
+    if not all(math.isfinite(value) for value in fitted_values) or se <= 0 or dof <= 0:
+        raise AnalysisNonIdentifiableError("regression returned non-finite or non-estimable statistics", design.diagnostics)
     standardized = _standardized_effect(beta, se, dof, y, x[predictor_col], contract)
     diagnostics = _diagnostics(y, x, fitted) if model == "ols" else {"model": "robust_hubert"}
+    diagnostics.update(design.diagnostics)
     return EffectResult(
         beta=beta,
         se=se,

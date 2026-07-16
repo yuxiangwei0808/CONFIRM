@@ -53,6 +53,7 @@ class EvidencePartitionRecord(BaseModel):
     notes: list[str] = Field(default_factory=list)
     columns: list[str] = Field(default_factory=list)
     schema_sha256: str = ""
+    content_sha256: str = ""
     modality: str = "unknown"
     feature_families: list[str] = Field(default_factory=list)
     units: dict[str, str] = Field(default_factory=dict)
@@ -143,6 +144,13 @@ class EvidencePartitionManifest(BaseModel):
         """
 
         target_family = infer_target_family(contract)
+        source_cohorts = [contract.discovery_cohort, *contract.replication_cohorts]
+        for cohort in source_cohorts:
+            source_record = self.record_for_partition(cohort, target_family)
+            if "_HOLDOUT" in cohort or (
+                source_record is not None and source_record.role in {"holdout", "external_eval"}
+            ):
+                return None
         discovery_base = canonical_base_cohort(contract.discovery_cohort)
         replication_bases = [canonical_base_cohort(cohort) for cohort in contract.replication_cohorts]
         discovery_record = self._holdout_record_for_evaluation(discovery_base, target_family, "discovery")
@@ -280,6 +288,13 @@ class EvidencePartitionManifest(BaseModel):
         }
 
     def validation_catalog_for_contract(self, contract: ClaimContract) -> dict[str, Any]:
+        """Return prompt-safe excluded-evidence identities and schemas.
+
+        Counts, paths, split seeds, and subject hashes are deliberately omitted:
+        candidate generation may know what evidence exists, but not its sample
+        distribution or any information derived from evaluating it.
+        """
+
         target_family = infer_target_family(contract)
         holdout_pair = self.holdout_evaluation_pair_for_contract(contract)
         external_sets = self.external_sets_for_contract(contract)
@@ -290,9 +305,9 @@ class EvidencePartitionManifest(BaseModel):
                 continue
             external_catalog.append(
                 {
-                    "evidence_set": evidence_set.model_dump(mode="json"),
-                    "discovery": pair[0].model_dump(mode="json"),
-                    "replication": [item.model_dump(mode="json") for item in pair[1]],
+                    "evidence_set": _prompt_safe_external_set(evidence_set),
+                    "discovery": _prompt_safe_partition(pair[0]),
+                    "replication": [_prompt_safe_partition(item) for item in pair[1]],
                 }
             )
         primary = next(
@@ -302,14 +317,14 @@ class EvidencePartitionManifest(BaseModel):
         return {
             "target_family": target_family,
             "holdout_partitions": (
-                [holdout_pair[0].model_dump(mode="json"), *[record.model_dump(mode="json") for record in holdout_pair[1]]]
+                [_prompt_safe_partition(holdout_pair[0]), *[_prompt_safe_partition(record) for record in holdout_pair[1]]]
                 if holdout_pair
                 else []
             ),
             "holdout_evaluation_pair": (
                 {
-                    "discovery": holdout_pair[0].model_dump(mode="json"),
-                    "replication": [record.model_dump(mode="json") for record in holdout_pair[1]],
+                    "discovery": _prompt_safe_partition(holdout_pair[0]),
+                    "replication": [_prompt_safe_partition(record) for record in holdout_pair[1]],
                 }
                 if holdout_pair
                 else None
@@ -322,6 +337,36 @@ class EvidencePartitionManifest(BaseModel):
                 primary["evidence_set"]["evidence_set_id"] if primary is not None else None
             ),
         }
+
+
+def _prompt_safe_partition(record: EvidencePartitionRecord) -> dict[str, Any]:
+    return {
+        "partition_id": record.partition_id,
+        "base_dataset": record.base_dataset,
+        "target_family": record.target_family,
+        "role": record.role,
+        "evaluation_role": record.evaluation_role,
+        "modality": record.modality,
+        "feature_families": list(record.feature_families),
+        "columns": list(record.columns),
+        "units": dict(record.units),
+        "group_levels": dict(record.group_levels),
+    }
+
+
+def _prompt_safe_external_set(record: ExternalEvidenceSetRecord) -> dict[str, Any]:
+    return {
+        "evidence_set_id": record.evidence_set_id,
+        "target_family": record.target_family,
+        "modality": record.modality,
+        "feature_family": record.feature_family,
+        "discovery_partition_id": record.discovery_partition_id,
+        "replication_partition_ids": list(record.replication_partition_ids),
+        "supported_predictors": list(record.supported_predictors),
+        "supported_group_vars": list(record.supported_group_vars),
+        "confirmation_role": record.confirmation_role,
+        "units": dict(record.units),
+    }
 
 
 def contract_feature_scope(contract: ClaimContract) -> tuple[str, str]:
@@ -662,11 +707,20 @@ def _record(
         notes=notes,
         columns=columns,
         schema_sha256=schema_sha256,
+        content_sha256=_sha256_file(path),
         modality=modality,
         feature_families=feature_families,
         units=units,
         group_levels=group_levels,
     )
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def _group_levels(df: pd.DataFrame, cohort: str) -> dict[str, list[str]]:

@@ -1,4 +1,4 @@
-"""Prepare ds000030 (UCLA CNP / LA5c) as an UNSEEN external benchmark cohort.
+"""Prepare ds000030 (UCLA CNP / LA5c) as external evaluation evidence.
 
 Downloads per-subject FreeSurfer aseg.stats from the LEGACY OpenNeuro mirror
 (s3://openneuro/ds000030/ds000030_R1.0.5/.../derivatives/freesurfer/), parses

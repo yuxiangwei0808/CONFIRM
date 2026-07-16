@@ -193,6 +193,17 @@ def test_same_base_contract_uses_distinct_holdout_evaluation_pair(tmp_path):
     assert manifest.has_excluded_evidence_for_contract(contract)
 
 
+def test_contract_that_already_used_holdout_cannot_reuse_internal_holdout(tmp_path):
+    config_path, out_root = _write_config(tmp_path)
+    manifest = build_evidence_partitions(config_path, out_root)
+    contract = _contract(
+        discovery_cohort="ADNI_HOLDOUT",
+        replication_cohorts=["ADNI_REP"],
+    )
+
+    assert manifest.holdout_evaluation_pair_for_contract(contract) is None
+
+
 def test_summary_counts_holdout_confirmed_as_final_not_exploratory():
     from confirm.claim_search import run_claim_search
 
