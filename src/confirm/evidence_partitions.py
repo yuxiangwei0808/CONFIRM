@@ -16,7 +16,7 @@ import yaml
 from pydantic import BaseModel, ConfigDict, Field
 
 from confirm.contract import ClaimContract
-from confirm.derived_columns import add_virtual_columns, columns_with_virtuals
+from confirm.derived_columns import add_virtual_columns, columns_with_virtuals, confirm_dx_levels
 from confirm.schema import columns_with_canonical_aliases, normalize_sex
 
 PartitionRole = Literal["discovery", "replication", "holdout", "external_eval"]
@@ -152,7 +152,9 @@ class EvidencePartitionManifest(BaseModel):
             ):
                 return None
         discovery_base = canonical_base_cohort(contract.discovery_cohort)
-        replication_bases = [canonical_base_cohort(cohort) for cohort in contract.replication_cohorts]
+        replication_bases = list(
+            dict.fromkeys(canonical_base_cohort(cohort) for cohort in contract.replication_cohorts)
+        )
         discovery_record = self._holdout_record_for_evaluation(discovery_base, target_family, "discovery")
         if discovery_record is None:
             return None
@@ -287,88 +289,6 @@ class EvidencePartitionManifest(BaseModel):
             if roles == {"external_eval"}
         }
 
-    def validation_catalog_for_contract(self, contract: ClaimContract) -> dict[str, Any]:
-        """Return prompt-safe excluded-evidence identities and schemas.
-
-        Counts, paths, split seeds, and subject hashes are deliberately omitted:
-        candidate generation may know what evidence exists, but not its sample
-        distribution or any information derived from evaluating it.
-        """
-
-        target_family = infer_target_family(contract)
-        holdout_pair = self.holdout_evaluation_pair_for_contract(contract)
-        external_sets = self.external_sets_for_contract(contract)
-        external_catalog: list[dict[str, Any]] = []
-        for evidence_set in external_sets:
-            pair = self.external_pair_for_set(evidence_set)
-            if pair is None:
-                continue
-            external_catalog.append(
-                {
-                    "evidence_set": _prompt_safe_external_set(evidence_set),
-                    "discovery": _prompt_safe_partition(pair[0]),
-                    "replication": [_prompt_safe_partition(item) for item in pair[1]],
-                }
-            )
-        primary = next(
-            (item for item in external_catalog if item["evidence_set"]["confirmation_role"] == "primary"),
-            None,
-        )
-        return {
-            "target_family": target_family,
-            "holdout_partitions": (
-                [_prompt_safe_partition(holdout_pair[0]), *[_prompt_safe_partition(record) for record in holdout_pair[1]]]
-                if holdout_pair
-                else []
-            ),
-            "holdout_evaluation_pair": (
-                {
-                    "discovery": _prompt_safe_partition(holdout_pair[0]),
-                    "replication": [_prompt_safe_partition(record) for record in holdout_pair[1]],
-                }
-                if holdout_pair
-                else None
-            ),
-            "external_partitions": (
-                [primary["discovery"], *primary["replication"]] if primary is not None else []
-            ),
-            "external_evidence_sets": external_catalog,
-            "primary_external_evidence_set_id": (
-                primary["evidence_set"]["evidence_set_id"] if primary is not None else None
-            ),
-        }
-
-
-def _prompt_safe_partition(record: EvidencePartitionRecord) -> dict[str, Any]:
-    return {
-        "partition_id": record.partition_id,
-        "base_dataset": record.base_dataset,
-        "target_family": record.target_family,
-        "role": record.role,
-        "evaluation_role": record.evaluation_role,
-        "modality": record.modality,
-        "feature_families": list(record.feature_families),
-        "columns": list(record.columns),
-        "units": dict(record.units),
-        "group_levels": dict(record.group_levels),
-    }
-
-
-def _prompt_safe_external_set(record: ExternalEvidenceSetRecord) -> dict[str, Any]:
-    return {
-        "evidence_set_id": record.evidence_set_id,
-        "target_family": record.target_family,
-        "modality": record.modality,
-        "feature_family": record.feature_family,
-        "discovery_partition_id": record.discovery_partition_id,
-        "replication_partition_ids": list(record.replication_partition_ids),
-        "supported_predictors": list(record.supported_predictors),
-        "supported_group_vars": list(record.supported_group_vars),
-        "confirmation_role": record.confirmation_role,
-        "units": dict(record.units),
-    }
-
-
 def contract_feature_scope(contract: ClaimContract) -> tuple[str, str]:
     outcomes = _outcomes(contract)
     if all(str(outcome).startswith("smri_") for outcome in outcomes):
@@ -403,7 +323,7 @@ def _record_supports_contract(record: EvidencePartitionRecord, contract: ClaimCo
     if not required.issubset(available):
         return False
     if contract.estimand.group is not None:
-        levels = record.group_levels.get(contract.estimand.group.var)
+        levels = _record_group_levels(record, contract.estimand.group.var)
         if levels and not {contract.estimand.group.case, contract.estimand.group.control}.issubset(set(levels)):
             return False
     for outcome in _outcomes(contract):
@@ -416,6 +336,18 @@ def _record_supports_contract(record: EvidencePartitionRecord, contract: ClaimCo
         elif pattern not in available:
             return False
     return True
+
+
+def _record_group_levels(record: EvidencePartitionRecord, group_var: str) -> list[str] | None:
+    """Return manifest levels, deriving virtual diagnosis levels when needed."""
+
+    if group_var == "confirm_dx":
+        raw_levels = record.group_levels.get("dx")
+        if raw_levels:
+            derived = confirm_dx_levels(record.partition_id, raw_levels)
+            if derived:
+                return derived
+    return record.group_levels.get(group_var)
 
 
 def canonical_base_cohort(cohort: str) -> str:
@@ -470,10 +402,10 @@ def infer_target_family(contract: ClaimContract, row: dict[str, Any] | None = No
         return "adhd"
     if any(term in text for term in ("asd", "autism", "abide")):
         return "asd"
-    if any(term in text for term in ("dementia", "mci", "adni", "oasis", "nacc", "hippocamp", "entorhinal")):
-        return "ad_aging"
     if any(term in text for term in ("schiz", "psychosis", "cobre", "fbirn", "bsnip", "ds000030", "cnp")):
         return "psychosis"
+    if any(term in text for term in ("dementia", "mci", "adni", "oasis", "nacc", "hippocamp", "entorhinal")):
+        return "ad_aging"
     if any(str(outcome).startswith(("fc_", "raw_", "beh_")) for outcome in _outcomes(contract)):
         return "normative_fmri"
     return "unknown"

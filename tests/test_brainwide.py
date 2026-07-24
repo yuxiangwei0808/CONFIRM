@@ -128,3 +128,22 @@ def test_pure_noise_region_profile_not_confirmed():
     contract = _contract()
     verdict, _ = _run_all(_cohort("DISC", np.zeros_like(PATTERN), 5, noise=1.0), _cohort("REP", np.zeros_like(PATTERN), 6, noise=1.0), contract)
     assert verdict.label != "confirmed"
+
+
+def test_two_region_pattern_is_not_treated_as_estimable_replication():
+    contract = _contract()
+    two_regions = REGIONS[:2]
+    estimand = contract.estimand.model_copy(update={"outcome": two_regions})
+    multiplicity = contract.gates.multiplicity.model_copy(update={"family_size": len(two_regions)})
+    gates = contract.gates.model_copy(update={"multiplicity": multiplicity})
+    contract = contract.model_copy(update={"estimand": estimand, "gates": gates})
+
+    verdict, replication = _run_all(
+        _cohort("DISC", PATTERN, 7),
+        _cohort("REP", PATTERN, 8),
+        contract,
+    )
+
+    assert verdict.label == "non_replicated"
+    assert replication.passed is False
+    assert np.isnan(replication.pattern_corr)

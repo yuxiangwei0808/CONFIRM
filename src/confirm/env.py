@@ -15,10 +15,8 @@ def load_env(path: str | Path | None = None) -> None:
         return
     try:
         from dotenv import load_dotenv
-
-        load_dotenv(dotenv_path=path, override=False)
-    except Exception:
-        # TODO(confirm): Surface dotenv import/load failures through structured
-        # agent diagnostics if the CLI grows a diagnostic mode.
-        pass
+    except ImportError:
+        _LOADED = True
+        return
+    load_dotenv(dotenv_path=path, override=False)
     _LOADED = True

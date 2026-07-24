@@ -27,20 +27,36 @@ def _artifact(root: Path, rounds: int, candidates: int, coverage: float, exclude
                 "searchable_claim_count": 1000,
                 "completed_search_count": 1000,
                 "skipped_search_count": 0,
-                "provenance": {"source": {"sha256": "same-source"}},
+                "provenance": {
+                    "source": {"sha256": "same-source"},
+                    "prompt_sha256": "prompt",
+                    "schema_sha256": "schema",
+                    "implementation_hashes": {"src/example.py": "implementation"},
+                    "evidence_manifest": {"sha256": "manifest"},
+                    "partition_hashes_sha256": "partitions",
+                },
                 "summary": {
                     "n_searches": 1000,
                     "valid_connected_lineage_count": int(coverage * 1000),
                     "valid_connected_lineage_rate": coverage,
+                    "proposals_returned_count": 1200,
+                    "schema_valid_candidate_count": 1190,
+                    "policy_valid_candidate_count": 900,
+                    "unique_source_tested_count": 850,
+                    "execution_complete_candidate_count": 840,
+                    "unique_internally_supported_contract_count": 12,
+                    "contract_repair_supported_count": 3,
+                    "contract_repair_confirmed_count": 3,
                     "excluded_evidence_query_count": excluded_queries,
                 },
-            }
+            },
+            indent=2,
         ),
         encoding="utf-8",
     )
 
 
-def test_matrix_selection_uses_smallest_arm_within_one_percentage_point(tmp_path):
+def test_matrix_summary_reports_arms_without_selecting_a_winner(tmp_path):
     _artifact(tmp_path, 1, 2, 0.80)
     _artifact(tmp_path, 3, 2, 0.895)
     _artifact(tmp_path, 1, 10, 0.90)
@@ -53,13 +69,15 @@ def test_matrix_selection_uses_smallest_arm_within_one_percentage_point(tmp_path
             expected_candidates=None,
         )
     )
-    selected = result["selected_config"]
-
-    assert selected["maximum_coverage"] == 0.90
-    assert selected["max_rounds"] == 3
-    assert selected["max_candidates_per_round"] == 2
-    assert selected["selection_used_support_counts"] is False
-    assert json.loads((tmp_path / "selected_config.json").read_text())["max_rounds"] == 3
+    assert result["selection_rule"] is None
+    assert len(result["rows"]) == 3
+    assert result["rows"][0]["proposals_returned_count"] == 1200
+    assert result["rows"][0]["unique_source_tested_count"] == 850
+    assert result["rows"][0]["contract_repair_supported_count"] == 3
+    assert result["deprecated_metric_aliases"]["contract_repair_confirmed_count"] == (
+        "contract_repair_supported_count"
+    )
+    assert not (tmp_path / "selected_config.json").exists()
 
 
 def test_sweep_summary_rejects_any_excluded_query(tmp_path):
@@ -99,7 +117,7 @@ def test_matrix_coverage_denominator_includes_skipped_lineages(tmp_path):
     payload["summary"]["n_searches"] = 900
     payload["summary"]["valid_connected_lineage_count"] = 810
     payload["summary"]["valid_connected_lineage_rate"] = 0.9
-    path.write_text(json.dumps(payload), encoding="utf-8")
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
     result = _MODULE.run(
         Namespace(
@@ -112,3 +130,24 @@ def test_matrix_coverage_denominator_includes_skipped_lineages(tmp_path):
 
     assert result["rows"][0]["valid_connected_completed_lineage_rate"] == 0.9
     assert result["rows"][0]["valid_connected_lineage_rate"] == 0.81
+
+
+def test_matrix_artifact_reader_does_not_parse_large_result_tail(tmp_path):
+    path = tmp_path / "iterative_candidate_replay.json"
+    path.write_text(
+        """{
+  \"status\": \"completed\",
+  \"llm_model\": \"openai:gpt-5.5\",
+  \"config\": {\"max_rounds\": 1, \"max_candidates_per_round\": 2},
+  \"provenance\": {\"source\": {\"sha256\": \"source\"}, \"prompt_sha256\": \"prompt\", \"schema_sha256\": \"schema\", \"implementation_hashes\": {\"x\": \"y\"}, \"evidence_manifest\": {\"sha256\": \"manifest\"}, \"partition_hashes_sha256\": \"partitions\"},
+  \"completed_search_count\": 215,
+  \"summary\": {\"n_searches\": 215, \"excluded_evidence_query_count\": 0},
+  \"rows\": [THIS TAIL IS INTENTIONALLY NOT JSON
+""",
+        encoding="utf-8",
+    )
+
+    row = _MODULE._row_from_artifact(path)
+
+    assert row["completed_search_count"] == 215
+    assert row["max_candidates_per_round"] == 2

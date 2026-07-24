@@ -192,6 +192,8 @@ def validate_new_claim_proposal(
     original: ClaimContract | None,
     proposal: NewClaimProposal,
     localization: FailureLocalization,
+    *,
+    allowed_numeric_context: tuple[str, ...] = (),
 ) -> ProposalValidation:
     """Validate a typed proposal against provenance-gated scientific policy."""
 
@@ -212,7 +214,11 @@ def validate_new_claim_proposal(
     if proposal.proposal_type == "downgraded_claim" and proposal.can_confirm_on_current_data:
         violations.append("Downgraded claims cannot be marked confirmable on current data.")
 
-    unsupported = _unsupported_numbers(proposal, localization)
+    unsupported = _unsupported_numbers(
+        proposal,
+        localization,
+        allowed_numeric_context=allowed_numeric_context,
+    )
     if unsupported:
         violations.append(f"Proposal rationale contains unsupported numeric values: {unsupported}.")
 
@@ -499,12 +505,18 @@ def _group_dict(contract: ClaimContract) -> dict[str, str] | None:
 _NUMBER_RE = re.compile(r"(?<![\w-])-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?(?![\w-])")
 
 
-def _unsupported_numbers(proposal: NewClaimProposal, localization: FailureLocalization) -> list[str]:
+def _unsupported_numbers(
+    proposal: NewClaimProposal,
+    localization: FailureLocalization,
+    *,
+    allowed_numeric_context: tuple[str, ...] = (),
+) -> list[str]:
     text = proposal.rationale or ""
     numbers = _NUMBER_RE.findall(text)
     if not numbers or not localization.evidence:
         return []
-    allowed = [float(item) for item in _NUMBER_RE.findall(" ".join(localization.evidence))]
+    allowed_text = " ".join([*localization.evidence, *allowed_numeric_context])
+    allowed = [float(item) for item in _NUMBER_RE.findall(allowed_text)]
     if not allowed:
         return []
     unsupported: list[str] = []

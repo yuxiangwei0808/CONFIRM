@@ -1,0 +1,698 @@
+{
+  "claim_search": {
+    "arms": [
+      {
+        "evidence_manifest_sha256": "3ca36ba0ea0cd38c800a416164e9856273d68fe1f429de2ea22a98c2f3ed2971",
+        "implementation_hashes": {
+          "src/bench/run_iterative_claim_search_replay.py": "3fbfee1a2dc6549b2e6f524d71d10a55822ab041017532f2291e02e6bc0ec69b",
+          "src/confirm/__init__.py": "2c0580ebd0804bedba91f3fe1a48818d14adadf1096da5000546c5385bfec172",
+          "src/confirm/agent.py": "ece2e86951125bcbfdfb48b6fabbd5bf0dd90fa2e36ece0c50178fa4f5bbc1ee",
+          "src/confirm/analysis.py": "5f0258803ed6a7aa747def677178ed79cc9ee65abd478946db373c0642a6b1d9",
+          "src/confirm/brainwide.py": "a71aaf182b5878a0a4ed000cd2f96046accd4cd556263eea88f1468141883354",
+          "src/confirm/candidate_preflight.py": "16d428147e2b6e57cb04dec6080dff4bbd91e80d2e9abe7d297269925a0fa5cc",
+          "src/confirm/claim_search.py": "a2ecebd7831b45e38b396eb976429b18273e7e95fadd83718e29a75e9f8066ad",
+          "src/confirm/cli.py": "688f29465dd968b20544f7b4cf2f1c04849d01e151279316664b8f59d943018a",
+          "src/confirm/contract.py": "9820e2fec0c64703867a152a60604b6c796ef2f1d8b693cd53f3456720a33d8b",
+          "src/confirm/derived_columns.py": "5f049f99398e5c64fbab16f0aaa71540057f6c2b55eec79ffb89ccb141b83acd",
+          "src/confirm/env.py": "39626d72bbc1e701e359b25547a7ce32e59e6476bc619c27c5c24395da56abc9",
+          "src/confirm/evidence_partitions.py": "a6c69d0fc38e68c25cdbb6d07310e108a4365005e981e363764cbe64f82006e4",
+          "src/confirm/excluded_evidence.py": "9c1a0cca3dfd947293f55fa057374fe211d7c9e071b31de11d945151724687aa",
+          "src/confirm/feedback.py": "91df0ab47c0d339e68c22b6207f58c352a22c72926d16572a0c117eee59da686",
+          "src/confirm/frozen_evidence.py": "faf141c1c823c0262de9837b284d87acc7216fe4a36765cb2fb495cb368b5e16",
+          "src/confirm/harmonize.py": "8ee038a86928f9ab54f54facf80e13c4d18fa2e72e039c35d0419fb125bf437d",
+          "src/confirm/llm.py": "59eb2c3e16c981251029e0f755faaa8b91bf05d500f7dbbc559d298042b43c51",
+          "src/confirm/multiverse.py": "ed2be5be3995d4f2456ae60d0dd59620eba988431828f7536c8a6c46de2ecc0d",
+          "src/confirm/power.py": "ca52d0f91f1dea35152de010dc3b2dd97b8009d15a239f9287ddc13113cf8c8a",
+          "src/confirm/proposals.py": "a175e7edd7344f1dc7d9956c7111c44af6a0e4d4cdc0200f1f00a22d6c3e9061",
+          "src/confirm/provenance.py": "73db409ab01ab2686c6280449a4e6ec7146144890083651328b92c64fdcd0608",
+          "src/confirm/replication.py": "0227c64126456296039891ab0c9f27be0e65037de0211f7af1f03f34b8e726df",
+          "src/confirm/results.py": "a4acd3278aeec1fe40375618f691beea08312eb6f296a6d49590fc1f554ab01f",
+          "src/confirm/schema.py": "5368c4d020c7a06ac588c13eeffcf2d1f23059c71fce9ee113a44f112f0f5cf7",
+          "src/confirm/verdict.py": "55171d5dd4c0f01ea2be978a84eef1cb91a0abda9ccb84b003cfa28dd92e9af0"
+        },
+        "max_candidates_per_round": 2,
+        "max_rounds": 1,
+        "partition_hashes_sha256": "c3b5a6be72397c0d9e47c34203b321e5b407db99da5d4bf30b329b5872ea477b",
+        "prompt_sha256": "2d458df69c45aa133c8008fc97fd5e794bfc391b81669a80c370179bc53e4668",
+        "provenance": {
+          "bytes": 54327,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_1/candidates_2/run_provenance.json",
+          "sha256": "9a8482a7b84025784bebc11947a4a1e299eeba2eef7186ff56089b2e15ee83c3"
+        },
+        "result": {
+          "bytes": 65633121,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_1/candidates_2/iterative_candidate_replay.json",
+          "sha256": "5c3c89ce8d7dd66d189e7aa094f806683d1c176c3f0c1a56ef1f8943d428ad1b"
+        },
+        "schema_sha256": "7b10d62321945ce66335a75061f7bf544b3923ce9b5210090e7ffe4f730939b5",
+        "source_sha256": "e94e3db9cb0d91325e91af4dcd34a2b82910cce00c5254f0c2d3e6a2d42a03d6"
+      },
+      {
+        "evidence_manifest_sha256": "3ca36ba0ea0cd38c800a416164e9856273d68fe1f429de2ea22a98c2f3ed2971",
+        "implementation_hashes": {
+          "src/bench/run_iterative_claim_search_replay.py": "3fbfee1a2dc6549b2e6f524d71d10a55822ab041017532f2291e02e6bc0ec69b",
+          "src/confirm/__init__.py": "2c0580ebd0804bedba91f3fe1a48818d14adadf1096da5000546c5385bfec172",
+          "src/confirm/agent.py": "ece2e86951125bcbfdfb48b6fabbd5bf0dd90fa2e36ece0c50178fa4f5bbc1ee",
+          "src/confirm/analysis.py": "5f0258803ed6a7aa747def677178ed79cc9ee65abd478946db373c0642a6b1d9",
+          "src/confirm/brainwide.py": "a71aaf182b5878a0a4ed000cd2f96046accd4cd556263eea88f1468141883354",
+          "src/confirm/candidate_preflight.py": "16d428147e2b6e57cb04dec6080dff4bbd91e80d2e9abe7d297269925a0fa5cc",
+          "src/confirm/claim_search.py": "a2ecebd7831b45e38b396eb976429b18273e7e95fadd83718e29a75e9f8066ad",
+          "src/confirm/cli.py": "688f29465dd968b20544f7b4cf2f1c04849d01e151279316664b8f59d943018a",
+          "src/confirm/contract.py": "9820e2fec0c64703867a152a60604b6c796ef2f1d8b693cd53f3456720a33d8b",
+          "src/confirm/derived_columns.py": "5f049f99398e5c64fbab16f0aaa71540057f6c2b55eec79ffb89ccb141b83acd",
+          "src/confirm/env.py": "39626d72bbc1e701e359b25547a7ce32e59e6476bc619c27c5c24395da56abc9",
+          "src/confirm/evidence_partitions.py": "a6c69d0fc38e68c25cdbb6d07310e108a4365005e981e363764cbe64f82006e4",
+          "src/confirm/excluded_evidence.py": "9c1a0cca3dfd947293f55fa057374fe211d7c9e071b31de11d945151724687aa",
+          "src/confirm/feedback.py": "91df0ab47c0d339e68c22b6207f58c352a22c72926d16572a0c117eee59da686",
+          "src/confirm/frozen_evidence.py": "faf141c1c823c0262de9837b284d87acc7216fe4a36765cb2fb495cb368b5e16",
+          "src/confirm/harmonize.py": "8ee038a86928f9ab54f54facf80e13c4d18fa2e72e039c35d0419fb125bf437d",
+          "src/confirm/llm.py": "59eb2c3e16c981251029e0f755faaa8b91bf05d500f7dbbc559d298042b43c51",
+          "src/confirm/multiverse.py": "ed2be5be3995d4f2456ae60d0dd59620eba988431828f7536c8a6c46de2ecc0d",
+          "src/confirm/power.py": "ca52d0f91f1dea35152de010dc3b2dd97b8009d15a239f9287ddc13113cf8c8a",
+          "src/confirm/proposals.py": "a175e7edd7344f1dc7d9956c7111c44af6a0e4d4cdc0200f1f00a22d6c3e9061",
+          "src/confirm/provenance.py": "73db409ab01ab2686c6280449a4e6ec7146144890083651328b92c64fdcd0608",
+          "src/confirm/replication.py": "0227c64126456296039891ab0c9f27be0e65037de0211f7af1f03f34b8e726df",
+          "src/confirm/results.py": "a4acd3278aeec1fe40375618f691beea08312eb6f296a6d49590fc1f554ab01f",
+          "src/confirm/schema.py": "5368c4d020c7a06ac588c13eeffcf2d1f23059c71fce9ee113a44f112f0f5cf7",
+          "src/confirm/verdict.py": "55171d5dd4c0f01ea2be978a84eef1cb91a0abda9ccb84b003cfa28dd92e9af0"
+        },
+        "max_candidates_per_round": 5,
+        "max_rounds": 1,
+        "partition_hashes_sha256": "c3b5a6be72397c0d9e47c34203b321e5b407db99da5d4bf30b329b5872ea477b",
+        "prompt_sha256": "2d458df69c45aa133c8008fc97fd5e794bfc391b81669a80c370179bc53e4668",
+        "provenance": {
+          "bytes": 54327,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_1/candidates_5/run_provenance.json",
+          "sha256": "1b97a8102a43f72bc186160663ce382c466c68be66ab2b399aeafec8d8cc8ab8"
+        },
+        "result": {
+          "bytes": 126125927,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_1/candidates_5/iterative_candidate_replay.json",
+          "sha256": "ba969e6ba4624a65031b73b18d7d39bc78e6cda1d02eb37adf0e81910acd75f2"
+        },
+        "schema_sha256": "7b10d62321945ce66335a75061f7bf544b3923ce9b5210090e7ffe4f730939b5",
+        "source_sha256": "e94e3db9cb0d91325e91af4dcd34a2b82910cce00c5254f0c2d3e6a2d42a03d6"
+      },
+      {
+        "evidence_manifest_sha256": "3ca36ba0ea0cd38c800a416164e9856273d68fe1f429de2ea22a98c2f3ed2971",
+        "implementation_hashes": {
+          "src/bench/run_iterative_claim_search_replay.py": "3fbfee1a2dc6549b2e6f524d71d10a55822ab041017532f2291e02e6bc0ec69b",
+          "src/confirm/__init__.py": "2c0580ebd0804bedba91f3fe1a48818d14adadf1096da5000546c5385bfec172",
+          "src/confirm/agent.py": "ece2e86951125bcbfdfb48b6fabbd5bf0dd90fa2e36ece0c50178fa4f5bbc1ee",
+          "src/confirm/analysis.py": "5f0258803ed6a7aa747def677178ed79cc9ee65abd478946db373c0642a6b1d9",
+          "src/confirm/brainwide.py": "a71aaf182b5878a0a4ed000cd2f96046accd4cd556263eea88f1468141883354",
+          "src/confirm/candidate_preflight.py": "16d428147e2b6e57cb04dec6080dff4bbd91e80d2e9abe7d297269925a0fa5cc",
+          "src/confirm/claim_search.py": "a2ecebd7831b45e38b396eb976429b18273e7e95fadd83718e29a75e9f8066ad",
+          "src/confirm/cli.py": "688f29465dd968b20544f7b4cf2f1c04849d01e151279316664b8f59d943018a",
+          "src/confirm/contract.py": "9820e2fec0c64703867a152a60604b6c796ef2f1d8b693cd53f3456720a33d8b",
+          "src/confirm/derived_columns.py": "5f049f99398e5c64fbab16f0aaa71540057f6c2b55eec79ffb89ccb141b83acd",
+          "src/confirm/env.py": "39626d72bbc1e701e359b25547a7ce32e59e6476bc619c27c5c24395da56abc9",
+          "src/confirm/evidence_partitions.py": "a6c69d0fc38e68c25cdbb6d07310e108a4365005e981e363764cbe64f82006e4",
+          "src/confirm/excluded_evidence.py": "9c1a0cca3dfd947293f55fa057374fe211d7c9e071b31de11d945151724687aa",
+          "src/confirm/feedback.py": "91df0ab47c0d339e68c22b6207f58c352a22c72926d16572a0c117eee59da686",
+          "src/confirm/frozen_evidence.py": "faf141c1c823c0262de9837b284d87acc7216fe4a36765cb2fb495cb368b5e16",
+          "src/confirm/harmonize.py": "8ee038a86928f9ab54f54facf80e13c4d18fa2e72e039c35d0419fb125bf437d",
+          "src/confirm/llm.py": "59eb2c3e16c981251029e0f755faaa8b91bf05d500f7dbbc559d298042b43c51",
+          "src/confirm/multiverse.py": "ed2be5be3995d4f2456ae60d0dd59620eba988431828f7536c8a6c46de2ecc0d",
+          "src/confirm/power.py": "ca52d0f91f1dea35152de010dc3b2dd97b8009d15a239f9287ddc13113cf8c8a",
+          "src/confirm/proposals.py": "a175e7edd7344f1dc7d9956c7111c44af6a0e4d4cdc0200f1f00a22d6c3e9061",
+          "src/confirm/provenance.py": "73db409ab01ab2686c6280449a4e6ec7146144890083651328b92c64fdcd0608",
+          "src/confirm/replication.py": "0227c64126456296039891ab0c9f27be0e65037de0211f7af1f03f34b8e726df",
+          "src/confirm/results.py": "a4acd3278aeec1fe40375618f691beea08312eb6f296a6d49590fc1f554ab01f",
+          "src/confirm/schema.py": "5368c4d020c7a06ac588c13eeffcf2d1f23059c71fce9ee113a44f112f0f5cf7",
+          "src/confirm/verdict.py": "55171d5dd4c0f01ea2be978a84eef1cb91a0abda9ccb84b003cfa28dd92e9af0"
+        },
+        "max_candidates_per_round": 10,
+        "max_rounds": 1,
+        "partition_hashes_sha256": "c3b5a6be72397c0d9e47c34203b321e5b407db99da5d4bf30b329b5872ea477b",
+        "prompt_sha256": "2d458df69c45aa133c8008fc97fd5e794bfc391b81669a80c370179bc53e4668",
+        "provenance": {
+          "bytes": 54331,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_1/candidates_10/run_provenance.json",
+          "sha256": "0124bab67801201c1c67d13d125382979d290928df043cae441da7dcad0adce5"
+        },
+        "result": {
+          "bytes": 219962279,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_1/candidates_10/iterative_candidate_replay.json",
+          "sha256": "d9d21cbff67413f6c341d4c092075a83810829887325071c63cc2daec2820535"
+        },
+        "schema_sha256": "7b10d62321945ce66335a75061f7bf544b3923ce9b5210090e7ffe4f730939b5",
+        "source_sha256": "e94e3db9cb0d91325e91af4dcd34a2b82910cce00c5254f0c2d3e6a2d42a03d6"
+      },
+      {
+        "evidence_manifest_sha256": "3ca36ba0ea0cd38c800a416164e9856273d68fe1f429de2ea22a98c2f3ed2971",
+        "implementation_hashes": {
+          "src/bench/run_iterative_claim_search_replay.py": "3fbfee1a2dc6549b2e6f524d71d10a55822ab041017532f2291e02e6bc0ec69b",
+          "src/confirm/__init__.py": "2c0580ebd0804bedba91f3fe1a48818d14adadf1096da5000546c5385bfec172",
+          "src/confirm/agent.py": "ece2e86951125bcbfdfb48b6fabbd5bf0dd90fa2e36ece0c50178fa4f5bbc1ee",
+          "src/confirm/analysis.py": "5f0258803ed6a7aa747def677178ed79cc9ee65abd478946db373c0642a6b1d9",
+          "src/confirm/brainwide.py": "a71aaf182b5878a0a4ed000cd2f96046accd4cd556263eea88f1468141883354",
+          "src/confirm/candidate_preflight.py": "16d428147e2b6e57cb04dec6080dff4bbd91e80d2e9abe7d297269925a0fa5cc",
+          "src/confirm/claim_search.py": "a2ecebd7831b45e38b396eb976429b18273e7e95fadd83718e29a75e9f8066ad",
+          "src/confirm/cli.py": "688f29465dd968b20544f7b4cf2f1c04849d01e151279316664b8f59d943018a",
+          "src/confirm/contract.py": "9820e2fec0c64703867a152a60604b6c796ef2f1d8b693cd53f3456720a33d8b",
+          "src/confirm/derived_columns.py": "5f049f99398e5c64fbab16f0aaa71540057f6c2b55eec79ffb89ccb141b83acd",
+          "src/confirm/env.py": "39626d72bbc1e701e359b25547a7ce32e59e6476bc619c27c5c24395da56abc9",
+          "src/confirm/evidence_partitions.py": "a6c69d0fc38e68c25cdbb6d07310e108a4365005e981e363764cbe64f82006e4",
+          "src/confirm/excluded_evidence.py": "9c1a0cca3dfd947293f55fa057374fe211d7c9e071b31de11d945151724687aa",
+          "src/confirm/feedback.py": "91df0ab47c0d339e68c22b6207f58c352a22c72926d16572a0c117eee59da686",
+          "src/confirm/frozen_evidence.py": "faf141c1c823c0262de9837b284d87acc7216fe4a36765cb2fb495cb368b5e16",
+          "src/confirm/harmonize.py": "8ee038a86928f9ab54f54facf80e13c4d18fa2e72e039c35d0419fb125bf437d",
+          "src/confirm/llm.py": "59eb2c3e16c981251029e0f755faaa8b91bf05d500f7dbbc559d298042b43c51",
+          "src/confirm/multiverse.py": "ed2be5be3995d4f2456ae60d0dd59620eba988431828f7536c8a6c46de2ecc0d",
+          "src/confirm/power.py": "ca52d0f91f1dea35152de010dc3b2dd97b8009d15a239f9287ddc13113cf8c8a",
+          "src/confirm/proposals.py": "a175e7edd7344f1dc7d9956c7111c44af6a0e4d4cdc0200f1f00a22d6c3e9061",
+          "src/confirm/provenance.py": "73db409ab01ab2686c6280449a4e6ec7146144890083651328b92c64fdcd0608",
+          "src/confirm/replication.py": "0227c64126456296039891ab0c9f27be0e65037de0211f7af1f03f34b8e726df",
+          "src/confirm/results.py": "a4acd3278aeec1fe40375618f691beea08312eb6f296a6d49590fc1f554ab01f",
+          "src/confirm/schema.py": "5368c4d020c7a06ac588c13eeffcf2d1f23059c71fce9ee113a44f112f0f5cf7",
+          "src/confirm/verdict.py": "55171d5dd4c0f01ea2be978a84eef1cb91a0abda9ccb84b003cfa28dd92e9af0"
+        },
+        "max_candidates_per_round": 2,
+        "max_rounds": 3,
+        "partition_hashes_sha256": "c3b5a6be72397c0d9e47c34203b321e5b407db99da5d4bf30b329b5872ea477b",
+        "prompt_sha256": "2d458df69c45aa133c8008fc97fd5e794bfc391b81669a80c370179bc53e4668",
+        "provenance": {
+          "bytes": 54327,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_3/candidates_2/run_provenance.json",
+          "sha256": "ba5ed056c81147ca24cebb61e97183479dd2602b56046844b7228d04aa8df452"
+        },
+        "result": {
+          "bytes": 175564595,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_3/candidates_2/iterative_candidate_replay.json",
+          "sha256": "d07f1323324cd51d3ae79bf2c8e8330103e23f63369faec68459fc1fc0109267"
+        },
+        "schema_sha256": "7b10d62321945ce66335a75061f7bf544b3923ce9b5210090e7ffe4f730939b5",
+        "source_sha256": "e94e3db9cb0d91325e91af4dcd34a2b82910cce00c5254f0c2d3e6a2d42a03d6"
+      },
+      {
+        "evidence_manifest_sha256": "3ca36ba0ea0cd38c800a416164e9856273d68fe1f429de2ea22a98c2f3ed2971",
+        "implementation_hashes": {
+          "src/bench/run_iterative_claim_search_replay.py": "3fbfee1a2dc6549b2e6f524d71d10a55822ab041017532f2291e02e6bc0ec69b",
+          "src/confirm/__init__.py": "2c0580ebd0804bedba91f3fe1a48818d14adadf1096da5000546c5385bfec172",
+          "src/confirm/agent.py": "ece2e86951125bcbfdfb48b6fabbd5bf0dd90fa2e36ece0c50178fa4f5bbc1ee",
+          "src/confirm/analysis.py": "5f0258803ed6a7aa747def677178ed79cc9ee65abd478946db373c0642a6b1d9",
+          "src/confirm/brainwide.py": "a71aaf182b5878a0a4ed000cd2f96046accd4cd556263eea88f1468141883354",
+          "src/confirm/candidate_preflight.py": "16d428147e2b6e57cb04dec6080dff4bbd91e80d2e9abe7d297269925a0fa5cc",
+          "src/confirm/claim_search.py": "a2ecebd7831b45e38b396eb976429b18273e7e95fadd83718e29a75e9f8066ad",
+          "src/confirm/cli.py": "688f29465dd968b20544f7b4cf2f1c04849d01e151279316664b8f59d943018a",
+          "src/confirm/contract.py": "9820e2fec0c64703867a152a60604b6c796ef2f1d8b693cd53f3456720a33d8b",
+          "src/confirm/derived_columns.py": "5f049f99398e5c64fbab16f0aaa71540057f6c2b55eec79ffb89ccb141b83acd",
+          "src/confirm/env.py": "39626d72bbc1e701e359b25547a7ce32e59e6476bc619c27c5c24395da56abc9",
+          "src/confirm/evidence_partitions.py": "a6c69d0fc38e68c25cdbb6d07310e108a4365005e981e363764cbe64f82006e4",
+          "src/confirm/excluded_evidence.py": "9c1a0cca3dfd947293f55fa057374fe211d7c9e071b31de11d945151724687aa",
+          "src/confirm/feedback.py": "91df0ab47c0d339e68c22b6207f58c352a22c72926d16572a0c117eee59da686",
+          "src/confirm/frozen_evidence.py": "faf141c1c823c0262de9837b284d87acc7216fe4a36765cb2fb495cb368b5e16",
+          "src/confirm/harmonize.py": "8ee038a86928f9ab54f54facf80e13c4d18fa2e72e039c35d0419fb125bf437d",
+          "src/confirm/llm.py": "59eb2c3e16c981251029e0f755faaa8b91bf05d500f7dbbc559d298042b43c51",
+          "src/confirm/multiverse.py": "ed2be5be3995d4f2456ae60d0dd59620eba988431828f7536c8a6c46de2ecc0d",
+          "src/confirm/power.py": "ca52d0f91f1dea35152de010dc3b2dd97b8009d15a239f9287ddc13113cf8c8a",
+          "src/confirm/proposals.py": "a175e7edd7344f1dc7d9956c7111c44af6a0e4d4cdc0200f1f00a22d6c3e9061",
+          "src/confirm/provenance.py": "73db409ab01ab2686c6280449a4e6ec7146144890083651328b92c64fdcd0608",
+          "src/confirm/replication.py": "0227c64126456296039891ab0c9f27be0e65037de0211f7af1f03f34b8e726df",
+          "src/confirm/results.py": "a4acd3278aeec1fe40375618f691beea08312eb6f296a6d49590fc1f554ab01f",
+          "src/confirm/schema.py": "5368c4d020c7a06ac588c13eeffcf2d1f23059c71fce9ee113a44f112f0f5cf7",
+          "src/confirm/verdict.py": "55171d5dd4c0f01ea2be978a84eef1cb91a0abda9ccb84b003cfa28dd92e9af0"
+        },
+        "max_candidates_per_round": 5,
+        "max_rounds": 3,
+        "partition_hashes_sha256": "c3b5a6be72397c0d9e47c34203b321e5b407db99da5d4bf30b329b5872ea477b",
+        "prompt_sha256": "2d458df69c45aa133c8008fc97fd5e794bfc391b81669a80c370179bc53e4668",
+        "provenance": {
+          "bytes": 54327,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_3/candidates_5/run_provenance.json",
+          "sha256": "f64a381747e905d9bb8f8e879dbb553282645479a480d9bc03d06253db9e8cb5"
+        },
+        "result": {
+          "bytes": 354120640,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_3/candidates_5/iterative_candidate_replay.json",
+          "sha256": "175c741132a2a9da9580a7ba877597ff18ab1a2397a6c39bfdbe11a6d9c85a2f"
+        },
+        "schema_sha256": "7b10d62321945ce66335a75061f7bf544b3923ce9b5210090e7ffe4f730939b5",
+        "source_sha256": "e94e3db9cb0d91325e91af4dcd34a2b82910cce00c5254f0c2d3e6a2d42a03d6"
+      },
+      {
+        "evidence_manifest_sha256": "3ca36ba0ea0cd38c800a416164e9856273d68fe1f429de2ea22a98c2f3ed2971",
+        "implementation_hashes": {
+          "src/bench/run_iterative_claim_search_replay.py": "3fbfee1a2dc6549b2e6f524d71d10a55822ab041017532f2291e02e6bc0ec69b",
+          "src/confirm/__init__.py": "2c0580ebd0804bedba91f3fe1a48818d14adadf1096da5000546c5385bfec172",
+          "src/confirm/agent.py": "ece2e86951125bcbfdfb48b6fabbd5bf0dd90fa2e36ece0c50178fa4f5bbc1ee",
+          "src/confirm/analysis.py": "5f0258803ed6a7aa747def677178ed79cc9ee65abd478946db373c0642a6b1d9",
+          "src/confirm/brainwide.py": "a71aaf182b5878a0a4ed000cd2f96046accd4cd556263eea88f1468141883354",
+          "src/confirm/candidate_preflight.py": "16d428147e2b6e57cb04dec6080dff4bbd91e80d2e9abe7d297269925a0fa5cc",
+          "src/confirm/claim_search.py": "a2ecebd7831b45e38b396eb976429b18273e7e95fadd83718e29a75e9f8066ad",
+          "src/confirm/cli.py": "688f29465dd968b20544f7b4cf2f1c04849d01e151279316664b8f59d943018a",
+          "src/confirm/contract.py": "9820e2fec0c64703867a152a60604b6c796ef2f1d8b693cd53f3456720a33d8b",
+          "src/confirm/derived_columns.py": "5f049f99398e5c64fbab16f0aaa71540057f6c2b55eec79ffb89ccb141b83acd",
+          "src/confirm/env.py": "39626d72bbc1e701e359b25547a7ce32e59e6476bc619c27c5c24395da56abc9",
+          "src/confirm/evidence_partitions.py": "a6c69d0fc38e68c25cdbb6d07310e108a4365005e981e363764cbe64f82006e4",
+          "src/confirm/excluded_evidence.py": "9c1a0cca3dfd947293f55fa057374fe211d7c9e071b31de11d945151724687aa",
+          "src/confirm/feedback.py": "91df0ab47c0d339e68c22b6207f58c352a22c72926d16572a0c117eee59da686",
+          "src/confirm/frozen_evidence.py": "faf141c1c823c0262de9837b284d87acc7216fe4a36765cb2fb495cb368b5e16",
+          "src/confirm/harmonize.py": "8ee038a86928f9ab54f54facf80e13c4d18fa2e72e039c35d0419fb125bf437d",
+          "src/confirm/llm.py": "59eb2c3e16c981251029e0f755faaa8b91bf05d500f7dbbc559d298042b43c51",
+          "src/confirm/multiverse.py": "ed2be5be3995d4f2456ae60d0dd59620eba988431828f7536c8a6c46de2ecc0d",
+          "src/confirm/power.py": "ca52d0f91f1dea35152de010dc3b2dd97b8009d15a239f9287ddc13113cf8c8a",
+          "src/confirm/proposals.py": "a175e7edd7344f1dc7d9956c7111c44af6a0e4d4cdc0200f1f00a22d6c3e9061",
+          "src/confirm/provenance.py": "73db409ab01ab2686c6280449a4e6ec7146144890083651328b92c64fdcd0608",
+          "src/confirm/replication.py": "0227c64126456296039891ab0c9f27be0e65037de0211f7af1f03f34b8e726df",
+          "src/confirm/results.py": "a4acd3278aeec1fe40375618f691beea08312eb6f296a6d49590fc1f554ab01f",
+          "src/confirm/schema.py": "5368c4d020c7a06ac588c13eeffcf2d1f23059c71fce9ee113a44f112f0f5cf7",
+          "src/confirm/verdict.py": "55171d5dd4c0f01ea2be978a84eef1cb91a0abda9ccb84b003cfa28dd92e9af0"
+        },
+        "max_candidates_per_round": 10,
+        "max_rounds": 3,
+        "partition_hashes_sha256": "c3b5a6be72397c0d9e47c34203b321e5b407db99da5d4bf30b329b5872ea477b",
+        "prompt_sha256": "2d458df69c45aa133c8008fc97fd5e794bfc391b81669a80c370179bc53e4668",
+        "provenance": {
+          "bytes": 54331,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_3/candidates_10/run_provenance.json",
+          "sha256": "011134b9a58ee19e6cef75bea7c8a62c8ddfd957913c005169161d57f8d77318"
+        },
+        "result": {
+          "bytes": 608624016,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_3/candidates_10/iterative_candidate_replay.json",
+          "sha256": "a5d2d1d6331b2825fe0672edd04b4112ede8dbd919da805ccfc147a62d12a6c8"
+        },
+        "schema_sha256": "7b10d62321945ce66335a75061f7bf544b3923ce9b5210090e7ffe4f730939b5",
+        "source_sha256": "e94e3db9cb0d91325e91af4dcd34a2b82910cce00c5254f0c2d3e6a2d42a03d6"
+      },
+      {
+        "evidence_manifest_sha256": "3ca36ba0ea0cd38c800a416164e9856273d68fe1f429de2ea22a98c2f3ed2971",
+        "implementation_hashes": {
+          "src/bench/run_iterative_claim_search_replay.py": "3fbfee1a2dc6549b2e6f524d71d10a55822ab041017532f2291e02e6bc0ec69b",
+          "src/confirm/__init__.py": "2c0580ebd0804bedba91f3fe1a48818d14adadf1096da5000546c5385bfec172",
+          "src/confirm/agent.py": "ece2e86951125bcbfdfb48b6fabbd5bf0dd90fa2e36ece0c50178fa4f5bbc1ee",
+          "src/confirm/analysis.py": "5f0258803ed6a7aa747def677178ed79cc9ee65abd478946db373c0642a6b1d9",
+          "src/confirm/brainwide.py": "a71aaf182b5878a0a4ed000cd2f96046accd4cd556263eea88f1468141883354",
+          "src/confirm/candidate_preflight.py": "16d428147e2b6e57cb04dec6080dff4bbd91e80d2e9abe7d297269925a0fa5cc",
+          "src/confirm/claim_search.py": "a2ecebd7831b45e38b396eb976429b18273e7e95fadd83718e29a75e9f8066ad",
+          "src/confirm/cli.py": "688f29465dd968b20544f7b4cf2f1c04849d01e151279316664b8f59d943018a",
+          "src/confirm/contract.py": "9820e2fec0c64703867a152a60604b6c796ef2f1d8b693cd53f3456720a33d8b",
+          "src/confirm/derived_columns.py": "5f049f99398e5c64fbab16f0aaa71540057f6c2b55eec79ffb89ccb141b83acd",
+          "src/confirm/env.py": "39626d72bbc1e701e359b25547a7ce32e59e6476bc619c27c5c24395da56abc9",
+          "src/confirm/evidence_partitions.py": "a6c69d0fc38e68c25cdbb6d07310e108a4365005e981e363764cbe64f82006e4",
+          "src/confirm/excluded_evidence.py": "9c1a0cca3dfd947293f55fa057374fe211d7c9e071b31de11d945151724687aa",
+          "src/confirm/feedback.py": "91df0ab47c0d339e68c22b6207f58c352a22c72926d16572a0c117eee59da686",
+          "src/confirm/frozen_evidence.py": "faf141c1c823c0262de9837b284d87acc7216fe4a36765cb2fb495cb368b5e16",
+          "src/confirm/harmonize.py": "8ee038a86928f9ab54f54facf80e13c4d18fa2e72e039c35d0419fb125bf437d",
+          "src/confirm/llm.py": "59eb2c3e16c981251029e0f755faaa8b91bf05d500f7dbbc559d298042b43c51",
+          "src/confirm/multiverse.py": "ed2be5be3995d4f2456ae60d0dd59620eba988431828f7536c8a6c46de2ecc0d",
+          "src/confirm/power.py": "ca52d0f91f1dea35152de010dc3b2dd97b8009d15a239f9287ddc13113cf8c8a",
+          "src/confirm/proposals.py": "a175e7edd7344f1dc7d9956c7111c44af6a0e4d4cdc0200f1f00a22d6c3e9061",
+          "src/confirm/provenance.py": "73db409ab01ab2686c6280449a4e6ec7146144890083651328b92c64fdcd0608",
+          "src/confirm/replication.py": "0227c64126456296039891ab0c9f27be0e65037de0211f7af1f03f34b8e726df",
+          "src/confirm/results.py": "a4acd3278aeec1fe40375618f691beea08312eb6f296a6d49590fc1f554ab01f",
+          "src/confirm/schema.py": "5368c4d020c7a06ac588c13eeffcf2d1f23059c71fce9ee113a44f112f0f5cf7",
+          "src/confirm/verdict.py": "55171d5dd4c0f01ea2be978a84eef1cb91a0abda9ccb84b003cfa28dd92e9af0"
+        },
+        "max_candidates_per_round": 2,
+        "max_rounds": 5,
+        "partition_hashes_sha256": "c3b5a6be72397c0d9e47c34203b321e5b407db99da5d4bf30b329b5872ea477b",
+        "prompt_sha256": "2d458df69c45aa133c8008fc97fd5e794bfc391b81669a80c370179bc53e4668",
+        "provenance": {
+          "bytes": 54328,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_5/candidates_2/run_provenance.json",
+          "sha256": "9dfe6c6586de5273e1a1638fe043c99954695c53f51a2837fb866cfc76ff62cb"
+        },
+        "result": {
+          "bytes": 298067701,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_5/candidates_2/iterative_candidate_replay.json",
+          "sha256": "c23d8b4f486b034a2eb1e329867814dffd46b1dce55d0cedf7b255a960451596"
+        },
+        "schema_sha256": "7b10d62321945ce66335a75061f7bf544b3923ce9b5210090e7ffe4f730939b5",
+        "source_sha256": "e94e3db9cb0d91325e91af4dcd34a2b82910cce00c5254f0c2d3e6a2d42a03d6"
+      },
+      {
+        "evidence_manifest_sha256": "3ca36ba0ea0cd38c800a416164e9856273d68fe1f429de2ea22a98c2f3ed2971",
+        "implementation_hashes": {
+          "src/bench/run_iterative_claim_search_replay.py": "3fbfee1a2dc6549b2e6f524d71d10a55822ab041017532f2291e02e6bc0ec69b",
+          "src/confirm/__init__.py": "2c0580ebd0804bedba91f3fe1a48818d14adadf1096da5000546c5385bfec172",
+          "src/confirm/agent.py": "ece2e86951125bcbfdfb48b6fabbd5bf0dd90fa2e36ece0c50178fa4f5bbc1ee",
+          "src/confirm/analysis.py": "5f0258803ed6a7aa747def677178ed79cc9ee65abd478946db373c0642a6b1d9",
+          "src/confirm/brainwide.py": "a71aaf182b5878a0a4ed000cd2f96046accd4cd556263eea88f1468141883354",
+          "src/confirm/candidate_preflight.py": "16d428147e2b6e57cb04dec6080dff4bbd91e80d2e9abe7d297269925a0fa5cc",
+          "src/confirm/claim_search.py": "a2ecebd7831b45e38b396eb976429b18273e7e95fadd83718e29a75e9f8066ad",
+          "src/confirm/cli.py": "688f29465dd968b20544f7b4cf2f1c04849d01e151279316664b8f59d943018a",
+          "src/confirm/contract.py": "9820e2fec0c64703867a152a60604b6c796ef2f1d8b693cd53f3456720a33d8b",
+          "src/confirm/derived_columns.py": "5f049f99398e5c64fbab16f0aaa71540057f6c2b55eec79ffb89ccb141b83acd",
+          "src/confirm/env.py": "39626d72bbc1e701e359b25547a7ce32e59e6476bc619c27c5c24395da56abc9",
+          "src/confirm/evidence_partitions.py": "a6c69d0fc38e68c25cdbb6d07310e108a4365005e981e363764cbe64f82006e4",
+          "src/confirm/excluded_evidence.py": "9c1a0cca3dfd947293f55fa057374fe211d7c9e071b31de11d945151724687aa",
+          "src/confirm/feedback.py": "91df0ab47c0d339e68c22b6207f58c352a22c72926d16572a0c117eee59da686",
+          "src/confirm/frozen_evidence.py": "faf141c1c823c0262de9837b284d87acc7216fe4a36765cb2fb495cb368b5e16",
+          "src/confirm/harmonize.py": "8ee038a86928f9ab54f54facf80e13c4d18fa2e72e039c35d0419fb125bf437d",
+          "src/confirm/llm.py": "59eb2c3e16c981251029e0f755faaa8b91bf05d500f7dbbc559d298042b43c51",
+          "src/confirm/multiverse.py": "ed2be5be3995d4f2456ae60d0dd59620eba988431828f7536c8a6c46de2ecc0d",
+          "src/confirm/power.py": "ca52d0f91f1dea35152de010dc3b2dd97b8009d15a239f9287ddc13113cf8c8a",
+          "src/confirm/proposals.py": "a175e7edd7344f1dc7d9956c7111c44af6a0e4d4cdc0200f1f00a22d6c3e9061",
+          "src/confirm/provenance.py": "73db409ab01ab2686c6280449a4e6ec7146144890083651328b92c64fdcd0608",
+          "src/confirm/replication.py": "0227c64126456296039891ab0c9f27be0e65037de0211f7af1f03f34b8e726df",
+          "src/confirm/results.py": "a4acd3278aeec1fe40375618f691beea08312eb6f296a6d49590fc1f554ab01f",
+          "src/confirm/schema.py": "5368c4d020c7a06ac588c13eeffcf2d1f23059c71fce9ee113a44f112f0f5cf7",
+          "src/confirm/verdict.py": "55171d5dd4c0f01ea2be978a84eef1cb91a0abda9ccb84b003cfa28dd92e9af0"
+        },
+        "max_candidates_per_round": 5,
+        "max_rounds": 5,
+        "partition_hashes_sha256": "c3b5a6be72397c0d9e47c34203b321e5b407db99da5d4bf30b329b5872ea477b",
+        "prompt_sha256": "2d458df69c45aa133c8008fc97fd5e794bfc391b81669a80c370179bc53e4668",
+        "provenance": {
+          "bytes": 54328,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_5/candidates_5/run_provenance.json",
+          "sha256": "09825c56ca0aedbd6f6d8886b4146c115f47b68280b5c8ad665bcedf16efb2fd"
+        },
+        "result": {
+          "bytes": 600749959,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_5/candidates_5/iterative_candidate_replay.json",
+          "sha256": "21401795f7dfb265d4984212b7f0c6c608332383acb01693a9ac73f12c18c704"
+        },
+        "schema_sha256": "7b10d62321945ce66335a75061f7bf544b3923ce9b5210090e7ffe4f730939b5",
+        "source_sha256": "e94e3db9cb0d91325e91af4dcd34a2b82910cce00c5254f0c2d3e6a2d42a03d6"
+      },
+      {
+        "evidence_manifest_sha256": "3ca36ba0ea0cd38c800a416164e9856273d68fe1f429de2ea22a98c2f3ed2971",
+        "implementation_hashes": {
+          "src/bench/run_iterative_claim_search_replay.py": "3fbfee1a2dc6549b2e6f524d71d10a55822ab041017532f2291e02e6bc0ec69b",
+          "src/confirm/__init__.py": "2c0580ebd0804bedba91f3fe1a48818d14adadf1096da5000546c5385bfec172",
+          "src/confirm/agent.py": "ece2e86951125bcbfdfb48b6fabbd5bf0dd90fa2e36ece0c50178fa4f5bbc1ee",
+          "src/confirm/analysis.py": "5f0258803ed6a7aa747def677178ed79cc9ee65abd478946db373c0642a6b1d9",
+          "src/confirm/brainwide.py": "a71aaf182b5878a0a4ed000cd2f96046accd4cd556263eea88f1468141883354",
+          "src/confirm/candidate_preflight.py": "16d428147e2b6e57cb04dec6080dff4bbd91e80d2e9abe7d297269925a0fa5cc",
+          "src/confirm/claim_search.py": "a2ecebd7831b45e38b396eb976429b18273e7e95fadd83718e29a75e9f8066ad",
+          "src/confirm/cli.py": "688f29465dd968b20544f7b4cf2f1c04849d01e151279316664b8f59d943018a",
+          "src/confirm/contract.py": "9820e2fec0c64703867a152a60604b6c796ef2f1d8b693cd53f3456720a33d8b",
+          "src/confirm/derived_columns.py": "5f049f99398e5c64fbab16f0aaa71540057f6c2b55eec79ffb89ccb141b83acd",
+          "src/confirm/env.py": "39626d72bbc1e701e359b25547a7ce32e59e6476bc619c27c5c24395da56abc9",
+          "src/confirm/evidence_partitions.py": "a6c69d0fc38e68c25cdbb6d07310e108a4365005e981e363764cbe64f82006e4",
+          "src/confirm/excluded_evidence.py": "9c1a0cca3dfd947293f55fa057374fe211d7c9e071b31de11d945151724687aa",
+          "src/confirm/feedback.py": "91df0ab47c0d339e68c22b6207f58c352a22c72926d16572a0c117eee59da686",
+          "src/confirm/frozen_evidence.py": "faf141c1c823c0262de9837b284d87acc7216fe4a36765cb2fb495cb368b5e16",
+          "src/confirm/harmonize.py": "8ee038a86928f9ab54f54facf80e13c4d18fa2e72e039c35d0419fb125bf437d",
+          "src/confirm/llm.py": "59eb2c3e16c981251029e0f755faaa8b91bf05d500f7dbbc559d298042b43c51",
+          "src/confirm/multiverse.py": "ed2be5be3995d4f2456ae60d0dd59620eba988431828f7536c8a6c46de2ecc0d",
+          "src/confirm/power.py": "ca52d0f91f1dea35152de010dc3b2dd97b8009d15a239f9287ddc13113cf8c8a",
+          "src/confirm/proposals.py": "a175e7edd7344f1dc7d9956c7111c44af6a0e4d4cdc0200f1f00a22d6c3e9061",
+          "src/confirm/provenance.py": "73db409ab01ab2686c6280449a4e6ec7146144890083651328b92c64fdcd0608",
+          "src/confirm/replication.py": "0227c64126456296039891ab0c9f27be0e65037de0211f7af1f03f34b8e726df",
+          "src/confirm/results.py": "a4acd3278aeec1fe40375618f691beea08312eb6f296a6d49590fc1f554ab01f",
+          "src/confirm/schema.py": "5368c4d020c7a06ac588c13eeffcf2d1f23059c71fce9ee113a44f112f0f5cf7",
+          "src/confirm/verdict.py": "55171d5dd4c0f01ea2be978a84eef1cb91a0abda9ccb84b003cfa28dd92e9af0"
+        },
+        "max_candidates_per_round": 10,
+        "max_rounds": 5,
+        "partition_hashes_sha256": "c3b5a6be72397c0d9e47c34203b321e5b407db99da5d4bf30b329b5872ea477b",
+        "prompt_sha256": "2d458df69c45aa133c8008fc97fd5e794bfc391b81669a80c370179bc53e4668",
+        "provenance": {
+          "bytes": 54332,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_5/candidates_10/run_provenance.json",
+          "sha256": "77d44152d7722429dc3e1948e6a420a3ba3c29d50496e1ee10b538ecf19cb564"
+        },
+        "result": {
+          "bytes": 1041802805,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_5/candidates_10/iterative_candidate_replay.json",
+          "sha256": "f5c95197214962f0eb4a9d319b58456d2b178bcadecb473fb264993e41f907b2"
+        },
+        "schema_sha256": "7b10d62321945ce66335a75061f7bf544b3923ce9b5210090e7ffe4f730939b5",
+        "source_sha256": "e94e3db9cb0d91325e91af4dcd34a2b82910cce00c5254f0c2d3e6a2d42a03d6"
+      },
+      {
+        "evidence_manifest_sha256": "3ca36ba0ea0cd38c800a416164e9856273d68fe1f429de2ea22a98c2f3ed2971",
+        "implementation_hashes": {
+          "src/bench/run_iterative_claim_search_replay.py": "3fbfee1a2dc6549b2e6f524d71d10a55822ab041017532f2291e02e6bc0ec69b",
+          "src/confirm/__init__.py": "2c0580ebd0804bedba91f3fe1a48818d14adadf1096da5000546c5385bfec172",
+          "src/confirm/agent.py": "ece2e86951125bcbfdfb48b6fabbd5bf0dd90fa2e36ece0c50178fa4f5bbc1ee",
+          "src/confirm/analysis.py": "5f0258803ed6a7aa747def677178ed79cc9ee65abd478946db373c0642a6b1d9",
+          "src/confirm/brainwide.py": "a71aaf182b5878a0a4ed000cd2f96046accd4cd556263eea88f1468141883354",
+          "src/confirm/candidate_preflight.py": "16d428147e2b6e57cb04dec6080dff4bbd91e80d2e9abe7d297269925a0fa5cc",
+          "src/confirm/claim_search.py": "a2ecebd7831b45e38b396eb976429b18273e7e95fadd83718e29a75e9f8066ad",
+          "src/confirm/cli.py": "688f29465dd968b20544f7b4cf2f1c04849d01e151279316664b8f59d943018a",
+          "src/confirm/contract.py": "9820e2fec0c64703867a152a60604b6c796ef2f1d8b693cd53f3456720a33d8b",
+          "src/confirm/derived_columns.py": "5f049f99398e5c64fbab16f0aaa71540057f6c2b55eec79ffb89ccb141b83acd",
+          "src/confirm/env.py": "39626d72bbc1e701e359b25547a7ce32e59e6476bc619c27c5c24395da56abc9",
+          "src/confirm/evidence_partitions.py": "a6c69d0fc38e68c25cdbb6d07310e108a4365005e981e363764cbe64f82006e4",
+          "src/confirm/excluded_evidence.py": "9c1a0cca3dfd947293f55fa057374fe211d7c9e071b31de11d945151724687aa",
+          "src/confirm/feedback.py": "91df0ab47c0d339e68c22b6207f58c352a22c72926d16572a0c117eee59da686",
+          "src/confirm/frozen_evidence.py": "faf141c1c823c0262de9837b284d87acc7216fe4a36765cb2fb495cb368b5e16",
+          "src/confirm/harmonize.py": "8ee038a86928f9ab54f54facf80e13c4d18fa2e72e039c35d0419fb125bf437d",
+          "src/confirm/llm.py": "59eb2c3e16c981251029e0f755faaa8b91bf05d500f7dbbc559d298042b43c51",
+          "src/confirm/multiverse.py": "ed2be5be3995d4f2456ae60d0dd59620eba988431828f7536c8a6c46de2ecc0d",
+          "src/confirm/power.py": "ca52d0f91f1dea35152de010dc3b2dd97b8009d15a239f9287ddc13113cf8c8a",
+          "src/confirm/proposals.py": "a175e7edd7344f1dc7d9956c7111c44af6a0e4d4cdc0200f1f00a22d6c3e9061",
+          "src/confirm/provenance.py": "73db409ab01ab2686c6280449a4e6ec7146144890083651328b92c64fdcd0608",
+          "src/confirm/replication.py": "0227c64126456296039891ab0c9f27be0e65037de0211f7af1f03f34b8e726df",
+          "src/confirm/results.py": "a4acd3278aeec1fe40375618f691beea08312eb6f296a6d49590fc1f554ab01f",
+          "src/confirm/schema.py": "5368c4d020c7a06ac588c13eeffcf2d1f23059c71fce9ee113a44f112f0f5cf7",
+          "src/confirm/verdict.py": "55171d5dd4c0f01ea2be978a84eef1cb91a0abda9ccb84b003cfa28dd92e9af0"
+        },
+        "max_candidates_per_round": 2,
+        "max_rounds": 10,
+        "partition_hashes_sha256": "c3b5a6be72397c0d9e47c34203b321e5b407db99da5d4bf30b329b5872ea477b",
+        "prompt_sha256": "2d458df69c45aa133c8008fc97fd5e794bfc391b81669a80c370179bc53e4668",
+        "provenance": {
+          "bytes": 54332,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_10/candidates_2/run_provenance.json",
+          "sha256": "ca3672feeb7f91069156de87b7fc5032f05d4335241a1af445aa5f5f5e5e5956"
+        },
+        "result": {
+          "bytes": 648682622,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_10/candidates_2/iterative_candidate_replay.json",
+          "sha256": "a234dd2d8b7eefed06db1b4d9838a74025a04ad7dcfb134f0a7be3c8b7aff6b1"
+        },
+        "schema_sha256": "7b10d62321945ce66335a75061f7bf544b3923ce9b5210090e7ffe4f730939b5",
+        "source_sha256": "e94e3db9cb0d91325e91af4dcd34a2b82910cce00c5254f0c2d3e6a2d42a03d6"
+      },
+      {
+        "evidence_manifest_sha256": "3ca36ba0ea0cd38c800a416164e9856273d68fe1f429de2ea22a98c2f3ed2971",
+        "implementation_hashes": {
+          "src/bench/run_iterative_claim_search_replay.py": "3fbfee1a2dc6549b2e6f524d71d10a55822ab041017532f2291e02e6bc0ec69b",
+          "src/confirm/__init__.py": "2c0580ebd0804bedba91f3fe1a48818d14adadf1096da5000546c5385bfec172",
+          "src/confirm/agent.py": "ece2e86951125bcbfdfb48b6fabbd5bf0dd90fa2e36ece0c50178fa4f5bbc1ee",
+          "src/confirm/analysis.py": "5f0258803ed6a7aa747def677178ed79cc9ee65abd478946db373c0642a6b1d9",
+          "src/confirm/brainwide.py": "a71aaf182b5878a0a4ed000cd2f96046accd4cd556263eea88f1468141883354",
+          "src/confirm/candidate_preflight.py": "16d428147e2b6e57cb04dec6080dff4bbd91e80d2e9abe7d297269925a0fa5cc",
+          "src/confirm/claim_search.py": "a2ecebd7831b45e38b396eb976429b18273e7e95fadd83718e29a75e9f8066ad",
+          "src/confirm/cli.py": "688f29465dd968b20544f7b4cf2f1c04849d01e151279316664b8f59d943018a",
+          "src/confirm/contract.py": "9820e2fec0c64703867a152a60604b6c796ef2f1d8b693cd53f3456720a33d8b",
+          "src/confirm/derived_columns.py": "5f049f99398e5c64fbab16f0aaa71540057f6c2b55eec79ffb89ccb141b83acd",
+          "src/confirm/env.py": "39626d72bbc1e701e359b25547a7ce32e59e6476bc619c27c5c24395da56abc9",
+          "src/confirm/evidence_partitions.py": "a6c69d0fc38e68c25cdbb6d07310e108a4365005e981e363764cbe64f82006e4",
+          "src/confirm/excluded_evidence.py": "9c1a0cca3dfd947293f55fa057374fe211d7c9e071b31de11d945151724687aa",
+          "src/confirm/feedback.py": "91df0ab47c0d339e68c22b6207f58c352a22c72926d16572a0c117eee59da686",
+          "src/confirm/frozen_evidence.py": "faf141c1c823c0262de9837b284d87acc7216fe4a36765cb2fb495cb368b5e16",
+          "src/confirm/harmonize.py": "8ee038a86928f9ab54f54facf80e13c4d18fa2e72e039c35d0419fb125bf437d",
+          "src/confirm/llm.py": "59eb2c3e16c981251029e0f755faaa8b91bf05d500f7dbbc559d298042b43c51",
+          "src/confirm/multiverse.py": "ed2be5be3995d4f2456ae60d0dd59620eba988431828f7536c8a6c46de2ecc0d",
+          "src/confirm/power.py": "ca52d0f91f1dea35152de010dc3b2dd97b8009d15a239f9287ddc13113cf8c8a",
+          "src/confirm/proposals.py": "a175e7edd7344f1dc7d9956c7111c44af6a0e4d4cdc0200f1f00a22d6c3e9061",
+          "src/confirm/provenance.py": "73db409ab01ab2686c6280449a4e6ec7146144890083651328b92c64fdcd0608",
+          "src/confirm/replication.py": "0227c64126456296039891ab0c9f27be0e65037de0211f7af1f03f34b8e726df",
+          "src/confirm/results.py": "a4acd3278aeec1fe40375618f691beea08312eb6f296a6d49590fc1f554ab01f",
+          "src/confirm/schema.py": "5368c4d020c7a06ac588c13eeffcf2d1f23059c71fce9ee113a44f112f0f5cf7",
+          "src/confirm/verdict.py": "55171d5dd4c0f01ea2be978a84eef1cb91a0abda9ccb84b003cfa28dd92e9af0"
+        },
+        "max_candidates_per_round": 5,
+        "max_rounds": 10,
+        "partition_hashes_sha256": "c3b5a6be72397c0d9e47c34203b321e5b407db99da5d4bf30b329b5872ea477b",
+        "prompt_sha256": "2d458df69c45aa133c8008fc97fd5e794bfc391b81669a80c370179bc53e4668",
+        "provenance": {
+          "bytes": 54332,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_10/candidates_5/run_provenance.json",
+          "sha256": "9cbdcfa880ebfa671c9a2b50fe6e1b4e8dc6a9a0b07f8fac0c229fa296055d5b"
+        },
+        "result": {
+          "bytes": 1275578409,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_10/candidates_5/iterative_candidate_replay.json",
+          "sha256": "875caf3d915558e8e4aeea8f8f5cf126541d26150610625f3c47686d816deacb"
+        },
+        "schema_sha256": "7b10d62321945ce66335a75061f7bf544b3923ce9b5210090e7ffe4f730939b5",
+        "source_sha256": "e94e3db9cb0d91325e91af4dcd34a2b82910cce00c5254f0c2d3e6a2d42a03d6"
+      },
+      {
+        "evidence_manifest_sha256": "3ca36ba0ea0cd38c800a416164e9856273d68fe1f429de2ea22a98c2f3ed2971",
+        "implementation_hashes": {
+          "src/bench/run_iterative_claim_search_replay.py": "3fbfee1a2dc6549b2e6f524d71d10a55822ab041017532f2291e02e6bc0ec69b",
+          "src/confirm/__init__.py": "2c0580ebd0804bedba91f3fe1a48818d14adadf1096da5000546c5385bfec172",
+          "src/confirm/agent.py": "ece2e86951125bcbfdfb48b6fabbd5bf0dd90fa2e36ece0c50178fa4f5bbc1ee",
+          "src/confirm/analysis.py": "5f0258803ed6a7aa747def677178ed79cc9ee65abd478946db373c0642a6b1d9",
+          "src/confirm/brainwide.py": "a71aaf182b5878a0a4ed000cd2f96046accd4cd556263eea88f1468141883354",
+          "src/confirm/candidate_preflight.py": "16d428147e2b6e57cb04dec6080dff4bbd91e80d2e9abe7d297269925a0fa5cc",
+          "src/confirm/claim_search.py": "a2ecebd7831b45e38b396eb976429b18273e7e95fadd83718e29a75e9f8066ad",
+          "src/confirm/cli.py": "688f29465dd968b20544f7b4cf2f1c04849d01e151279316664b8f59d943018a",
+          "src/confirm/contract.py": "9820e2fec0c64703867a152a60604b6c796ef2f1d8b693cd53f3456720a33d8b",
+          "src/confirm/derived_columns.py": "5f049f99398e5c64fbab16f0aaa71540057f6c2b55eec79ffb89ccb141b83acd",
+          "src/confirm/env.py": "39626d72bbc1e701e359b25547a7ce32e59e6476bc619c27c5c24395da56abc9",
+          "src/confirm/evidence_partitions.py": "a6c69d0fc38e68c25cdbb6d07310e108a4365005e981e363764cbe64f82006e4",
+          "src/confirm/excluded_evidence.py": "9c1a0cca3dfd947293f55fa057374fe211d7c9e071b31de11d945151724687aa",
+          "src/confirm/feedback.py": "91df0ab47c0d339e68c22b6207f58c352a22c72926d16572a0c117eee59da686",
+          "src/confirm/frozen_evidence.py": "faf141c1c823c0262de9837b284d87acc7216fe4a36765cb2fb495cb368b5e16",
+          "src/confirm/harmonize.py": "8ee038a86928f9ab54f54facf80e13c4d18fa2e72e039c35d0419fb125bf437d",
+          "src/confirm/llm.py": "59eb2c3e16c981251029e0f755faaa8b91bf05d500f7dbbc559d298042b43c51",
+          "src/confirm/multiverse.py": "ed2be5be3995d4f2456ae60d0dd59620eba988431828f7536c8a6c46de2ecc0d",
+          "src/confirm/power.py": "ca52d0f91f1dea35152de010dc3b2dd97b8009d15a239f9287ddc13113cf8c8a",
+          "src/confirm/proposals.py": "a175e7edd7344f1dc7d9956c7111c44af6a0e4d4cdc0200f1f00a22d6c3e9061",
+          "src/confirm/provenance.py": "73db409ab01ab2686c6280449a4e6ec7146144890083651328b92c64fdcd0608",
+          "src/confirm/replication.py": "0227c64126456296039891ab0c9f27be0e65037de0211f7af1f03f34b8e726df",
+          "src/confirm/results.py": "a4acd3278aeec1fe40375618f691beea08312eb6f296a6d49590fc1f554ab01f",
+          "src/confirm/schema.py": "5368c4d020c7a06ac588c13eeffcf2d1f23059c71fce9ee113a44f112f0f5cf7",
+          "src/confirm/verdict.py": "55171d5dd4c0f01ea2be978a84eef1cb91a0abda9ccb84b003cfa28dd92e9af0"
+        },
+        "max_candidates_per_round": 10,
+        "max_rounds": 10,
+        "partition_hashes_sha256": "c3b5a6be72397c0d9e47c34203b321e5b407db99da5d4bf30b329b5872ea477b",
+        "prompt_sha256": "2d458df69c45aa133c8008fc97fd5e794bfc391b81669a80c370179bc53e4668",
+        "provenance": {
+          "bytes": 54336,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_10/candidates_10/run_provenance.json",
+          "sha256": "5ca237ed104d2e2f4ba2296ef64d1d0ae9bc8ae1155a8bf9e5aae45a7ba001ca"
+        },
+        "result": {
+          "bytes": 2184979089,
+          "path": "review-stage/claim-search-gpt55-sweep-v7/matrix/rounds_10/candidates_10/iterative_candidate_replay.json",
+          "sha256": "7b7c0873eb39a857579f465874264426523aa24f6e09b683ab04b7e8099720a8"
+        },
+        "schema_sha256": "7b10d62321945ce66335a75061f7bf544b3923ce9b5210090e7ffe4f730939b5",
+        "source_sha256": "e94e3db9cb0d91325e91af4dcd34a2b82910cce00c5254f0c2d3e6a2d42a03d6"
+      }
+    ],
+    "matrix_summary": {
+      "bytes": 105119,
+      "path": "review-stage/claim-search-gpt55-sweep-v7/matrix_summary.json",
+      "sha256": "58eec1313414ebcfa83c8f1c8abaa60c3ba940093036e5e1e0b1a31dac9da3bb"
+    },
+    "root": "review-stage/claim-search-gpt55-sweep-v7",
+    "source": {
+      "bytes": 11897026,
+      "path": "review-stage/claim-search-gpt55-sweep-v7/source/claim_search_source.json",
+      "sha256": "e94e3db9cb0d91325e91af4dcd34a2b82910cce00c5254f0c2d3e6a2d42a03d6"
+    }
+  },
+  "created_at": "2026-07-23T23:39:05.390531+00:00",
+  "experiment_source_snapshot": {
+    "files": [
+      {
+        "bytes": 322872984,
+        "path": "review-stage/_archive_20260723_simplification_source/source_snapshot.tar.gz",
+        "sha256": "c3196d093395bc1eab32cf03d7be76e7f25a438d462ae662c20a9df169ac86d6"
+      },
+      {
+        "bytes": 140078946,
+        "path": "review-stage/_archive_20260723_simplification_source/workspace_from_head.patch",
+        "sha256": "826ec871aa0d6d3239b7ec43202a75f9de81b727338dd511ab304d43d405d3d9"
+      },
+      {
+        "bytes": 850678,
+        "path": "review-stage/_archive_20260723_simplification_source/paper_from_head.patch",
+        "sha256": "add38e90d6ac0fd664a82e7735e6100bd3474829866bf3c84997d337d86b6d44"
+      },
+      {
+        "bytes": 712,
+        "path": "review-stage/_archive_20260723_simplification_source/SHA256SUMS",
+        "sha256": "3e6ed832bad7360885cd8898d2fcef58c139da27a049e25440ff18f27df3959a"
+      }
+    ],
+    "root": "review-stage/_archive_20260723_simplification_source"
+  },
+  "interpretation": {
+    "api_reruns_permitted": false,
+    "claim_search_version": "v7",
+    "gemini_ambiguous_exclusion_count": 40,
+    "gemini_role": "outcome_blind_eligibility_adjudicator",
+    "neuroclaimbench_version": "v2.1",
+    "scientific_results_frozen": true
+  },
+  "manifest_version": 1,
+  "neuroclaimbench": {
+    "files": [
+      {
+        "bytes": 1539616,
+        "path": "benchmark/neuroclaimbench-v2.1/benchmark_items.jsonl",
+        "sha256": "cee2d7e8359a48f535af6da63c8b4f93d4aabc5d9f3548869f2b8b9ff9b907b4"
+      },
+      {
+        "bytes": 998217,
+        "path": "benchmark/neuroclaimbench-v2.1/benchmark_claims.jsonl",
+        "sha256": "cc22fbf4ebe0231a40bf231358da5273724449218a5e0ebbdfef1eb36c6bd22a"
+      },
+      {
+        "bytes": 387630,
+        "path": "benchmark/neuroclaimbench-v2.1/reference_profiles.jsonl",
+        "sha256": "7d413006d13255f06b68e5e21ef1723a3ff21992a2498d0bf8ad0b079007d67e"
+      },
+      {
+        "bytes": 1232598,
+        "path": "benchmark/neuroclaimbench-v2.1/evaluation_tasks.jsonl",
+        "sha256": "ba4ce8df838014bb3ccfeeb6e18d8190d0aa649dc170b8091d8188f626ef2dff"
+      },
+      {
+        "bytes": 9649111,
+        "path": "benchmark/neuroclaimbench-v2.1/normalized_task_outcomes.jsonl",
+        "sha256": "3566e5b6222c7ca1add46d10dcf0d4b4234c34458d70934037812faac396f3f0"
+      },
+      {
+        "bytes": 48754,
+        "path": "benchmark/neuroclaimbench-v2.1/benchmark_summary.json",
+        "sha256": "8f3fc71a930c1f40b7907bb4e24b97783d850d2c1a3dc0b44c15a9636b5a898e"
+      },
+      {
+        "bytes": 4656,
+        "path": "benchmark/neuroclaimbench-v2.1/build_manifest.json",
+        "sha256": "c07c699cd5899ff6bd5ba2cc282a672d45621df5d57f9cbc451d967f196f8e73"
+      },
+      {
+        "bytes": 1620,
+        "path": "benchmark/neuroclaimbench-v2.1/analysis_manifest.json",
+        "sha256": "5e31a045ccdbcbcaca6168946f537c85f367514f2f81be317f81c9bc4fa51316"
+      },
+      {
+        "bytes": 3423,
+        "path": "benchmark/neuroclaimbench-v2.1/paper_benchmark_manifest.json",
+        "sha256": "7565f292f79709be50ec4de962fb56801fdb04101964dbf9bc6df96d85d7ce36"
+      },
+      {
+        "bytes": 2453,
+        "path": "benchmark/neuroclaimbench-v2.1/SHA256SUMS",
+        "sha256": "70a52fbe62e708e97ad86d883f49f39e0e76bc61d0a376ad7e483998adf9a13c"
+      }
+    ],
+    "result_files": [
+      {
+        "bytes": 48754,
+        "path": "review-stage/neuroclaimbench-v2.1/results/benchmark_summary.json",
+        "sha256": "8f3fc71a930c1f40b7907bb4e24b97783d850d2c1a3dc0b44c15a9636b5a898e"
+      },
+      {
+        "bytes": 8959105,
+        "path": "review-stage/neuroclaimbench-v2.1/results/task_outcomes.jsonl",
+        "sha256": "b01399d58dc2d7f52c77a5384b1c203cb9ae0dff1cfdd6cfaadc1526e95334c0"
+      }
+    ],
+    "root": "benchmark/neuroclaimbench-v2.1"
+  },
+  "paper_tables_and_sources": [
+    {
+      "bytes": 1195,
+      "path": "paper/figures/tab_neuroclaimbench_v21.tex",
+      "sha256": "bb8a1ebaa5ddffb9210073ce7674b0a5e60b56baab346aa330fc5386e3640593"
+    },
+    {
+      "bytes": 616,
+      "path": "paper/figures/tab_neuroclaimbench_v21_sensitivity.tex",
+      "sha256": "b3c2bc4679fb54daef60a97831b6537d69ad12c82340fd1a4b9f0c4322262ab4"
+    },
+    {
+      "bytes": 857,
+      "path": "paper/figures/tab_feedback_forced_choice.tex",
+      "sha256": "5587b16463ab7fa9f0116071aac1e7ef4ad77e463cf8cf92a4e92c1dc5cf776c"
+    },
+    {
+      "bytes": 5871,
+      "path": "paper/sec/04_benchmark.tex",
+      "sha256": "c143970bb8de2c0896483cd4e4d14a42c74f9d1f9e616495e3d5164699c366f3"
+    },
+    {
+      "bytes": 7509,
+      "path": "paper/sec/05_experiments.tex",
+      "sha256": "437b3cfefc7b793de48821659c5bec89cf9421a157a6434cb2abbb22a8a16c5c"
+    }
+  ]
+}

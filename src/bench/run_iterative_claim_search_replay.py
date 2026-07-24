@@ -8,6 +8,7 @@ import hashlib
 import json
 import subprocess
 import sys
+from collections import Counter
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
@@ -26,25 +27,19 @@ from confirm.claim_search import (
     run_claim_search,
     summarize_claim_search,
 )
-from confirm.agent import _jsonable, _load_canonical, _run_brainwide_contract, _run_scalar_contract
 from confirm.contract import ClaimContract
 from confirm.evidence_partitions import (
     EvidencePartitionManifest,
-    canonical_base_cohort,
-    infer_target_family,
     load_evidence_manifest,
 )
 from confirm.llm import get_llm, make_llm
+from confirm.provenance import claim_search_implementation_hashes, mapping_sha256
 
 DEFAULT_DATA_ROOTS = (
     "data/prepared_data/evidence_partitions/benchmark_ready/cohorts",
+    "data/prepared_data/evidence_partitions/cohorts",
 )
-
-
-class ExcludedEvidenceUnavailableError(FileNotFoundError):
-    """Excluded evidence could not be mapped before any gate was evaluated."""
-
-    code = "excluded_evidence_unavailable"
+_FILE_HASH_CACHE: dict[str, str | None] = {}
 
 
 def _iter_initial_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
@@ -77,274 +72,22 @@ def _needs_search(row: dict[str, Any]) -> bool:
     )
 
 
-def _cohort_path(data_roots: list[Path], cohort: str, *, allow_aliases: bool = True) -> Path:
-    candidates = _cohort_aliases(cohort) if allow_aliases else [cohort]
-    for candidate in candidates:
-        for root in data_roots:
-            path = root / f"{candidate}.parquet"
-            if path.exists():
-                return path
-    roots = ", ".join(str(root) for root in data_roots)
-    raise FileNotFoundError(f"Cohort {cohort!r} was not found in data roots: {roots}")
-
-
-def _cohort_aliases(cohort: str) -> list[str]:
-    aliases = [cohort]
-    suffixes = (
-        "_DISC_SITES",
-        "_REP_SITES",
-        "_HOLDOUT_SITES",
-        "_HOLDOUT_DISC",
-        "_HOLDOUT_REP",
-        "_EXTERNAL_DISC",
-        "_EXTERNAL_REP",
-        "_HOLDOUT",
-        "_DISC",
-        "_REP",
-        "_CN",
-    )
-    for suffix in suffixes:
-        if cohort.endswith(suffix):
-            aliases.append(cohort[: -len(suffix)])
-    for split in ("_DISC_s", "_REP_s", "_HOLDOUT_s"):
-        if split in cohort:
-            aliases.append(cohort.split(split, 1)[0])
-    return list(dict.fromkeys(item for item in aliases if item))
-
-
 def _execute_candidate_contract(
     contract: ClaimContract,
     data_roots: list[Path],
-    *,
-    evidence_scope: str = "current",
-    target_family: str | None = None,
-    source_contract: ClaimContract | None = None,
-    evidence_set_id: str | None = None,
 ) -> dict[str, Any]:
-    allow_aliases = evidence_scope == "current"
-    discovery_path = _cohort_path(data_roots, contract.discovery_cohort, allow_aliases=allow_aliases)
-    replication_paths = [
-        _cohort_path(data_roots, cohort, allow_aliases=allow_aliases)
-        for cohort in contract.replication_cohorts
-    ]
-    discovery_df = _load_canonical(discovery_path)
-    replication_dfs = [_load_canonical(path) for path in replication_paths]
-    if contract.estimand.unit == "brainwide":
-        verdict, results = _run_brainwide_contract(contract, discovery_df, replication_dfs)
-    else:
-        verdict, results = _run_scalar_contract(
-            contract,
-            discovery_df,
-            replication_dfs,
-            ref_effect=contract.gates.power.ref_effect,
-        )
-    return {
-        "final_label": verdict.label,
-        "gate_results": _jsonable(
-            {
-                "contract": contract.model_dump(mode="json"),
-                "data_paths": {
-                    "discovery": str(discovery_path),
-                    "replication": [str(path) for path in replication_paths],
-                },
-                "evidence_scope": {
-                    "scope": evidence_scope,
-                    "target_family": target_family,
-                    "evidence_set_id": evidence_set_id,
-                    "source_contract": source_contract.model_dump(mode="json") if source_contract is not None else None,
-                },
-                **results,
-            }
-        ),
-    }
+    from confirm.excluded_evidence import execute_contract
+
+    return execute_contract(contract, data_roots, evidence_scope="current")
 
 
 def _candidate_evaluator(
     data_roots: list[Path],
-    *,
-    evidence_manifest: EvidencePartitionManifest | None = None,
-    evidence_kind: str = "current",
 ):
-    preflight_context = (
-        CandidatePreflightContext.from_roots(data_roots)
-        if evidence_manifest is not None and evidence_kind in {"holdout", "external"}
-        else None
-    )
-
     def evaluator(candidate: CandidateClaimProposal) -> dict[str, Any]:
-        source_contract = candidate.proposed_contract
-        target_family = infer_target_family(source_contract) if evidence_manifest is not None else None
-        if evidence_manifest is None or evidence_kind not in {"holdout", "external"}:
-            return _execute_candidate_contract(
-                source_contract,
-                data_roots,
-                evidence_scope=evidence_kind,
-                target_family=target_family,
-            )
-
-        errors: list[str] = []
-        evidence_kinds = ["external", "holdout"] if evidence_kind == "external" else ["holdout"]
-        for candidate_evidence_kind in evidence_kinds:
-            if candidate_evidence_kind == "external":
-                try:
-                    return _evaluate_external_sets(
-                        source_contract,
-                        evidence_manifest,
-                        data_roots,
-                        preflight_context,
-                        target_family,
-                    )
-                except ExcludedEvidenceUnavailableError as exc:
-                    errors.append(f"external: {exc}")
-                    continue
-            try:
-                mapped_contract = _mapped_contract_for_excluded_evidence(
-                    source_contract,
-                    evidence_manifest,
-                    candidate_evidence_kind,
-                )
-                _require_exact_contract_paths(mapped_contract, data_roots)
-                preflight = preflight_context.validate_contract(mapped_contract) if preflight_context is not None else None
-                if preflight is not None and not preflight.ok:
-                    raise ValueError("; ".join(preflight.violations))
-            except (FileNotFoundError, ValueError) as exc:
-                errors.append(f"{candidate_evidence_kind}: {exc}")
-                continue
-            # Do not catch execution failures here. Fallback is permitted only
-            # after schema/preflight failure and before observing gate outcomes.
-            return _execute_candidate_contract(
-                mapped_contract,
-                data_roots,
-                evidence_scope=candidate_evidence_kind,
-                target_family=target_family,
-                source_contract=source_contract,
-            )
-        raise ExcludedEvidenceUnavailableError("; ".join(errors))
+        return _execute_candidate_contract(candidate.proposed_contract, data_roots)
 
     return evaluator
-
-
-def _evaluate_external_sets(
-    source_contract: ClaimContract,
-    manifest: EvidencePartitionManifest,
-    data_roots: list[Path],
-    preflight_context: CandidatePreflightContext | None,
-    target_family: str | None,
-) -> dict[str, Any]:
-    compatible = manifest.external_sets_for_contract(source_contract)
-    primary_sets = [item for item in compatible if item.confirmation_role == "primary"]
-    errors: list[str] = []
-    selected = None
-    mapped_contract = None
-    for evidence_set in primary_sets:
-        try:
-            candidate_contract = _mapped_contract_for_excluded_evidence(
-                source_contract,
-                manifest,
-                "external",
-                evidence_set_id=evidence_set.evidence_set_id,
-            )
-            _require_exact_contract_paths(candidate_contract, data_roots)
-            preflight = preflight_context.validate_contract(candidate_contract) if preflight_context is not None else None
-            if preflight is not None and not preflight.ok:
-                raise ValueError("; ".join(preflight.violations))
-        except (FileNotFoundError, ValueError) as exc:
-            errors.append(f"{evidence_set.evidence_set_id}: {exc}")
-            continue
-        selected = evidence_set
-        mapped_contract = candidate_contract
-        break
-    if selected is None or mapped_contract is None:
-        detail = "; ".join(errors) if errors else "no schema-compatible primary set"
-        raise ExcludedEvidenceUnavailableError(detail)
-
-    result = _execute_candidate_contract(
-        mapped_contract,
-        data_roots,
-        evidence_scope="external",
-        target_family=target_family,
-        source_contract=source_contract,
-    )
-    result.setdefault("gate_results", {}).setdefault("evidence_scope", {})["evidence_set_id"] = selected.evidence_set_id
-    secondary_results: list[dict[str, Any]] = []
-    for evidence_set in compatible:
-        if evidence_set.confirmation_role != "secondary":
-            continue
-        try:
-            secondary_contract = _mapped_contract_for_excluded_evidence(
-                source_contract,
-                manifest,
-                "external",
-                evidence_set_id=evidence_set.evidence_set_id,
-            )
-            _require_exact_contract_paths(secondary_contract, data_roots)
-            preflight = preflight_context.validate_contract(secondary_contract) if preflight_context is not None else None
-            if preflight is not None and not preflight.ok:
-                raise ValueError("; ".join(preflight.violations))
-            secondary = _execute_candidate_contract(
-                secondary_contract,
-                data_roots,
-                evidence_scope="external_robustness",
-                target_family=target_family,
-                source_contract=source_contract,
-            )
-            secondary.setdefault("gate_results", {}).setdefault("evidence_scope", {})[
-                "evidence_set_id"
-            ] = evidence_set.evidence_set_id
-            secondary_results.append(
-                {
-                    "evidence_set_id": evidence_set.evidence_set_id,
-                    "status": "evaluated",
-                    "final_label": secondary.get("final_label"),
-                    "gate_results": secondary.get("gate_results"),
-                }
-            )
-        except Exception as exc:  # noqa: BLE001
-            secondary_results.append(
-                {
-                    "evidence_set_id": evidence_set.evidence_set_id,
-                    "status": "unavailable",
-                    "error": str(exc),
-                }
-            )
-    result.setdefault("gate_results", {})["secondary_external_evaluations"] = secondary_results
-    return result
-
-
-def _mapped_contract_for_excluded_evidence(
-    contract: ClaimContract,
-    manifest: EvidencePartitionManifest,
-    evidence_kind: str,
-    *,
-    evidence_set_id: str | None = None,
-) -> ClaimContract:
-    data = contract.model_dump(mode="json")
-    target_family = infer_target_family(contract)
-    if evidence_kind == "holdout":
-        pair = manifest.holdout_evaluation_pair_for_contract(contract)
-        if pair is None:
-            bases = [canonical_base_cohort(contract.discovery_cohort), *[canonical_base_cohort(cohort) for cohort in contract.replication_cohorts]]
-            raise FileNotFoundError(f"No holdout evaluation pair for bases={bases!r} target_family={target_family!r}")
-        discovery_record, replication_records = pair
-        data["discovery_cohort"] = discovery_record.partition_id
-        data["replication_cohorts"] = [record.partition_id for record in replication_records]
-        return ClaimContract.model_validate(data)
-    if evidence_kind == "external":
-        pair = manifest.external_pair_for_contract(contract, evidence_set_id=evidence_set_id)
-        if pair is None:
-            raise FileNotFoundError(
-                f"No contract-compatible external evaluation pair for target_family={target_family!r}"
-            )
-        discovery_record, replication_records, _ = pair
-        data["discovery_cohort"] = discovery_record.partition_id
-        data["replication_cohorts"] = [record.partition_id for record in replication_records]
-        return ClaimContract.model_validate(data)
-    return contract
-
-
-def _require_exact_contract_paths(contract: ClaimContract, data_roots: list[Path]) -> None:
-    for cohort in [contract.discovery_cohort, *contract.replication_cohorts]:
-        _cohort_path(data_roots, cohort, allow_aliases=False)
 
 
 def _configured_roots(values: list[str] | None, defaults: tuple[str, ...] = ()) -> list[Path]:
@@ -360,14 +103,69 @@ def _sha256_json(value: Any) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
+def _resume_identities_compatible(left: Any, right: Any) -> bool:
+    """Compare experiment identity while ignoring implementation-only provenance."""
+
+    if not isinstance(left, dict) or not isinstance(right, dict):
+        return False
+    ignored = {"implementation_hashes_sha256"}
+    return (
+        {key: value for key, value in left.items() if key not in ignored}
+        == {key: value for key, value in right.items() if key not in ignored}
+    )
+
+
+def _is_retryable_transient_generation_failure(state: ClaimSearchState) -> bool:
+    if state.stopped_reason != "candidate_generation_failed" or state.candidate_history:
+        return False
+    responses = state.llm_candidate_responses
+    if not responses:
+        return False
+    transient_markers = (
+        "connection error",
+        "timed out",
+        "timeout",
+        "rate limit",
+        "service unavailable",
+        "temporarily unavailable",
+        "server disconnected",
+    )
+    return all(
+        int(record.get("candidate_count") or 0) == 0
+        and any(
+            marker in str(record.get("parse_error") or "").lower()
+            for marker in transient_markers
+        )
+        for record in responses
+    )
+
+
 def _file_sha256(path: Path) -> str | None:
+    cache_key = str(path.resolve()) if path.exists() else str(path)
+    if cache_key in _FILE_HASH_CACHE:
+        return _FILE_HASH_CACHE[cache_key]
     if not path.exists() or not path.is_file():
+        _FILE_HASH_CACHE[cache_key] = None
         return None
     digest = hashlib.sha256()
     with path.open("rb") as handle:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
-    return digest.hexdigest()
+    value = digest.hexdigest()
+    _FILE_HASH_CACHE[cache_key] = value
+    return value
+
+
+def _atomic_write_text(path: Path, text: str) -> None:
+    temporary = path.with_name(f".{path.name}.tmp")
+    temporary.write_text(text, encoding="utf-8")
+    temporary.replace(path)
+
+
+def _atomic_write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
+    temporary = path.with_name(f".{path.name}.tmp")
+    pd.DataFrame(rows).to_csv(temporary, index=False, quoting=csv.QUOTE_MINIMAL)
+    temporary.replace(path)
 
 
 def _git_state() -> dict[str, Any]:
@@ -394,32 +192,64 @@ def _run_provenance(
     manifest_path: Path | None,
     manifest: EvidencePartitionManifest | None,
     llm_model_spec: str,
-    evidence_freshness: str,
 ) -> dict[str, Any]:
     schema = LLMCandidateGenerationResponse.model_json_schema()
+    repository_root = Path(__file__).resolve().parents[2]
+    implementation_paths = [
+        Path(__file__).resolve(),
+        *sorted((repository_root / "src/confirm").glob("*.py")),
+    ]
+    implementation_hashes = {
+        str(path.relative_to(repository_root)): _file_sha256(path)
+        for path in implementation_paths
+    }
+    search_implementation_hashes = claim_search_implementation_hashes(repository_root)
     partition_hashes = {}
+    partition_id_counts: Counter[str] = Counter()
     if manifest is not None:
         for record in manifest.records:
-            partition_hashes[record.partition_id] = {
+            partition_id_counts[record.partition_id] += 1
+            partition_record = {
                 "subject_id_sha256": record.subject_id_sha256,
                 "schema_sha256": record.schema_sha256,
                 "content_sha256": record.content_sha256 or _file_sha256(Path(record.path)),
                 "manifest_record_sha256": _sha256_json(record.model_dump(mode="json")),
             }
+            existing = partition_hashes.get(record.partition_id)
+            if existing is not None:
+                comparable_fields = ("subject_id_sha256", "schema_sha256", "content_sha256")
+                if any(existing.get(field) != partition_record.get(field) for field in comparable_fields):
+                    raise ValueError(
+                        f"Evidence manifest has conflicting records for partition_id={record.partition_id!r}."
+                    )
+            else:
+                partition_hashes[record.partition_id] = partition_record
     return {
         "command": list(sys.argv),
         "git": _git_state(),
         "python": sys.version,
         "llm_model": llm_model_spec,
-        "evidence_freshness": evidence_freshness,
         "prompt_sha256": hashlib.sha256(CLAIM_CANDIDATE_SYSTEM_PROMPT.encode("utf-8")).hexdigest(),
         "schema_sha256": _sha256_json(schema),
+        "implementation_hashes": implementation_hashes,
+        "search_implementation_hashes": search_implementation_hashes,
+        "search_implementation_hashes_sha256": mapping_sha256(search_implementation_hashes),
         "source": {"path": str(source), "sha256": _file_sha256(source)},
         "evidence_manifest": {
             "path": str(manifest_path) if manifest_path is not None else None,
             "sha256": _file_sha256(manifest_path) if manifest_path is not None else None,
         },
         "partition_hashes": partition_hashes,
+        "partition_hashes_sha256": _sha256_json(partition_hashes),
+        "partition_inventory": {
+            "logical_record_count": len(manifest.records) if manifest is not None else 0,
+            "unique_partition_id_count": len(partition_hashes),
+            "duplicate_partition_id_counts": {
+                partition_id: count
+                for partition_id, count in sorted(partition_id_counts.items())
+                if count > 1
+            },
+        },
         "random_seeds": {
             "manifest_seed": manifest.seed if manifest is not None else None,
             "partitions": (
@@ -431,63 +261,11 @@ def _run_provenance(
     }
 
 
-def _excluded_query_ledger(states: list[ClaimSearchState]) -> list[dict[str, Any]]:
-    ledger: list[dict[str, Any]] = []
-    for state in states:
-        if state.excluded_evidence_query_count <= 0:
-            continue
-        selected = next(
-            (item for item in state.evaluations if item.candidate_id == state.selected_candidate_id),
-            None,
-        )
-        selected_gate_results = None
-        if selected is not None:
-            selected_gate_results = selected.external_gate_results or selected.holdout_gate_results
-        evidence_scope = (
-            selected_gate_results.get("evidence_scope")
-            if isinstance(selected_gate_results, dict)
-            and isinstance(selected_gate_results.get("evidence_scope"), dict)
-            else {}
-        )
-        secondary = (
-            selected_gate_results.get("secondary_external_evaluations", [])
-            if isinstance(selected_gate_results, dict)
-            else []
-        )
-        ledger.append(
-            {
-                "claim_id": state.original_claim.claim_id,
-                "target_family": state.source_metadata.get("target_family"),
-                "source_mode": state.source_metadata.get("source_mode"),
-                "selected_candidate_id": state.selected_candidate_id,
-                "selection_reason": state.selection_reason,
-                "query_count": state.excluded_evidence_query_count,
-                "status": state.excluded_evidence_status,
-                "evidence_kind": selected.excluded_evidence_kind if selected is not None else None,
-                "primary_evidence_set_id": evidence_scope.get("evidence_set_id"),
-                "evidence_freshness": state.evidence_freshness,
-                "discovery_path": selected.resolved_excluded_discovery_path if selected is not None else None,
-                "replication_paths": selected.resolved_excluded_replication_paths if selected is not None else [],
-                "secondary_external_queries": [
-                    {
-                        "evidence_set_id": item.get("evidence_set_id"),
-                        "status": item.get("status"),
-                        "final_label": item.get("final_label"),
-                    }
-                    for item in secondary
-                    if isinstance(item, dict)
-                ],
-            }
-        )
-    return ledger
-
-
 def _row_for_state(source_row: dict[str, Any], state: Any, candidate_generator_model_spec: str) -> dict[str, Any]:
     evaluations = state.evaluations
     valid = [item for item in evaluations if item.validation.ok]
     blocked = [item for item in evaluations if item.blocked_reason]
     execution_errors = [item for item in evaluations if item.execution_error]
-    excluded_evidence_errors = [item for item in evaluations if item.excluded_evidence_error]
     final_labels = [str(item.final_label) for item in evaluations if item.final_label]
     effective_final_labels = [str(item.final_label) for item in evaluations if item.final_label and not item.execution_error]
     same_data_exploratory = [
@@ -519,66 +297,79 @@ def _row_for_state(source_row: dict[str, Any], state: Any, candidate_generator_m
         ),
         "known_negative_or_fragile_source": _known_negative_or_fragile_source(source_row),
         "generated_candidate_count": state.generated_candidate_count,
+        "proposals_returned_count": state.generated_candidate_count,
+        "schema_valid_candidate_count": state.schema_valid_candidate_count,
         "candidate_count": len(state.candidate_history),
         "unique_candidate_count": state.unique_candidate_count,
         "duplicate_candidate_count": len(state.duplicate_candidates),
         "valid_candidate_count": len(valid),
         "current_data_evaluated_count": state.current_data_evaluated_count,
+        "unique_source_tested_count": state.current_data_evaluated_count,
+        "unique_hypotheses_tested_count": state.unique_hypotheses_tested_count,
+        "execution_complete_candidate_count": sum(
+            item.evaluated and not item.execution_error for item in evaluations
+        ),
+        "provisional_internal_pass_count": sum(
+            item.provisional_supported and not item.execution_error for item in evaluations
+        ),
+        "final_multiplicity_adjusted_internal_pass_count": len(state.internally_supported_candidate_ids),
+        "parent_with_internal_support": bool(state.internally_supported_candidate_ids),
+        "multiplicity_retraction_count": sum(item.multiplicity_retracted for item in evaluations),
+        "final_search_family_size": state.final_search_family_size,
         "blocked_candidate_count": len(blocked),
-        "supported_candidate_count": len(state.supported_candidates),
-        "confirmed_candidate_count": len(state.confirmed_candidates),
-        "selected_candidate_id": state.selected_candidate_id,
-        "selection_reason": state.selection_reason,
+        "supported_candidate_count": len(state.internally_supported_candidate_ids),
+        "confirmed_candidate_count": 0,
         "exploratory_confirmed_count": sum(
             1 for item in evaluations if not item.execution_error and item.final_label == "exploratory_confirmed"
         ),
         "same_data_exploratory_confirmed_count": len(same_data_exploratory),
-        "final_confirmed_count": sum(
-            1
-            for item in evaluations
-            if not item.execution_error and item.final_label in {"holdout_confirmed", "external_confirmed"}
-        ),
+        "final_confirmed_count": 0,
         "contract_repair_supported_count": sum(
             1 for item in evaluations if not item.execution_error and item.final_label == "contract_repair_supported"
         ),
-        "holdout_confirmed_count": sum(1 for item in evaluations if not item.execution_error and item.holdout_confirmed),
+        "holdout_confirmed_count": 0,
         "any_supported_candidate_count": sum(
             1
             for item in evaluations
-            if not item.execution_error
-            and (
-                item.current_data_supported
-                or item.final_label in {"holdout_confirmed", "external_confirmed"}
-                or item.external_confirmed
-                or item.holdout_confirmed
-            )
+            if not item.execution_error and item.current_data_supported
         ),
-        "external_confirmed_count": sum(1 for item in evaluations if not item.execution_error and item.external_confirmed),
+        "external_confirmed_count": 0,
         "same_underlying_data": any(item.same_underlying_data is True for item in evaluations),
-        "excluded_evidence_used": any(item.excluded_evidence_used for item in evaluations),
-        "external_evidence_used": any(item.external_evidence_used for item in evaluations),
-        "excluded_evidence_query_count": state.excluded_evidence_query_count,
-        "excluded_evidence_status": state.excluded_evidence_status,
-        "evidence_freshness": state.evidence_freshness,
+        "excluded_evidence_used": False,
+        "external_evidence_used": False,
+        "excluded_evidence_query_count": 0,
+        "excluded_evidence_status": "not_requested",
+        "evidence_freshness": "not_applicable_source_search",
         "analysis_non_identifiable_count": sum(
             1
             for item in evaluations
             if item.blocked_reason == "analysis_non_identifiable"
             or str(item.execution_error or "").startswith("analysis_non_identifiable:")
-            or "analysis_non_identifiable" in str(item.excluded_evidence_error or "")
         ),
-        "excluded_evidence_unavailable_count": sum(
-            1 for item in evaluations if item.excluded_evidence_status == "unavailable"
-        ),
+        "excluded_evidence_unavailable_count": 0,
         "execution_error_count": len(execution_errors),
-        "excluded_evidence_error_count": len(excluded_evidence_errors),
+        "excluded_evidence_error_count": 0,
         "stopped_reason": state.stopped_reason,
         "transform_types": ";".join(candidate.transform_type for candidate in state.candidate_history),
+        "declared_transforms": ";".join(
+            str(candidate.declared_transform or candidate.transform_type) for candidate in state.candidate_history
+        ),
+        "inferred_transforms": ";".join(
+            str(candidate.inferred_transform or "unknown") for candidate in state.candidate_history
+        ),
+        "transform_match_count": sum(candidate.transform_match is True for candidate in state.candidate_history),
+        "policy_adjusted_candidate_count": sum(
+            bool(candidate.policy_adjustments) for candidate in state.candidate_history
+        ),
+        "no_executable_change_count": sum(
+            candidate.inferred_transform == "no_executable_change" for candidate in state.candidate_history
+        ),
+        "source_evidence_ledger": json.dumps(
+            state.source_metadata.get("source_evidence_ledger", []), sort_keys=True
+        ),
         "blocked_reasons": ";".join(str(item.blocked_reason) for item in blocked),
         "execution_errors": " | ".join(str(item.execution_error) for item in execution_errors),
-        "excluded_evidence_errors": " | ".join(
-            str(item.excluded_evidence_error) for item in excluded_evidence_errors
-        ),
+        "excluded_evidence_errors": "",
         "final_labels": ";".join(final_labels),
         "effective_final_labels": ";".join(effective_final_labels),
     }
@@ -606,7 +397,97 @@ def _known_negative_or_fragile_source(source_row: dict[str, Any]) -> bool:
     return claim_id.startswith("neg_") or bool(labels & negative_terms)
 
 
-def _source_metadata(source_row: dict[str, Any]) -> dict[str, Any]:
+def _source_evidence_ledger(
+    source_row: dict[str, Any],
+    manifest: EvidencePartitionManifest | None,
+    preflight_context: CandidatePreflightContext | None,
+) -> list[dict[str, Any]]:
+    gate_results = source_row.get("gate_results")
+    data_paths = gate_results.get("data_paths") if isinstance(gate_results, dict) else None
+    records_by_path = {
+        str(Path(record.path).resolve()): record
+        for record in (manifest.records if manifest is not None else [])
+    }
+    records_by_id = {
+        record.partition_id: record
+        for record in (manifest.records if manifest is not None else [])
+    }
+    contract = _contract_from_row(source_row)
+    cohort_entries: list[tuple[str, str]] = []
+    if contract is not None:
+        cohort_entries.append(("discovery", contract.discovery_cohort))
+        cohort_entries.extend(("replication", cohort) for cohort in contract.replication_cohorts)
+
+    authoritative_discovery: str | None = None
+    authoritative_replication: list[str] = []
+    if isinstance(data_paths, dict):
+        discovery = data_paths.get("discovery")
+        if discovery:
+            authoritative_discovery = str(discovery)
+        replication = data_paths.get("replication")
+        if isinstance(replication, (list, tuple)):
+            authoritative_replication = [str(path) for path in replication]
+        elif replication:
+            authoritative_replication = [str(replication)]
+
+    entries: list[tuple[str, str, str]] = []
+    replication_index = 0
+    for role, cohort in cohort_entries:
+        if role == "discovery":
+            raw_path = authoritative_discovery
+        else:
+            raw_path = (
+                authoritative_replication[replication_index]
+                if replication_index < len(authoritative_replication)
+                else None
+            )
+            replication_index += 1
+        if raw_path is None and preflight_context is not None:
+            info = preflight_context.resolve(cohort)
+            raw_path = info.path if info is not None else None
+        if raw_path is None:
+            record = records_by_id.get(cohort)
+            raw_path = record.path if record is not None else None
+        if raw_path is not None:
+            entries.append((role, cohort, raw_path))
+
+    ledger: list[dict[str, Any]] = []
+    for role, cohort, raw_path in entries:
+        path = Path(raw_path)
+        resolved = str(path.resolve()) if path.exists() else raw_path
+        record = records_by_path.get(resolved) or records_by_id.get(cohort)
+        content_hash = (
+            record.content_sha256
+            if record is not None and record.content_sha256
+            else _file_sha256(path)
+        )
+        partition_hash = content_hash or (record.subject_id_sha256 if record is not None else None)
+        ledger.append(
+            {
+                "role": role,
+                "cohort": cohort,
+                "path": raw_path,
+                "resolved_path": resolved,
+                "partition_id": record.partition_id if record is not None else path.stem,
+                "partition_hash": partition_hash,
+                "partition_hash_kind": (
+                    "content_sha256"
+                    if content_hash
+                    else "subject_id_sha256"
+                    if partition_hash
+                    else None
+                ),
+                "holdout_named_source": "_HOLDOUT" in cohort or "_HOLDOUT" in path.stem,
+            }
+        )
+    return ledger
+
+
+def _source_metadata(
+    source_row: dict[str, Any],
+    manifest: EvidencePartitionManifest | None = None,
+    preflight_context: CandidatePreflightContext | None = None,
+) -> dict[str, Any]:
     keys = (
         "claim_id",
         "target_family",
@@ -626,7 +507,13 @@ def _source_metadata(source_row: dict[str, Any]) -> dict[str, Any]:
         "label_basis",
         "model_spec",
     )
-    return {key: source_row.get(key) for key in keys if source_row.get(key) is not None}
+    metadata = {key: source_row.get(key) for key in keys if source_row.get(key) is not None}
+    metadata["source_evidence_ledger"] = _source_evidence_ledger(
+        source_row,
+        manifest,
+        preflight_context,
+    )
+    return metadata
 
 
 def _replay_specific_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -669,14 +556,11 @@ def _run_single_claim(
     row: dict[str, Any],
     config: ClaimSearchConfig,
     data_roots: list[Path],
-    holdout_data_roots: list[Path],
-    external_data_roots: list[Path],
     candidate_evaluation: str,
     llm_model_spec: str,
     llm: Any,
     preflight_context: CandidatePreflightContext | None,
     evidence_manifest: EvidencePartitionManifest | None,
-    evidence_freshness: str,
 ) -> dict[str, Any]:
     claim_id = str(row.get("claim_id"))
     try:
@@ -685,18 +569,6 @@ def _run_single_claim(
             raise ValueError("missing executable contract or gate verdict")
         results = row.get("gate_results") if isinstance(row.get("gate_results"), dict) else None
         evaluator = _candidate_evaluator(data_roots) if candidate_evaluation == "on" else None
-        excluded_data_roots = list(dict.fromkeys([*external_data_roots, *holdout_data_roots]))
-        excluded_kind = "external" if evidence_manifest is not None else (
-            "external" if external_data_roots else "holdout"
-        )
-        external_evaluator = None
-        if candidate_evaluation == "on" and excluded_data_roots and evidence_manifest is not None:
-            external_evaluator = _candidate_evaluator(
-                excluded_data_roots,
-                evidence_manifest=evidence_manifest,
-                evidence_kind=excluded_kind,
-            )
-        validation_catalog = evidence_manifest.validation_catalog_for_contract(contract) if evidence_manifest is not None else None
         state = run_claim_search(
             contract,
             row["gate_verdict"],
@@ -704,14 +576,17 @@ def _run_single_claim(
             config=config,
             llm=llm,
             evaluator=evaluator,
-            external_evaluator=external_evaluator,
-            excluded_evidence_kind=excluded_kind,
-            excluded_validation_available=candidate_evaluation == "on" and external_evaluator is not None,
             preflight_context=preflight_context,
-            validation_evidence_catalog=validation_catalog,
-            evidence_freshness=evidence_freshness,
         )
-        state = state.model_copy(update={"source_metadata": _source_metadata(row)})
+        state = state.model_copy(
+            update={
+                "source_metadata": _source_metadata(
+                    row,
+                    evidence_manifest,
+                    preflight_context,
+                )
+            }
+        )
     except Exception as exc:
         return {
             "index": index,
@@ -745,24 +620,19 @@ def _run_single_claim_worker(payload: dict[str, Any]) -> dict[str, Any]:
     llm = make_llm(llm_spec) if llm_spec else get_llm()
     llm_model_spec = llm_spec or getattr(llm, "model", type(llm).__name__)
     data_roots = [Path(item) for item in payload["data_roots"]]
-    holdout_data_roots = [Path(item) for item in payload.get("holdout_data_roots", [])]
-    external_data_roots = [Path(item) for item in payload["external_data_roots"]]
     evidence_manifest = load_evidence_manifest(payload.get("evidence_manifest"))
-    preflight_context = CandidatePreflightContext.from_roots([*data_roots, *holdout_data_roots, *external_data_roots])
+    preflight_context = CandidatePreflightContext.from_roots(data_roots)
     return _run_single_claim(
         index=int(payload["index"]),
         total=int(payload["total"]),
         row=payload["row"],
         config=config,
         data_roots=data_roots,
-        holdout_data_roots=holdout_data_roots,
-        external_data_roots=external_data_roots,
         candidate_evaluation=str(payload["candidate_evaluation"]),
         llm_model_spec=llm_model_spec,
         llm=llm,
         preflight_context=preflight_context,
         evidence_manifest=evidence_manifest,
-        evidence_freshness=str(payload.get("evidence_freshness", "unknown")),
     )
 
 
@@ -773,16 +643,14 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         max_rounds=args.max_rounds,
         max_candidates_per_round=args.max_candidates,
         llm_schema_retries=args.schema_retries,
+        feedback_mode=args.feedback_mode,
     )
     data_roots = _configured_roots(getattr(args, "data_root", None), DEFAULT_DATA_ROOTS)
-    holdout_data_roots = _configured_roots(getattr(args, "holdout_data_root", None))
-    external_data_roots = _configured_roots(getattr(args, "external_data_root", None))
     candidate_evaluation = str(getattr(args, "candidate_evaluation", "on"))
     show_progress = not bool(getattr(args, "no_progress", False))
     evidence_manifest = load_evidence_manifest(getattr(args, "evidence_manifest", None))
     evidence_manifest_path = Path(args.evidence_manifest) if getattr(args, "evidence_manifest", None) else None
-    evidence_freshness = str(getattr(args, "evidence_freshness", "unknown"))
-    preflight_context = CandidatePreflightContext.from_roots([*data_roots, *holdout_data_roots, *external_data_roots])
+    preflight_context = CandidatePreflightContext.from_roots(data_roots)
     llm = make_llm(args.llm) if args.llm else get_llm()
     llm_model_spec = args.llm or getattr(llm, "model", type(llm).__name__)
     max_workers = max(1, int(getattr(args, "max_workers", 1) or 1))
@@ -801,8 +669,146 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         evidence_manifest_path,
         evidence_manifest,
         llm_model_spec,
-        evidence_freshness,
     )
+    initial_rows = [row for row in _iter_initial_rows(payload) if _needs_search(row)]
+    claim_ids = [str(row.get("claim_id") or "") for row in initial_rows]
+    duplicate_claim_ids = sorted(
+        claim_id for claim_id in set(claim_ids) if claim_ids.count(claim_id) > 1
+    )
+    if "" in claim_ids or duplicate_claim_ids:
+        raise ValueError(
+            "Claim-search source must have nonempty unique claim IDs; "
+            f"duplicates={duplicate_claim_ids}."
+        )
+    expected_parent_count = getattr(args, "expected_parent_count", None)
+    if expected_parent_count is not None and len(initial_rows) != int(expected_parent_count):
+        raise ValueError(
+            f"Expected {expected_parent_count} failed parent claims, found {len(initial_rows)} in {source}."
+        )
+    json_path = out_dir / "iterative_candidate_replay.json"
+    csv_path = out_dir / "iterative_candidate_replay.csv"
+    provenance_path = out_dir / "run_provenance.json"
+    ledger_path = out_dir / "excluded_query_ledger.json"
+    parent_checkpoint_dir = out_dir / "checkpoints" / "parents"
+    parent_checkpoint_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint_every = max(0, int(getattr(args, "checkpoint_every", 0) or 0))
+    resume_identity = {
+        "source_sha256": provenance["source"]["sha256"],
+        "config": config.model_dump(mode="json"),
+        "llm_model": llm_model_spec,
+        "prompt_sha256": provenance["prompt_sha256"],
+        "schema_sha256": provenance["schema_sha256"],
+        "evidence_manifest_sha256": provenance["evidence_manifest"]["sha256"],
+        "partition_hashes_sha256": _sha256_json(provenance["partition_hashes"]),
+        "data_roots": [str(root.resolve()) for root in data_roots],
+        "candidate_evaluation": candidate_evaluation,
+    }
+    provenance["resume_identity"] = resume_identity
+    provenance["resume_identity_sha256"] = _sha256_json(resume_identity)
+    accepted_resume_identity_sha256s = {provenance["resume_identity_sha256"]}
+    compatible_resume_identities: dict[str, dict[str, Any]] = {}
+    prior_provenance: dict[str, Any] = {}
+    if provenance_path.exists():
+        prior_provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+        prior_identity = prior_provenance.get("resume_identity")
+        if _resume_identities_compatible(prior_identity, resume_identity):
+            prior_hash = prior_provenance.get("resume_identity_sha256")
+            if isinstance(prior_hash, str) and prior_hash:
+                accepted_resume_identity_sha256s.add(prior_hash)
+                if prior_hash != provenance["resume_identity_sha256"]:
+                    compatible_resume_identities[prior_hash] = {
+                        "resume_identity_sha256": prior_hash,
+                        "resume_identity": prior_identity,
+                        "implementation_hashes": prior_provenance.get(
+                            "implementation_hashes", {}
+                        ),
+                    }
+            for compatible_hash in prior_provenance.get(
+                "compatible_resume_identity_sha256s", []
+            ):
+                if isinstance(compatible_hash, str) and compatible_hash:
+                    accepted_resume_identity_sha256s.add(compatible_hash)
+            for record in prior_provenance.get("compatible_resume_identities", []):
+                if not isinstance(record, dict):
+                    continue
+                compatible_hash = record.get("resume_identity_sha256")
+                if isinstance(compatible_hash, str) and compatible_hash:
+                    accepted_resume_identity_sha256s.add(compatible_hash)
+                    compatible_resume_identities[compatible_hash] = record
+    provenance["compatible_resume_identity_sha256s"] = sorted(
+        accepted_resume_identity_sha256s - {provenance["resume_identity_sha256"]}
+    )
+    provenance["compatible_resume_identities"] = [
+        compatible_resume_identities[key]
+        for key in sorted(compatible_resume_identities)
+        if key != provenance["resume_identity_sha256"]
+    ]
+    superseded_transient_failures = list(
+        prior_provenance.get("superseded_transient_generation_failures") or []
+    )
+    superseded_attempt_keys = {
+        (int(record.get("index") or 0), str(record.get("attempt_records_sha256")))
+        for record in superseded_transient_failures
+        if isinstance(record, dict) and record.get("attempt_records_sha256")
+    }
+    retry_transient_indices: set[int] = set()
+
+    def record_transient_failure(index: int, state: ClaimSearchState) -> None:
+        attempt_hash = _sha256_json(state.llm_candidate_responses)
+        attempt_key = (index, attempt_hash)
+        if attempt_key in superseded_attempt_keys:
+            return
+        superseded_attempt_keys.add(attempt_key)
+        superseded_transient_failures.append(
+            {
+                "index": index,
+                "claim_id": state.original_claim.claim_id,
+                "prompt_record_count": len(state.llm_candidate_prompts),
+                "response_record_count": len(state.llm_candidate_responses),
+                "parse_error_counts": dict(
+                    Counter(
+                        str(record.get("parse_error") or "unknown")
+                        for record in state.llm_candidate_responses
+                    )
+                ),
+                "attempt_records_sha256": attempt_hash,
+            }
+        )
+
+    def parent_checkpoint_path(index: int) -> Path:
+        return parent_checkpoint_dir / f"parent_{index:04d}.json"
+
+    def write_parent_checkpoint(index: int, row: dict[str, Any], state: ClaimSearchState) -> None:
+        body = {
+            "resume_identity_sha256": provenance["resume_identity_sha256"],
+            "index": index,
+            "claim_id": state.original_claim.claim_id,
+            "row": row,
+            "state": state.model_dump(mode="json"),
+        }
+        payload = {**body, "checkpoint_sha256": _sha256_json(body)}
+        _atomic_write_text(parent_checkpoint_path(index), json.dumps(payload, indent=2))
+
+    def restore_parent_checkpoint(path: Path) -> tuple[int, dict[str, Any], ClaimSearchState]:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        checksum = payload.pop("checkpoint_sha256", None)
+        if checksum != _sha256_json(payload):
+            raise ValueError(f"Parent checkpoint hash is invalid: {path}")
+        if payload.get("resume_identity_sha256") not in accepted_resume_identity_sha256s:
+            raise ValueError(
+                f"Parent checkpoint provenance does not match this run: {path}"
+            )
+        index = int(payload["index"])
+        if index < 1 or index > len(initial_rows):
+            raise ValueError(f"Parent checkpoint index is outside the source: {path}")
+        state = ClaimSearchState.model_validate(payload["state"])
+        expected_claim_id = str(initial_rows[index - 1].get("claim_id"))
+        if state.original_claim.claim_id != expected_claim_id or payload.get("claim_id") != expected_claim_id:
+            raise ValueError(f"Parent checkpoint claim ID does not match the source: {path}")
+        row = payload.get("row")
+        if not isinstance(row, dict) or str(row.get("claim_id")) != expected_claim_id:
+            raise ValueError(f"Parent checkpoint row is invalid: {path}")
+        return index, row, state
 
     def refresh_lists() -> None:
         nonlocal rows, states, skipped
@@ -819,6 +825,18 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         ]
         provenance["rendered_prompt_records_sha256"] = _sha256_json(rendered_prompts)
         provenance["rendered_prompt_record_count"] = len(rendered_prompts)
+        provenance["superseded_transient_generation_failures"] = sorted(
+            superseded_transient_failures,
+            key=lambda record: (int(record.get("index") or 0), str(record.get("attempt_records_sha256") or "")),
+        )
+        provenance["superseded_transient_prompt_record_count"] = sum(
+            int(record.get("prompt_record_count") or 0)
+            for record in superseded_transient_failures
+        )
+        provenance["total_prompt_attempt_record_count"] = (
+            len(rendered_prompts)
+            + int(provenance["superseded_transient_prompt_record_count"])
+        )
         summary = {**summarize_claim_search(states), **_replay_specific_summary(rows)}
         summary.update(
             {
@@ -843,10 +861,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "config": config.model_dump(mode="json"),
             "candidate_evaluation": candidate_evaluation,
             "data_roots": [str(root) for root in data_roots],
-            "holdout_data_roots": [str(root) for root in holdout_data_roots],
-            "external_data_roots": [str(root) for root in external_data_roots],
             "evidence_manifest": str(args.evidence_manifest) if getattr(args, "evidence_manifest", None) else None,
-            "evidence_freshness": evidence_freshness,
             "provenance": provenance,
             "searchable_claim_count": len(initial_rows),
             "completed_search_count": len(states),
@@ -856,19 +871,102 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "rows": rows,
             "states": [state.model_dump(mode="json") for state in states],
         }
-        json_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
-        pd.DataFrame(rows).to_csv(csv_path, index=False, quoting=csv.QUOTE_MINIMAL)
-        provenance_path.write_text(json.dumps(provenance, indent=2), encoding="utf-8")
-        ledger_path.write_text(json.dumps(_excluded_query_ledger(states), indent=2), encoding="utf-8")
+        ledger: list[dict[str, Any]] = []
+        if ledger:
+            raise AssertionError("Adaptive search attempted excluded-evidence queries.")
+        _atomic_write_text(json_path, json.dumps(result, indent=2))
+        _atomic_write_csv(csv_path, rows)
+        _atomic_write_text(provenance_path, json.dumps(provenance, indent=2))
+        _atomic_write_text(ledger_path, json.dumps(ledger, indent=2))
         _log(f"[checkpoint] status={status} completed={len(rows)} skipped={len(skipped)} -> {json_path}")
         return result
 
-    json_path = out_dir / "iterative_candidate_replay.json"
-    csv_path = out_dir / "iterative_candidate_replay.csv"
-    provenance_path = out_dir / "run_provenance.json"
-    ledger_path = out_dir / "excluded_query_ledger.json"
-    checkpoint_every = max(0, int(getattr(args, "checkpoint_every", 0) or 0))
-    initial_rows = [row for row in _iter_initial_rows(payload) if _needs_search(row)]
+    if getattr(args, "resume", "on") == "on":
+        for checkpoint_path in sorted(parent_checkpoint_dir.glob("parent_*.json")):
+            index, _, state = restore_parent_checkpoint(checkpoint_path)
+            if index in states_by_index:
+                raise ValueError(f"Duplicate parent checkpoint index: {index}")
+            if (
+                getattr(args, "retry_transient_generation_failures", "on") == "on"
+                and _is_retryable_transient_generation_failure(state)
+            ):
+                record_transient_failure(index, state)
+                retry_transient_indices.add(index)
+                _log(
+                    f"[resume] retrying transient candidate-generation failure "
+                    f"index={index} claim_id={state.original_claim.claim_id}"
+                )
+                continue
+            source_row = initial_rows[index - 1]
+            state = state.model_copy(
+                update={
+                    "source_metadata": _source_metadata(
+                        source_row,
+                        evidence_manifest,
+                        preflight_context,
+                    )
+                }
+            )
+            row = _row_for_state(source_row, state, llm_model_spec)
+            states_by_index[index] = state
+            rows_by_index[index] = row
+        if states_by_index:
+            _log(
+                f"[resume] restored {len(states_by_index)} atomic parent checkpoints "
+                f"from {parent_checkpoint_dir}"
+            )
+
+    if getattr(args, "resume", "on") == "on" and json_path.exists() and not states_by_index:
+        prior = json.loads(json_path.read_text(encoding="utf-8"))
+        prior_identity = (prior.get("provenance") or {}).get("resume_identity_sha256")
+        if prior_identity not in accepted_resume_identity_sha256s:
+            raise ValueError(
+                "Existing checkpoint provenance does not match source/config/model/prompt hashes; "
+                "use a new output directory or --resume off."
+            )
+        index_by_claim_id = {
+            str(row.get("claim_id")): index
+            for index, row in enumerate(initial_rows, start=1)
+        }
+        prior_rows = {
+            str(row.get("claim_id")): row
+            for row in prior.get("rows", [])
+            if isinstance(row, dict)
+        }
+        for state_payload in prior.get("states", []):
+            state = ClaimSearchState.model_validate(state_payload)
+            claim_id = state.original_claim.claim_id
+            index = index_by_claim_id.get(claim_id)
+            if index is None or prior_rows.get(claim_id) is None:
+                raise ValueError(f"Checkpoint contains unknown completed claim {claim_id!r}.")
+            if index in retry_transient_indices:
+                continue
+            if (
+                getattr(args, "retry_transient_generation_failures", "on") == "on"
+                and _is_retryable_transient_generation_failure(state)
+            ):
+                record_transient_failure(index, state)
+                retry_transient_indices.add(index)
+                _log(
+                    f"[resume] retrying transient candidate-generation failure "
+                    f"index={index} claim_id={state.original_claim.claim_id}"
+                )
+                continue
+            source_row = initial_rows[index - 1]
+            state = state.model_copy(
+                update={
+                    "source_metadata": _source_metadata(
+                        source_row,
+                        evidence_manifest,
+                        preflight_context,
+                    )
+                }
+            )
+            row = _row_for_state(source_row, state, llm_model_spec)
+            states_by_index[index] = state
+            rows_by_index[index] = row
+        if states_by_index:
+            _log(f"[resume] restored {len(states_by_index)} completed parent states from {json_path}")
 
     _log(
         "[start] iterative claim search "
@@ -883,6 +981,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         if result["status"] == "completed":
             rows_by_index[index] = result["row"]
             states_by_index[index] = ClaimSearchState.model_validate(result["state"])
+            write_parent_checkpoint(
+                index,
+                rows_by_index[index],
+                states_by_index[index],
+            )
         else:
             skipped_by_index[index] = result["skip"]
         _log(str(result.get("message") or ""))
@@ -890,7 +993,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             write_current("running")
 
     if max_workers == 1:
-        indexed_rows = list(enumerate(initial_rows, start=1))
+        indexed_rows = [
+            (index, row)
+            for index, row in enumerate(initial_rows, start=1)
+            if index not in states_by_index
+        ]
         for index, row in iter_progress(
             indexed_rows,
             total=len(indexed_rows),
@@ -907,14 +1014,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                     row=row,
                     config=config,
                     data_roots=data_roots,
-                    holdout_data_roots=holdout_data_roots,
-                    external_data_roots=external_data_roots,
                     candidate_evaluation=candidate_evaluation,
                     llm_model_spec=llm_model_spec,
                     llm=llm,
                     preflight_context=preflight_context,
                     evidence_manifest=evidence_manifest,
-                    evidence_freshness=evidence_freshness,
                 )
             )
     else:
@@ -926,14 +1030,12 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 "row": row,
                 "config": config.model_dump(mode="json"),
                 "data_roots": [str(root) for root in data_roots],
-                "holdout_data_roots": [str(root) for root in holdout_data_roots],
-                "external_data_roots": [str(root) for root in external_data_roots],
                 "candidate_evaluation": candidate_evaluation,
                 "llm_spec": args.llm,
                 "evidence_manifest": str(args.evidence_manifest) if getattr(args, "evidence_manifest", None) else None,
-                "evidence_freshness": evidence_freshness,
             }
             for index, row in enumerate(initial_rows, start=1)
+            if index not in states_by_index
         ]
         for task in tasks:
             _log(
@@ -980,6 +1082,12 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             _log(f"[workers] process pool unavailable ({exc}); falling back to thread pool")
             run_parallel("thread")
 
+    refresh_lists()
+    if len(states) != len(initial_rows) or skipped:
+        write_current("incomplete")
+        raise RuntimeError(
+            f"Claim search incomplete: completed={len(states)} expected={len(initial_rows)} skipped={len(skipped)}."
+        )
     result = write_current("completed")
     print(f"wrote {json_path}")
     print(f"wrote {csv_path}")
@@ -994,7 +1102,28 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-rounds", type=int, default=3)
     parser.add_argument("--max-candidates", type=int, default=5)
     parser.add_argument("--schema-retries", type=int, default=2)
-    parser.add_argument("--checkpoint-every", type=int, default=5)
+    parser.add_argument(
+        "--feedback-mode",
+        choices=["structured_diagnosis", "generic_retry"],
+        default="structured_diagnosis",
+    )
+    parser.add_argument(
+        "--checkpoint-every",
+        type=int,
+        default=10,
+        help="Rewrite aggregate artifacts every N parents; each completed parent is always checkpointed atomically.",
+    )
+    parser.add_argument("--resume", choices=["on", "off"], default="on")
+    parser.add_argument(
+        "--retry-transient-generation-failures",
+        choices=["on", "off"],
+        default="on",
+        help=(
+            "On resume, rerun only parents whose candidate generation produced no candidates "
+            "because every recorded LLM attempt ended in a transient transport error."
+        ),
+    )
+    parser.add_argument("--expected-parent-count", type=int, default=None)
     parser.add_argument("--max-workers", type=int, default=1, help="Number of worker processes for claim-level replay parallelism.")
     parser.add_argument("--parallel-backend", choices=["process", "thread"], default="process")
     parser.add_argument("--no-progress", action="store_true", help="Disable progress bars/log progress updates.")
@@ -1006,27 +1135,9 @@ def build_parser() -> argparse.ArgumentParser:
         help="Repeatable root containing canonical cohort parquet files. Defaults to the active partitioned benchmark root.",
     )
     parser.add_argument(
-        "--holdout-data-root",
-        action="append",
-        default=None,
-        help="Repeatable root containing materialized holdout partition parquet files.",
-    )
-    parser.add_argument(
-        "--external-data-root",
-        action="append",
-        default=None,
-        help="Repeatable optional external/holdout cohort root. Passing this enables external confirmation attempts.",
-    )
-    parser.add_argument(
         "--evidence-manifest",
         default=None,
-        help="Optional evidence-partition manifest used to map source cohorts to holdout/external evaluation cohorts.",
-    )
-    parser.add_argument(
-        "--evidence-freshness",
-        choices=["fresh", "previously_queried", "unknown"],
-        default="unknown",
-        help="Whether excluded evidence was untouched before this run.",
+        help="Optional partition manifest used only for source-cohort resolution, hashes, and provenance.",
     )
     return parser
 

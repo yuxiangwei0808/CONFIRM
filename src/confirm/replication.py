@@ -129,12 +129,12 @@ def _pattern_corr(discovery: RegionTable, replication: RegionTable) -> float:
     disc = _effect_map(discovery)
     rep = _effect_map(replication)
     shared = sorted(set(disc) & set(rep))
-    if len(shared) < 2:
+    if len(shared) < 3:
         return float("nan")
     x = pd.Series([disc[region] for region in shared], dtype=float)
     y = pd.Series([rep[region] for region in shared], dtype=float)
     finite = x.notna() & y.notna()
-    if finite.sum() < 2 or x[finite].std(ddof=0) == 0 or y[finite].std(ddof=0) == 0:
+    if finite.sum() < 3 or x[finite].std(ddof=0) == 0 or y[finite].std(ddof=0) == 0:
         return float("nan")
     return float(x[finite].corr(y[finite], method="pearson"))
 
@@ -298,7 +298,7 @@ def replicate_brainwide(
         cohort = str(rep_df["cohort"].iloc[0]) if "cohort" in rep_df.columns and len(rep_df) else f"rep_{i}"
         shared_regions = sorted(set(discovery_regions) & set(idp_columns(rep_df.columns)))
         coverage = _region_feature_coverage(discovery_regions, rep_df)
-        if len(shared_regions) < 2 or coverage < 0.5:
+        if len(shared_regions) < 3 or coverage < 0.5:
             all_results.append(
                 CohortBrainwideReplicationResult(
                     cohort=cohort,

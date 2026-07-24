@@ -1,0 +1,24 @@
+{
+  "bootstrap_resamples": 2000,
+  "bootstrap_seed": 20260723,
+  "input_sha256": {
+    "alignment_manifest.json": "73116115371500f3e6e044946af4016242c574fbf5bb230c016605f160d1847f",
+    "benchmark_summary.json": "8f3fc71a930c1f40b7907bb4e24b97783d850d2c1a3dc0b44c15a9636b5a898e",
+    "cases.jsonl": "57605904c124ecadbc9105d9b55e3bba58ee94aab0e68d6a5f93e587f6359c41",
+    "outcomes.jsonl": "1559acf53cbbcb6f09fe17710c4a854a4d6501b170df086535ac0c5bb1cc384b",
+    "references.jsonl": "90f6cf8595784c84afb80020b071ab6521931c6382365cd60da7f6452ec3e137",
+    "tasks.jsonl": "ff775415fc63fc0f39483a6c53d5ee8750cf717d8ba44a39d4d460f2912aad53"
+  },
+  "outcome_blind_reference_construction": true,
+  "output_sha256": {
+    "alignment_audit.json": "73116115371500f3e6e044946af4016242c574fbf5bb230c016605f160d1847f",
+    "analysis_audit.json": "5e8d88f2589f78d602d178b72ac6b01b9b77afff8e9b1bc5db1bcd31125c477d",
+    "benchmark_strata_summary.csv": "7c89a88dfa55e1f389e1215ff9ec78d556bbec414109b2d6b9daef2e793a660d",
+    "pubmed_retrieval_audit.json": "ce5b40decf0125cfa6823ebc3e74e00fa6b8f671fc9301cd9133e786f352e6aa",
+    "reference_agreement_audit.csv": "c32136a0fe38e2c429a7f4c4a16066bd7029b7578c729b5264f101bcc37a3c08",
+    "reference_expansion_audit.json": "9388c759a6f034d767164cfba15b11ec35b54bd0b4f14809c7f7dec291bcdd75",
+    "target_reference_summary.csv": "c8b5272a9a10641b70eb687d81dc96ead022b4a113fabfd976b37f5bda1835e1",
+    "unresolved_case_summary.csv": "66402d994f880ceed0a69196c3ef9a8212e228e607c07610209e9bf87e03c9b1"
+  },
+  "version": "neuroclaimbench-v2.1-analysis-v1"
+}

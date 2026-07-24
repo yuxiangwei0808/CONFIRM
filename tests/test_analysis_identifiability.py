@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from confirm.analysis import AnalysisNonIdentifiableError, build_analysis_design, fit_effect
+from confirm.analysis import AnalysisNonIdentifiableError, _diagnostics, build_analysis_design, fit_effect
 from confirm.contract import ClaimContract
 from confirm.multiverse import run_multiverse
 from confirm.results import EffectResult
@@ -83,6 +83,35 @@ def test_robust_fit_suppresses_tall_matrix_pinv_noise():
 
     assert not [item for item in caught if issubclass(item.category, RuntimeWarning)]
     assert all(math.isfinite(value) for value in (effect.beta, effect.se, effect.p))
+
+
+def test_optional_influence_warnings_are_recorded_without_leaking():
+    class FakeInfluence:
+        @property
+        def cooks_distance(self):
+            warnings.warn("invalid value encountered in sqrt", RuntimeWarning)
+            return np.array([0.1, np.nan, 0.3]), None
+
+    class FakeFitted:
+        resid = np.array([0.2, -0.1, -0.1])
+
+        @staticmethod
+        def get_influence():
+            return FakeInfluence()
+
+    y = pd.Series([1.0, 2.0, 3.0])
+    x = pd.DataFrame({"x": [0.0, 1.0, 2.0]})
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        diagnostics = _diagnostics(y, x, FakeFitted())
+
+    assert not [item for item in caught if issubclass(item.category, RuntimeWarning)]
+    assert diagnostics["cooks_distance_warning_count"] == 1
+    assert diagnostics["cooks_distance_nonfinite_count"] == 1
+    assert diagnostics["cooks_distance_top"] == [
+        {"row": "2", "value": 0.3},
+        {"row": "0", "value": 0.1},
+    ]
 
 
 def test_multiverse_errors_remain_in_consistency_denominator(monkeypatch):

@@ -29,8 +29,8 @@ def _cmd_run(args: argparse.Namespace) -> int:
             max_rounds=args.claim_search_max_rounds,
             max_candidates_per_round=args.claim_search_max_candidates,
             llm_schema_retries=args.claim_search_schema_retries,
+            feedback_mode=args.claim_search_feedback_mode,
         ),
-        claim_search_external_data_dir=args.claim_search_external_data_dir,
     )
     print(json.dumps(verdict.to_dict(), indent=2, sort_keys=True))
     return 0 if verdict.label in args.accept_label else 1
@@ -47,8 +47,8 @@ def _cmd_ask(args: argparse.Namespace) -> int:
             max_rounds=args.claim_search_max_rounds,
             max_candidates_per_round=args.claim_search_max_candidates,
             llm_schema_retries=args.claim_search_schema_retries,
+            feedback_mode=args.claim_search_feedback_mode,
         ),
-        claim_search_external_data_dir=args.claim_search_external_data_dir,
     )
     print(json.dumps(verdict.to_dict(), indent=2, sort_keys=True))
     return 0 if verdict.label in args.accept_label else 1
@@ -87,7 +87,11 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--claim-search-max-rounds", type=int, default=3)
     run.add_argument("--claim-search-max-candidates", type=int, default=5)
     run.add_argument("--claim-search-schema-retries", type=int, default=2)
-    run.add_argument("--claim-search-external-data-dir", default=None)
+    run.add_argument(
+        "--claim-search-feedback-mode",
+        choices=["structured_diagnosis", "generic_retry"],
+        default="structured_diagnosis",
+    )
     run.set_defaults(func=_cmd_run)
 
     ask = sub.add_parser("ask", help="Draft and run a claim from a natural-language question")
@@ -100,7 +104,11 @@ def build_parser() -> argparse.ArgumentParser:
     ask.add_argument("--claim-search-max-rounds", type=int, default=3)
     ask.add_argument("--claim-search-max-candidates", type=int, default=5)
     ask.add_argument("--claim-search-schema-retries", type=int, default=2)
-    ask.add_argument("--claim-search-external-data-dir", default=None)
+    ask.add_argument(
+        "--claim-search-feedback-mode",
+        choices=["structured_diagnosis", "generic_retry"],
+        default="structured_diagnosis",
+    )
     ask.set_defaults(func=_cmd_ask)
 
     ingest = sub.add_parser("ingest", help="Ingest a cohort to canonical parquet")

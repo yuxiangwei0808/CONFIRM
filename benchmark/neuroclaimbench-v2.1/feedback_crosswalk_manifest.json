@@ -1,0 +1,58 @@
+{
+  "arm_count": 12,
+  "arm_parent_checkpoint_tree_sha256": {
+    "R10C10": "62edb890e3b5248600b8f2ddf69f08bfd07574668e0ea3149b2d8b1410abc772",
+    "R10C2": "9086b60648dfa7563ab8a6be6a4ecc77b8e05c89222316047f43c4cccc58146f",
+    "R10C5": "7038f48e80ba60a58f80249f9758f0b94ef4a4c9851d087425d00a31002957e7",
+    "R1C10": "5344b5a8412eea41a811d32c8aaf4436108d14be7ab1e0fcca41a615b5932ea1",
+    "R1C2": "5e7cb5c21b4b24b494256fcd87fdc4a20f6571f8d6bd9ee15d262d4510594a58",
+    "R1C5": "96cdefd58e523194f68f01b02a2c9029823e20f8522dd63c1a14bb25a3b47ef5",
+    "R3C10": "dd59630680e4b1d51403b078f7cdb1e266c76bb54157b5d3133d75bb23b7f64c",
+    "R3C2": "c6db1554ea6dea3f15886c8d338366b293f956413949c17e1fd5f25615403513",
+    "R3C5": "590688f470c253fba5f185636956a875a55967f4d17422816b744eab3e158be9",
+    "R5C10": "7add95ac36495687b433d69560d93fa7e4bd1f59653d2b936006b90f760697a9",
+    "R5C2": "dc8702af4fa52dd869e8747c22128c0369ff061b0d8e92223b3006e243c8fbee",
+    "R5C5": "d439bbfee40410041501d8cce5eb4913af367b879198278375fa11a13cfa537a"
+  },
+  "arm_run_provenance_sha256": {
+    "R10C10": "5ca237ed104d2e2f4ba2296ef64d1d0ae9bc8ae1155a8bf9e5aae45a7ba001ca",
+    "R10C2": "ca3672feeb7f91069156de87b7fc5032f05d4335241a1af445aa5f5f5e5e5956",
+    "R10C5": "9cbdcfa880ebfa671c9a2b50fe6e1b4e8dc6a9a0b07f8fac0c229fa296055d5b",
+    "R1C10": "0124bab67801201c1c67d13d125382979d290928df043cae441da7dcad0adce5",
+    "R1C2": "9a8482a7b84025784bebc11947a4a1e299eeba2eef7186ff56089b2e15ee83c3",
+    "R1C5": "1b97a8102a43f72bc186160663ce382c466c68be66ab2b399aeafec8d8cc8ab8",
+    "R3C10": "011134b9a58ee19e6cef75bea7c8a62c8ddfd957913c005169161d57f8d77318",
+    "R3C2": "ba5ed056c81147ca24cebb61e97183479dd2602b56046844b7228d04aa8df452",
+    "R3C5": "f64a381747e905d9bb8f8e879dbb553282645479a480d9bc03d06253db9e8cb5",
+    "R5C10": "77d44152d7722429dc3e1948e6a420a3ba3c29d50496e1ee10b538ecf19cb564",
+    "R5C2": "9dfe6c6586de5273e1a1638fe043c99954695c53f51a2837fb866cfc76ff62cb",
+    "R5C5": "09825c56ca0aedbd6f6d8886b4146c115f47b68280b5c8ad665bcedf16efb2fd"
+  },
+  "input_sha256": {
+    "cases.jsonl": "57605904c124ecadbc9105d9b55e3bba58ee94aab0e68d6a5f93e587f6359c41",
+    "claim_search_source.json": "e94e3db9cb0d91325e91af4dcd34a2b82910cce00c5254f0c2d3e6a2d42a03d6",
+    "matrix_summary.json": "58eec1313414ebcfa83c8f1c8abaa60c3ba940093036e5e1e0b1a31dac9da3bb",
+    "references.jsonl": "90f6cf8595784c84afb80020b071ab6521931c6382365cd60da7f6452ec3e137"
+  },
+  "interpretation_restrictions": [
+    "repaired or semantically changed parents are pre_v2_contract_only",
+    "only exact_v2.1_reference rows enter reference-stratified summaries",
+    "the frozen feedback sweep was not rerun or modified"
+  ],
+  "match_status_counts": {
+    "exact_v2.1_reference": 2292,
+    "pre_v2_contract_only": 288
+  },
+  "matching_rule": "source claim ID plus exact pre-v2 executable contract hash",
+  "output_sha256": {
+    "feedback_parent_crosswalk.csv": "50377442a008422d397215600a373f16edbe3ad4dad1e7455f65040c37f01ecb",
+    "feedback_reference_summary.csv": "81f223e12bfac6f5f84ef27a20805ee86d420c88b205cb7e7bd1748f9e490ef4"
+  },
+  "parent_checkpoint_count": 2580,
+  "parent_checkpoint_tree_sha256": "5e1498b45d5233d57922139a8f855e10ebd49d5810d20312c7dab3f6032a27ff",
+  "parent_lineage_count": 215,
+  "row_count": 2580,
+  "source_code_sha256": "2b97a50c6ccacf14bbc496f256427fd44be9799437056f1e1af433aca5c47fb0",
+  "uses_feedback_outcomes_for_matching": false,
+  "version": "neuroclaimbench-v2.1-feedback-crosswalk-v2"
+}

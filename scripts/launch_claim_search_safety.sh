@@ -11,12 +11,17 @@ MAX_CANDIDATES="${MAX_CANDIDATES:-5}"
 SCHEMA_RETRIES="${SCHEMA_RETRIES:-2}"
 MAX_WORKERS="${MAX_WORKERS:-1}"
 PARALLEL_BACKEND="${PARALLEL_BACKEND:-process}"
-CHECKPOINT_EVERY="${CHECKPOINT_EVERY:-5}"
+CHECKPOINT_EVERY="${CHECKPOINT_EVERY:-10}"
 PROGRESS="${PROGRESS:-on}"
 NEGATIVE_LIMIT="${NEGATIVE_LIMIT:-}"
 FISHING_FEATURE_LIMIT="${FISHING_FEATURE_LIMIT:-24}"
 UNDERPOWERED_COHORT_LIMIT="${UNDERPOWERED_COHORT_LIMIT:-7}"
-OUT="${OUT:-review-stage/claim-search-safety-gpt55-$(date +%Y%m%d)}"
+OUT="${OUT:-review-stage/claim-search-safety-gpt55-v7}"
+FEEDBACK_MODE="${FEEDBACK_MODE:-structured_diagnosis}"
+EXPECTED_PARENT_COUNT="${EXPECTED_PARENT_COUNT:-}"
+if [[ -z "$EXPECTED_PARENT_COUNT" && -z "$NEGATIVE_LIMIT" ]]; then
+  EXPECTED_PARENT_COUNT=150
+fi
 
 export PYTHONPATH="$ROOT/src:${PYTHONPATH:-}"
 export PYTHONUNBUFFERED=1
@@ -25,7 +30,7 @@ export CONFIRM_LLM_TIMEOUT="${CONFIRM_LLM_TIMEOUT:-300}"
 mkdir -p "$OUT/logs" "$OUT/data/cohorts"
 
 negative_cmd=(
-  "$PYTHON" -m bench.run_negatives_expansion
+  "$PYTHON" -m bench.run_known_negative_safety
   --root .
   --out-dir "$OUT/gates"
   --materialize-data-root "$OUT/data/cohorts"
@@ -37,13 +42,17 @@ if [[ -n "$NEGATIVE_LIMIT" ]]; then
 fi
 "${negative_cmd[@]}" 2>&1 | tee "$OUT/logs/build_known_negatives.log"
 
-"$PYTHON" nbs/build_claim_search_source_from_results.py \
-  --input "$OUT/gates/negatives_expansion_results.json" \
-  --out "$OUT/source/claim_search_source.json" \
-  --model-spec synthetic-stress \
-  --evidence-manifest "$OUT/data/manifest.json" \
-  --require-excluded-evidence \
-  2>&1 | tee "$OUT/logs/build_safety_source.log"
+source_cmd=(
+  "$PYTHON" nbs/build_claim_search_source_from_results.py
+  --input "$OUT/gates/known_negative_results.json"
+  --out "$OUT/source/claim_search_source.json"
+  --model-spec synthetic-stress
+  --evidence-manifest "$OUT/data/manifest.json"
+)
+if [[ -n "$EXPECTED_PARENT_COUNT" ]]; then
+  source_cmd+=(--expected-failed-count "$EXPECTED_PARENT_COUNT")
+fi
+"${source_cmd[@]}" 2>&1 | tee "$OUT/logs/build_safety_source.log"
 
 replay_cmd=(
   "$PYTHON" -u -m bench.run_iterative_claim_search_replay
@@ -53,15 +62,18 @@ replay_cmd=(
   --max-rounds "$MAX_ROUNDS"
   --max-candidates "$MAX_CANDIDATES"
   --schema-retries "$SCHEMA_RETRIES"
+  --feedback-mode "$FEEDBACK_MODE"
   --checkpoint-every "$CHECKPOINT_EVERY"
+  --resume on
   --candidate-evaluation on
   --max-workers "$MAX_WORKERS"
   --parallel-backend "$PARALLEL_BACKEND"
   --data-root "$OUT/data/cohorts"
-  --holdout-data-root "$OUT/data/cohorts"
   --evidence-manifest "$OUT/data/manifest.json"
-  --evidence-freshness fresh
 )
+if [[ -n "$EXPECTED_PARENT_COUNT" ]]; then
+  replay_cmd+=(--expected-parent-count "$EXPECTED_PARENT_COUNT")
+fi
 if [[ "$PROGRESS" == "off" ]]; then
   replay_cmd+=(--no-progress)
 fi

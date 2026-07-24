@@ -1,0 +1,18 @@
+{
+  "archive_file_count": 13,
+  "benchmark_version": "v2.1",
+  "counts": {
+    "cases": 544,
+    "outcomes": 489,
+    "references": 544,
+    "tasks": 489
+  },
+  "doi": null,
+  "doi_status": "pending_external_deposit",
+  "full_audit_trace_location": "review-stage/neuroclaimbench-v2.1/external-archive",
+  "pubmed_abstracts_released": false,
+  "raw_cohort_data_released": false,
+  "release_file_count": 24,
+  "release_schema_version": 2,
+  "scientific_results_changed": false
+}

@@ -1,5 +1,5 @@
-# Placeholder seed contract for claim_library; pilots generate the concrete
-# cohort-specific version at runtime after selecting an ABIDE site.
+# Example fragile ASD contract; pilot builders may replace its cohort pair
+# after selecting a compatible ABIDE site.
 claim_id: asd_single_site_fragile
 question: "Does ASD differ from controls on a small single-site neuroimaging phenotype?"
 estimand:

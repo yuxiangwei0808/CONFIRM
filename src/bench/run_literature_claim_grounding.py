@@ -8,9 +8,6 @@ import json
 import os
 import re
 import time
-import urllib.parse
-import urllib.request
-import xml.etree.ElementTree as ET
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
@@ -19,42 +16,27 @@ from typing import Any, Literal, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 from bench.progress import iter_progress
+from bench.pubmed import (
+    PubMedRecord,
+    fetch_pubmed_records,
+    search_pubmed_ids,
+)
 from bench.run_initial_claim_drafting import (
     DEFAULT_DATA_ROOTS,
     DEFAULT_MODEL,
     DEFAULT_TARGET_FAMILIES,
     TARGET_GUIDANCE,
-    _complete_structured,
     _json_safe,
     _make_llm,
     _merge_catalogs,
-    _parse_json_model,
     _safe_id,
     _write_jsonl,
 )
 from confirm.derived_columns import CONFIRM_DX, columns_with_virtuals, confirm_dx_levels
-from confirm.llm import LLMClient
+from confirm.llm import LLMClient, complete_structured, parse_structured
 
 DEFAULT_OUT_DIR = Path("review-stage/literature-grounding-gpt55")
 DEFAULT_CLAIMS_OUT = Path("data/claims/literature_grounded_claims.csv")
-
-
-class PubMedRecord(BaseModel):
-    """A retrieved PubMed abstract with provenance."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    pmid: str
-    title: str
-    abstract: str
-    journal: str = ""
-    year: str = ""
-    doi: str = ""
-    mesh_terms: list[str] = Field(default_factory=list)
-    query: str
-    target_family: str
-    modality: str
-    retrieved_at: str
 
 
 class LiteratureClaimSeed(BaseModel):
@@ -152,110 +134,6 @@ def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     return rows
 
 
-def _pubmed_url(endpoint: str, params: dict[str, str]) -> str:
-    return f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/{endpoint}?{urllib.parse.urlencode(params)}"
-
-
-def _urlopen_text(url: str, *, timeout: float) -> str:
-    with urllib.request.urlopen(url, timeout=timeout) as response:
-        return response.read().decode("utf-8")
-
-
-def _pubmed_ids(query: str, *, max_records: int, email: str, api_key: str, timeout: float) -> list[str]:
-    params = {
-        "db": "pubmed",
-        "term": query,
-        "retmode": "json",
-        "retmax": str(max_records),
-        "sort": "relevance",
-        "tool": "confirm_claim_grounding",
-    }
-    if email:
-        params["email"] = email
-    if api_key:
-        params["api_key"] = api_key
-    data = json.loads(_urlopen_text(_pubmed_url("esearch.fcgi", params), timeout=timeout))
-    return [str(item) for item in data.get("esearchresult", {}).get("idlist", [])]
-
-
-def _fetch_pubmed_records(
-    ids: list[str],
-    *,
-    query: str,
-    target_family: str,
-    modality: str,
-    email: str,
-    api_key: str,
-    timeout: float,
-    retrieved_at: str,
-) -> list[PubMedRecord]:
-    if not ids:
-        return []
-    params = {
-        "db": "pubmed",
-        "id": ",".join(ids),
-        "retmode": "xml",
-        "tool": "confirm_claim_grounding",
-    }
-    if email:
-        params["email"] = email
-    if api_key:
-        params["api_key"] = api_key
-    xml_text = _urlopen_text(_pubmed_url("efetch.fcgi", params), timeout=timeout)
-    return _parse_pubmed_xml(xml_text, query=query, target_family=target_family, modality=modality, retrieved_at=retrieved_at)
-
-
-def _parse_pubmed_xml(
-    xml_text: str,
-    *,
-    query: str,
-    target_family: str,
-    modality: str,
-    retrieved_at: str,
-) -> list[PubMedRecord]:
-    root = ET.fromstring(xml_text)
-    records: list[PubMedRecord] = []
-    for article in root.findall(".//PubmedArticle"):
-        pmid = _text(article.find(".//MedlineCitation/PMID"))
-        title = _text(article.find(".//ArticleTitle"))
-        abstract = " ".join(
-            part for part in (_text(node) for node in article.findall(".//Abstract/AbstractText")) if part
-        )
-        if not abstract:
-            continue
-        doi = ""
-        for item in article.findall(".//ArticleIdList/ArticleId"):
-            if item.attrib.get("IdType") == "doi":
-                doi = _text(item)
-                break
-        year = _text(article.find(".//JournalIssue/PubDate/Year"))
-        if not year:
-            medline_date = _text(article.find(".//JournalIssue/PubDate/MedlineDate"))
-            year = medline_date[:4] if medline_date else ""
-        records.append(
-            PubMedRecord(
-                pmid=pmid,
-                title=title,
-                abstract=abstract,
-                journal=_text(article.find(".//Journal/Title")),
-                year=year,
-                doi=doi,
-                mesh_terms=[_text(node) for node in article.findall(".//MeshHeading/DescriptorName") if _text(node)],
-                query=query,
-                target_family=target_family,
-                modality=modality,
-                retrieved_at=retrieved_at,
-            )
-        )
-    return records
-
-
-def _text(node: Optional[ET.Element]) -> str:
-    if node is None:
-        return ""
-    return " ".join("".join(node.itertext()).split())
-
-
 def retrieve_pubmed_records(args: argparse.Namespace) -> tuple[list[PubMedRecord], list[dict[str, Any]]]:
     """Retrieve PubMed records for configured target families."""
 
@@ -280,7 +158,7 @@ def retrieve_pubmed_records(args: argparse.Namespace) -> tuple[list[PubMedRecord
         for query_cfg in DEFAULT_PUBMED_QUERIES[target_family]:
             query = query_cfg["query"]
             modality = query_cfg["modality"]
-            ids = _pubmed_ids(
+            ids = search_pubmed_ids(
                 query,
                 max_records=args.max_records_per_query,
                 email=email,
@@ -298,7 +176,7 @@ def retrieve_pubmed_records(args: argparse.Namespace) -> tuple[list[PubMedRecord
                 }
             )
             records.extend(
-                _fetch_pubmed_records(
+                fetch_pubmed_records(
                     ids,
                     query=query,
                     target_family=target_family,
@@ -368,11 +246,19 @@ def extract_claim_seeds(
         for attempt in range(schema_retries + 1):
             prompt = _extraction_prompt(record, max_claims_per_record, last_error)
             prompts.append({"pmid": record.pmid, "attempt": attempt, "system": system, "user": prompt})
-            raw = _complete_structured(llm, system, prompt, LiteratureClaimExtractionResponse)
+            raw = complete_structured(
+                llm,
+                system,
+                prompt,
+                LiteratureClaimExtractionResponse,
+            )
             response_row: dict[str, Any] = {"pmid": record.pmid, "attempt": attempt, "raw_response": raw}
             responses.append(response_row)
             try:
-                parsed = _parse_json_model(raw, LiteratureClaimExtractionResponse)
+                parsed = parse_structured(
+                    raw,
+                    LiteratureClaimExtractionResponse,
+                )
                 if len(parsed.claims) > max_claims_per_record:
                     raise ValueError(f"Expected at most {max_claims_per_record} claims, got {len(parsed.claims)}.")
                 for index, seed in enumerate(parsed.claims, start=1):

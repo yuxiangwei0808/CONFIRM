@@ -2,9 +2,13 @@ from __future__ import annotations
 
 import pandas as pd
 
-from bench.injected_nulls import NegativeCohort, NegativeStressTask, site_confound_stress_task
+from bench.injected_nulls import (
+    NegativeCohort,
+    NegativeStressTask,
+    site_confound_stress_task,
+)
 from bench.run_iterative_claim_search_replay import _known_negative_or_fragile_source
-from bench.run_negatives_expansion import materialize_negative_task
+from bench.run_known_negative_safety import materialize_negative_task
 from confirm.analysis import build_analysis_design
 from confirm.candidate_preflight import CandidatePreflightContext
 from confirm.contract import ClaimContract

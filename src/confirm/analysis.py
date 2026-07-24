@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import warnings
 from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any, Literal
@@ -261,9 +262,6 @@ def _analysis_frame(df: pd.DataFrame, contract: ClaimContract, covariates: list[
     if missing:
         raise ValueError(f"Analysis columns not found: {missing}")
     data = data[needed].dropna().copy()
-    if len(data) < max(8, len(needed) + 3):
-        raise ValueError(f"Too few complete rows for analysis: n={len(data)}")
-
     y = pd.to_numeric(data[outcome], errors="coerce")
     x_parts = [pd.Series(pd.to_numeric(data[predictor_name], errors="coerce"), name=predictor_name)]
     for cov in covariates:
@@ -375,8 +373,16 @@ def _diagnostics(y: pd.Series, x: pd.DataFrame, fitted: object) -> dict[str, obj
     except Exception as exc:
         out["homoscedasticity_error"] = str(exc)
     try:
-        influence = fitted.get_influence()
-        cooks = pd.Series(influence.cooks_distance[0], index=y.index).sort_values(ascending=False).head(5)
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always", RuntimeWarning)
+            influence = fitted.get_influence()
+            values = np.asarray(influence.cooks_distance[0], dtype=float)
+        finite = np.isfinite(values)
+        out["cooks_distance_nonfinite_count"] = int((~finite).sum())
+        out["cooks_distance_warning_count"] = sum(
+            issubclass(item.category, RuntimeWarning) for item in caught
+        )
+        cooks = pd.Series(values[finite], index=y.index[finite]).sort_values(ascending=False).head(5)
         out["cooks_distance_top"] = [{"row": str(idx), "value": float(value)} for idx, value in cooks.items()]
     except Exception as exc:
         out["cooks_distance_error"] = str(exc)

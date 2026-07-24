@@ -13,21 +13,23 @@ from typing import Any
 import pandas as pd
 import yaml
 
-from bench.claim_library import lookup_ref_effect
 from confirm.candidate_preflight import CandidatePreflightContext
-from confirm.analysis import audit_confound_completeness, run_primary
-from confirm.brainwide import run_brainwide
 from confirm.claim_search import CandidateClaimProposal, CandidateEvaluator, ClaimSearchConfig, build_claim_search_artifacts
 from confirm.contract import ClaimContract, load_contract
 from confirm.derived_columns import add_virtual_columns, columns_with_virtuals, confirm_dx_levels
+from confirm.execution import (
+    cohort_path as _public_cohort_path,
+    evaluate_contract,
+    jsonable as _public_jsonable,
+    load_canonical as _public_load_canonical,
+    run_brainwide_contract as _public_run_brainwide_contract,
+    run_scalar_contract as _public_run_scalar_contract,
+)
 from confirm.llm import LLMClient, get_llm
-from confirm.multiverse import run_brainwide_multiverse, run_multiverse
-from confirm.power import power_check
 from confirm.provenance import make_receipt, write_receipt
-from confirm.replication import replicate, replicate_brainwide
-from confirm.results import EffectResult, PowerResult, RegionTable
+from confirm.results import PowerResult
 from confirm.schema import idp_columns, validate_canonical
-from confirm.verdict import Verdict, decide, decide_brainwide
+from confirm.verdict import Verdict
 
 SEED = 20260615
 
@@ -44,15 +46,15 @@ Rules:
 
 
 def _cohort_path(data_dir: Path, cohort: str) -> Path:
-    path = data_dir / f"{cohort}.parquet"
-    if not path.exists():
-        raise FileNotFoundError(f"Canonical cohort parquet not found: {path}")
-    return path
+    """Compatibility wrapper; use confirm.execution.cohort_path."""
+
+    return _public_cohort_path(data_dir, cohort)
 
 
 def _load_canonical(path: Path) -> pd.DataFrame:
-    df = validate_canonical(pd.read_parquet(path), drop_invalid_demographics=True)
-    return add_virtual_columns(df, path.stem)
+    """Compatibility wrapper; use confirm.execution.load_canonical."""
+
+    return _public_load_canonical(path)
 
 
 def build_data_catalog(data_dir: str | Path) -> dict[str, Any]:
@@ -226,25 +228,14 @@ def _run_scalar_contract(
     replication_dfs: list[pd.DataFrame],
     ref_effect: float | None,
 ) -> tuple[Verdict, dict[str, Any]]:
-    confound_audit = audit_confound_completeness(discovery_df, contract)
-    primary = run_primary(discovery_df, contract)
-    multiverse = run_multiverse(discovery_df, contract, forks=None)
-    power = power_check(primary, contract, ref_effect=ref_effect)
-    replication = replicate(primary, discovery_df, replication_dfs, contract)
-    verdict = decide(primary, multiverse, power, replication, contract, confound_audit=confound_audit)
-    return verdict, {
-        "primary": primary,
-        "confound_completeness": confound_audit,
-        "multiverse": multiverse,
-        "power": power,
-        "replication": replication,
-        "verdict": verdict,
-    }
+    """Compatibility wrapper; use confirm.execution.run_scalar_contract."""
 
-
-def _best_region_effect(regions: RegionTable) -> EffectResult:
-    ordered = sorted(regions.regions, key=lambda region: (not region.significant, region.effect.p))
-    return ordered[0].effect
+    return _public_run_scalar_contract(
+        contract,
+        discovery_df,
+        replication_dfs,
+        ref_effect,
+    )
 
 
 def _run_brainwide_contract(
@@ -252,20 +243,13 @@ def _run_brainwide_contract(
     discovery_df: pd.DataFrame,
     replication_dfs: list[pd.DataFrame],
 ) -> tuple[Verdict, dict[str, Any]]:
-    confound_audit = audit_confound_completeness(discovery_df, contract)
-    regions = run_brainwide(discovery_df, contract)
-    multiverse = run_brainwide_multiverse(discovery_df, regions, contract)
-    power = power_check(_best_region_effect(regions), contract, ref_effect=contract.gates.power.ref_effect)
-    replication = replicate_brainwide(regions, discovery_df, replication_dfs, contract)
-    verdict = decide_brainwide(regions, multiverse, power, replication, contract, confound_audit=confound_audit)
-    return verdict, {
-        "regions": regions,
-        "confound_completeness": confound_audit,
-        "multiverse": multiverse,
-        "power": power,
-        "replication": replication,
-        "verdict": verdict,
-    }
+    """Compatibility wrapper; use confirm.execution.run_brainwide_contract."""
+
+    return _public_run_brainwide_contract(
+        contract,
+        discovery_df,
+        replication_dfs,
+    )
 
 
 def _execute_contract(
@@ -273,27 +257,15 @@ def _execute_contract(
     data_root: Path,
     ref_effect: float | None = None,
 ) -> tuple[Verdict, dict[str, Any], list[Path]]:
-    discovery_path = _cohort_path(data_root, contract.discovery_cohort)
-    replication_paths = [_cohort_path(data_root, cohort) for cohort in contract.replication_cohorts]
-    discovery_df = _load_canonical(discovery_path)
-    replication_dfs = [_load_canonical(path) for path in replication_paths]
-    if contract.estimand.unit == "brainwide":
-        verdict, results = _run_brainwide_contract(contract, discovery_df, replication_dfs)
-    else:
-        verdict, results = _run_scalar_contract(contract, discovery_df, replication_dfs, ref_effect)
-    return verdict, {"contract": contract.model_dump(), **results}, [discovery_path, *replication_paths]
+    """Compatibility wrapper; use confirm.execution.evaluate_contract."""
+
+    return evaluate_contract(contract, data_root, ref_effect=ref_effect)
 
 
 def _jsonable(value: Any) -> Any:
-    if hasattr(value, "to_dict"):
-        return _jsonable(value.to_dict())
-    if hasattr(value, "model_dump"):
-        return _jsonable(value.model_dump(mode="json"))
-    if isinstance(value, dict):
-        return {str(key): _jsonable(val) for key, val in value.items()}
-    if isinstance(value, (list, tuple)):
-        return [_jsonable(item) for item in value]
-    return value
+    """Compatibility wrapper; use confirm.execution.jsonable."""
+
+    return _public_jsonable(value)
 
 
 def _candidate_contract_evaluator(data_root: Path) -> CandidateEvaluator:
@@ -316,7 +288,6 @@ def _maybe_write_claim_search(
     enabled: bool,
     config: ClaimSearchConfig,
     llm: LLMClient | None = None,
-    external_data_root: Path | None = None,
 ) -> dict[str, Any] | None:
     if not enabled:
         return None
@@ -325,9 +296,6 @@ def _maybe_write_claim_search(
             llm = get_llm()
         except Exception:
             llm = None
-    preflight_roots = [data_root]
-    if external_data_root is not None:
-        preflight_roots.append(external_data_root)
     artifacts = build_claim_search_artifacts(
         contract,
         verdict.to_dict(),
@@ -335,8 +303,7 @@ def _maybe_write_claim_search(
         config=config,
         llm=llm,
         evaluator=_candidate_contract_evaluator(data_root),
-        external_evaluator=_candidate_contract_evaluator(external_data_root) if external_data_root is not None else None,
-        preflight_context=CandidatePreflightContext.from_roots(preflight_roots),
+        preflight_context=CandidatePreflightContext.from_roots([data_root]),
     )
     out_dir.mkdir(parents=True, exist_ok=True)
     for name, payload in artifacts.items():
@@ -419,7 +386,6 @@ def run_claim(
     *,
     claim_search: bool = False,
     claim_search_config: ClaimSearchConfig | None = None,
-    claim_search_external_data_dir: str | Path | None = None,
 ) -> Verdict:
     """Run the full CONFIRM gate chain for one claim contract."""
 
@@ -427,8 +393,6 @@ def run_claim(
     data_root = Path(data_dir)
     out_path = Path(out_dir)
     ref_effect = contract.gates.power.ref_effect
-    if ref_effect is None and contract.estimand.unit == "scalar":
-        ref_effect = lookup_ref_effect(contract_path, contract.claim_id)
     verdict, results, cohort_paths = _execute_contract(contract, data_root, ref_effect=ref_effect)
     search_payload = _maybe_write_claim_search(
         out_path,
@@ -438,7 +402,6 @@ def run_claim(
         results,
         claim_search,
         claim_search_config or ClaimSearchConfig(),
-        external_data_root=Path(claim_search_external_data_dir) if claim_search_external_data_dir is not None else None,
     )
     if search_payload is not None:
         results.update(search_payload)
@@ -461,7 +424,6 @@ def run_question(
     *,
     claim_search: bool = False,
     claim_search_config: ClaimSearchConfig | None = None,
-    claim_search_external_data_dir: str | Path | None = None,
 ) -> Verdict:
     """Draft, optionally approve, execute, interpret, and receipt a natural-language question."""
 
@@ -489,7 +451,6 @@ def run_question(
         claim_search,
         claim_search_config or ClaimSearchConfig(),
         llm=llm,
-        external_data_root=Path(claim_search_external_data_dir) if claim_search_external_data_dir is not None else None,
     )
     if search_payload is not None:
         results.update(search_payload)

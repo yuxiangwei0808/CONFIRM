@@ -245,16 +245,6 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                             }
                         )
                         continue
-                    if bool(args.require_excluded_evidence) and not evidence_manifest.has_excluded_evidence_for_contract(contract):
-                        excluded_by_evidence_policy.append(
-                            {
-                                "source_path": str(path),
-                                "claim_id": row["claim_id"],
-                                "reason": "no target-level excluded holdout/external evidence",
-                                "target_family": row.get("target_family"),
-                            }
-                        )
-                        continue
                 except Exception as exc:  # noqa: BLE001
                     excluded_by_evidence_policy.append(
                         {
@@ -273,6 +263,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             rows.append(row)
 
     failed = [row for row in rows if row.get("gate_verdict_label") != "confirmed"]
+    if args.expected_failed_count is not None and len(failed) != int(args.expected_failed_count):
+        raise ValueError(
+            f"Expected {args.expected_failed_count} failed claims, found {len(failed)} after source filtering."
+        )
     labels = Counter(str(row.get("gate_verdict_label")) for row in rows)
     executable_by_source = Counter(str(row.get("source_result_path")) for row in rows)
     non_executable_by_reason = Counter(str(row.get("reason")) for row in non_executable)
@@ -337,10 +331,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", action="append", default=None, help="CONFIRM gate result JSON. Repeatable.")
-    parser.add_argument("--out", default="review-stage/claim-search-gpt55-main/source/claim_search_source.json")
+    parser.add_argument("--out", default="review-stage/claim-search-gpt55-sweep-v7/source/claim_search_source.json")
     parser.add_argument("--model-spec", default="benchmark/initial-claims-all-gpt55")
     parser.add_argument("--evidence-manifest", default=None)
-    parser.add_argument("--require-excluded-evidence", action="store_true")
+    parser.add_argument("--expected-failed-count", type=int, default=None)
     parser.set_defaults(exclude_external_only_sources=True)
     parser.add_argument("--exclude-external-only-sources", dest="exclude_external_only_sources", action="store_true")
     parser.add_argument("--include-external-only-sources", dest="exclude_external_only_sources", action="store_false")

@@ -13,9 +13,9 @@ from pathlib import Path
 from typing import Any
 
 from bench.progress import iter_progress
-from confirm.agent import _execute_contract
 from confirm.contract import ClaimContract
 from confirm.evidence_partitions import is_excluded_evidence_cohort
+from confirm.execution import evaluate_contract
 from confirm.verdict import Verdict
 
 DEFAULT_DATA_ROOTS = (
@@ -120,7 +120,11 @@ def _evaluate_one(source_row: dict[str, Any], data_roots: list[str]) -> tuple[di
             raise ValueError(f"Stage 2 cannot evaluate excluded evidence cohorts: {excluded_cohorts}")
         roots = [Path(item) for item in data_roots]
         root = _execution_root(contract, roots)
-        verdict, results, cohort_paths = _execute_contract(contract, root, ref_effect=contract.gates.power.ref_effect)
+        verdict, results, cohort_paths = evaluate_contract(
+            contract,
+            root,
+            ref_effect=contract.gates.power.ref_effect,
+        )
         return _gate_row(source_row, contract, verdict, results, cohort_paths), None
     except Exception as exc:
         return None, _error_row(source_row, exc)

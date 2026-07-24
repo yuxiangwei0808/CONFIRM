@@ -110,6 +110,7 @@ class CandidatePreflightContext:
         """Build a compact executable catalog slice for the LLM prompt."""
 
         cohorts = [contract.discovery_cohort, *contract.replication_cohorts]
+        preferred_outcomes = _outcomes(contract)
         resolved: dict[str, Any] = {}
         all_idps: list[set[str]] = []
         for cohort in cohorts:
@@ -132,10 +133,13 @@ class CandidatePreflightContext:
                 "available": True,
                 "path": info.path,
                 "columns": relevant_columns,
-                "outcome_columns_sample": sorted(info.idps)[:outcome_limit],
-                "outcome_column_count": len(info.idps),
+                "outcome_columns_sample": _ordered_outcomes(info.idps, preferred_outcomes)[:outcome_limit],
+                "outcome_column_count": len(set(info.idps)),
             }
-        common_outcomes = sorted(set.intersection(*all_idps)) if all_idps else []
+        common_outcomes = _ordered_outcomes(
+            set.intersection(*all_idps) if all_idps else set(),
+            preferred_outcomes,
+        )
         group_levels: dict[str, list[str]] = {}
         if contract.estimand.group is not None:
             group_var = contract.estimand.group.var
@@ -155,9 +159,11 @@ class CandidatePreflightContext:
             "contract_rules": [
                 "Use only cohorts and columns present in this executable catalog.",
                 "The allowed_cohorts list is limited to the parent discovery/replication contract.",
-                "Do not place holdout or external evaluation cohorts in proposed_contract for patch-like follow-ups.",
+                "Preserve the parent cohort names exactly. A holdout-named cohort is allowed only when it is already part of the parent source contract.",
                 "For same-data adaptive candidates, preserve the original predictor and group contrast.",
                 "Do not introduce synthetic variables unless they are present as columns.",
+                "Treat every listed outcome column as a distinct executable field; do not infer equivalence from a _z suffix.",
+                "Brainwide candidates must resolve to at least the minimum distinct outcome count declared by the generation policy in every parent cohort.",
                 "Use Python/pandas-query-compatible inclusion strings with quoted string levels.",
             ],
         }
@@ -231,7 +237,13 @@ class CandidatePreflightContext:
         df = self._read_columns(info, [column])
         return sorted(str(value) for value in df[column].dropna().unique())
 
-    def validate_contract(self, contract: ClaimContract, *, min_complete_rows: int = 20) -> CandidatePreflightResult:
+    def validate_contract(
+        self,
+        contract: ClaimContract,
+        *,
+        min_complete_rows: int = 20,
+        min_group_rows: int | None = None,
+    ) -> CandidatePreflightResult:
         violations: list[str] = []
         warnings: list[str] = []
         resolved: dict[str, str] = {}
@@ -286,6 +298,7 @@ class CandidatePreflightContext:
                     contract,
                     cohort,
                     min_complete_rows,
+                    min_group_rows=min_group_rows,
                     outcome_columns=outcome_columns,
                 )
                 violations.extend(table_violations)
@@ -303,6 +316,15 @@ class CandidatePreflightContext:
             resolved_outcome_columns=matched_outcomes_by_cohort,
             design_diagnostics=design_diagnostics,
         )
+
+    def resolved_outcomes(self, contract: ClaimContract) -> dict[str, list[str]]:
+        """Resolve the exact outcome columns tested in each parent cohort."""
+
+        resolved: dict[str, list[str]] = {}
+        for cohort in [contract.discovery_cohort, *contract.replication_cohorts]:
+            info = self.resolve(cohort)
+            resolved[cohort] = _matched_outcome_columns(contract, info) if info is not None else []
+        return resolved
 
     def _read_columns(self, info: CohortPreflightInfo, columns: list[str]) -> pd.DataFrame:
         requested = list(dict.fromkeys(columns))
@@ -335,6 +357,7 @@ def _validate_table_slice(
     cohort: str,
     min_complete_rows: int,
     *,
+    min_group_rows: int | None,
     outcome_columns: list[str],
 ) -> tuple[list[str], list[str], dict[str, Any] | None]:
     violations: list[str] = []
@@ -429,12 +452,35 @@ def _validate_table_slice(
     diagnostics: dict[str, Any] | None = None
     if not violations and usable_counts:
         _, best_outcome = max(usable_counts, key=lambda item: item[0])
+        representative_complete = table.dropna(
+            subset=[
+                column
+                for column in dict.fromkeys([best_outcome, *analysis_columns])
+                if column in table.columns
+            ]
+        )
+        group_counts: dict[str, int] = {}
+        if contract.estimand.group is not None:
+            group = contract.estimand.group
+            group_counts = {
+                level: int((representative_complete[group.var].astype(str) == level).sum())
+                for level in (group.case, group.control)
+            }
+            if min_group_rows is not None:
+                sparse = {level: count for level, count in group_counts.items() if count < min_group_rows}
+                if sparse:
+                    violations.append(
+                        f"Preflight: cohort {cohort!r} has too few complete rows per group "
+                        f"for {group.var!r}: {sparse} (minimum {min_group_rows})."
+                    )
         estimand = contract.estimand.model_copy(update={"outcome": best_outcome, "unit": "scalar"})
         design_contract = contract.model_copy(update={"estimand": estimand})
         try:
             design = build_analysis_design(table, design_contract, design_contract.covariates)
             diagnostics = dict(design.diagnostics)
             diagnostics["representative_outcome"] = best_outcome
+            if group_counts:
+                diagnostics["complete_group_counts"] = group_counts
             if diagnostics.get("condition_number_warning"):
                 warnings.append(
                     f"Preflight: cohort {cohort!r} design has a high standardized condition number "
@@ -567,3 +613,15 @@ def _parquet_columns(path: Path) -> list[str]:
         return list(pq.read_schema(path).names)
     except Exception:
         return list(pd.read_parquet(path).columns)
+
+
+def _ordered_outcomes(
+    columns: Iterable[str],
+    preferred: Iterable[str],
+) -> list[str]:
+    """List exact executable columns, placing parent outcomes first."""
+
+    available = {str(item) for item in columns}
+    preferred_order = [str(item) for item in preferred if str(item) in available]
+    remainder = sorted(available - set(preferred_order))
+    return list(dict.fromkeys([*preferred_order, *remainder]))

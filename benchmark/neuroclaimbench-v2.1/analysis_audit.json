@@ -1,0 +1,1804 @@
+{
+  "acceptance": {
+    "benchmark_items": 544,
+    "evaluation_tasks": 489,
+    "execution_error_count": 0,
+    "missing_partition_hash_count": 0,
+    "scored_alignment_mismatch_count": 0,
+    "task_outcomes": 489,
+    "task_result_reconciled": true
+  },
+  "alignment_audit": {
+    "forbidden_inputs_used": [],
+    "gemini_parsed_assessment_only_count": 362,
+    "gemini_raw_response_trace_count": 0,
+    "gemini_trace_count": 362,
+    "literature_advisory_count": 362,
+    "outcome_blind": true,
+    "output_sha256": {
+      "alignment_policy.json": "ac738bbcd45c44dc572202509af06445f81dafeb9a848df0142c1981489e58bd",
+      "alignment_records.jsonl": "bcc588ba4bc5d9d93121d0e039e54cc97e0914bbda2e21ccbc5a7013744b91e4",
+      "gemini_alignment_prompts.jsonl": "4ec728040b27dcdc0978a116286dcd386ba0d1960115615ad568fbe7862bfb05",
+      "gemini_alignment_responses.jsonl": "380e292a3953ed850f808b2793e8757529fa7d1fbfffe987dc1480970bd89a55"
+    },
+    "policy_sha256": "ec29615ad0f3a814162c0ae1dd84448ea57b08fa5e2dcc165dfbc0fa05ab30ad",
+    "policy_version": "neuroclaimbench-v2.1-alignment-20260723",
+    "record_count": 562,
+    "repair_count": 7,
+    "resolution_counts": {
+      "aligned": 81,
+      "aligned_with_safety_augmentation": 422,
+      "ambiguous_unresolved": 40,
+      "non_executable": 15,
+      "repairable_contract": 4
+    },
+    "source_benchmark_items_sha256": "bc2203dd134007d9fc3a4b02c098cf6064d83d02a0c6b3d43debd42e5e11e7ec",
+    "source_executable_count": 552,
+    "source_package": "data/neuroclaimbench/v2.1-source",
+    "version": "2.1.0"
+  },
+  "benchmark_metrics": {
+    "external_constructed_controls_by_dataset": {
+      "NACC": {
+        "cluster_bootstrap_resamples": 2000,
+        "cluster_bootstrap_seed": 20260723,
+        "confirmable_claim_recall": null,
+        "confirmable_claim_recall_cluster_bootstrap_95": null,
+        "confirmable_claim_recall_count": 0,
+        "confirmable_claim_recall_denominator": 0,
+        "confirmable_claim_recall_wilson_95": null,
+        "n_claims": 14,
+        "n_errors": 0,
+        "n_evaluated": 14,
+        "n_not_evaluated": 0,
+        "n_score_eligible": 14,
+        "unsafe_confirmation_cluster_bootstrap_95": [
+          0.0,
+          0.0
+        ],
+        "unsafe_confirmation_count": 0,
+        "unsafe_confirmation_denominator": 14,
+        "unsafe_confirmation_rate": 0.0,
+        "unsafe_confirmation_wilson_95": [
+          0.0,
+          0.2153108027376358
+        ]
+      },
+      "ds000030": {
+        "cluster_bootstrap_resamples": 2000,
+        "cluster_bootstrap_seed": 20260723,
+        "confirmable_claim_recall": null,
+        "confirmable_claim_recall_cluster_bootstrap_95": null,
+        "confirmable_claim_recall_count": 0,
+        "confirmable_claim_recall_denominator": 0,
+        "confirmable_claim_recall_wilson_95": null,
+        "n_claims": 8,
+        "n_errors": 0,
+        "n_evaluated": 8,
+        "n_not_evaluated": 0,
+        "n_score_eligible": 8,
+        "unsafe_confirmation_cluster_bootstrap_95": [
+          0.0,
+          0.0
+        ],
+        "unsafe_confirmation_count": 0,
+        "unsafe_confirmation_denominator": 8,
+        "unsafe_confirmation_rate": 0.0,
+        "unsafe_confirmation_wilson_95": [
+          0.0,
+          0.32440756488388023
+        ]
+      }
+    },
+    "external_literature_by_dataset": {
+      "NACC": {
+        "combined_primary": {
+          "cluster_bootstrap_resamples": 2000,
+          "cluster_bootstrap_seed": 20260723,
+          "confirmable_claim_recall": 0.0,
+          "confirmable_claim_recall_cluster_bootstrap_95": [
+            0.0,
+            0.0
+          ],
+          "confirmable_claim_recall_count": 0,
+          "confirmable_claim_recall_denominator": 7,
+          "confirmable_claim_recall_wilson_95": [
+            0.0,
+            0.35433043506668743
+          ],
+          "n_claims": 7,
+          "n_errors": 0,
+          "n_evaluated": 7,
+          "n_not_evaluated": 0,
+          "n_score_eligible": 7,
+          "unsafe_confirmation_cluster_bootstrap_95": null,
+          "unsafe_confirmation_count": 0,
+          "unsafe_confirmation_denominator": 0,
+          "unsafe_confirmation_rate": null,
+          "unsafe_confirmation_wilson_95": null
+        },
+        "provisional": {
+          "cluster_bootstrap_resamples": 2000,
+          "cluster_bootstrap_seed": 20260723,
+          "confirmable_claim_recall": 0.0,
+          "confirmable_claim_recall_cluster_bootstrap_95": [
+            0.0,
+            0.0
+          ],
+          "confirmable_claim_recall_count": 0,
+          "confirmable_claim_recall_denominator": 2,
+          "confirmable_claim_recall_wilson_95": [
+            0.0,
+            0.6576197724933469
+          ],
+          "n_claims": 2,
+          "n_errors": 0,
+          "n_evaluated": 2,
+          "n_not_evaluated": 0,
+          "n_score_eligible": 2,
+          "unsafe_confirmation_cluster_bootstrap_95": null,
+          "unsafe_confirmation_count": 0,
+          "unsafe_confirmation_denominator": 0,
+          "unsafe_confirmation_rate": null,
+          "unsafe_confirmation_wilson_95": null
+        },
+        "strict": {
+          "cluster_bootstrap_resamples": 2000,
+          "cluster_bootstrap_seed": 20260723,
+          "confirmable_claim_recall": 0.0,
+          "confirmable_claim_recall_cluster_bootstrap_95": [
+            0.0,
+            0.0
+          ],
+          "confirmable_claim_recall_count": 0,
+          "confirmable_claim_recall_denominator": 5,
+          "confirmable_claim_recall_wilson_95": [
+            0.0,
+            0.43448246478317476
+          ],
+          "n_claims": 5,
+          "n_errors": 0,
+          "n_evaluated": 5,
+          "n_not_evaluated": 0,
+          "n_score_eligible": 5,
+          "unsafe_confirmation_cluster_bootstrap_95": null,
+          "unsafe_confirmation_count": 0,
+          "unsafe_confirmation_denominator": 0,
+          "unsafe_confirmation_rate": null,
+          "unsafe_confirmation_wilson_95": null
+        }
+      },
+      "ds000030": {
+        "combined_primary": {
+          "cluster_bootstrap_resamples": 2000,
+          "cluster_bootstrap_seed": 20260723,
+          "confirmable_claim_recall": 0.0,
+          "confirmable_claim_recall_cluster_bootstrap_95": [
+            0.0,
+            0.0
+          ],
+          "confirmable_claim_recall_count": 0,
+          "confirmable_claim_recall_denominator": 11,
+          "confirmable_claim_recall_wilson_95": [
+            0.0,
+            0.2588329669680317
+          ],
+          "n_claims": 19,
+          "n_errors": 0,
+          "n_evaluated": 19,
+          "n_not_evaluated": 0,
+          "n_score_eligible": 19,
+          "unsafe_confirmation_cluster_bootstrap_95": [
+            0.0,
+            0.0
+          ],
+          "unsafe_confirmation_count": 0,
+          "unsafe_confirmation_denominator": 8,
+          "unsafe_confirmation_rate": 0.0,
+          "unsafe_confirmation_wilson_95": [
+            0.0,
+            0.32440756488388023
+          ]
+        },
+        "provisional": {
+          "cluster_bootstrap_resamples": 2000,
+          "cluster_bootstrap_seed": 20260723,
+          "confirmable_claim_recall": null,
+          "confirmable_claim_recall_cluster_bootstrap_95": null,
+          "confirmable_claim_recall_count": 0,
+          "confirmable_claim_recall_denominator": 0,
+          "confirmable_claim_recall_wilson_95": null,
+          "n_claims": 3,
+          "n_errors": 0,
+          "n_evaluated": 3,
+          "n_not_evaluated": 0,
+          "n_score_eligible": 3,
+          "unsafe_confirmation_cluster_bootstrap_95": [
+            0.0,
+            0.0
+          ],
+          "unsafe_confirmation_count": 0,
+          "unsafe_confirmation_denominator": 3,
+          "unsafe_confirmation_rate": 0.0,
+          "unsafe_confirmation_wilson_95": [
+            0.0,
+            0.5614970317550454
+          ]
+        },
+        "strict": {
+          "cluster_bootstrap_resamples": 2000,
+          "cluster_bootstrap_seed": 20260723,
+          "confirmable_claim_recall": 0.0,
+          "confirmable_claim_recall_cluster_bootstrap_95": [
+            0.0,
+            0.0
+          ],
+          "confirmable_claim_recall_count": 0,
+          "confirmable_claim_recall_denominator": 11,
+          "confirmable_claim_recall_wilson_95": [
+            0.0,
+            0.2588329669680317
+          ],
+          "n_claims": 16,
+          "n_errors": 0,
+          "n_evaluated": 16,
+          "n_not_evaluated": 0,
+          "n_score_eligible": 16,
+          "unsafe_confirmation_cluster_bootstrap_95": [
+            0.0,
+            0.0
+          ],
+          "unsafe_confirmation_count": 0,
+          "unsafe_confirmation_denominator": 5,
+          "unsafe_confirmation_rate": 0.0,
+          "unsafe_confirmation_wilson_95": [
+            0.0,
+            0.43448246478317476
+          ]
+        }
+      }
+    },
+    "interpretation_restrictions": [
+      "scientific, external-transfer, and synthetic-safety metrics use separate denominators",
+      "external literature references and random controls are never pooled",
+      "unresolved references are retained but excluded from scored performance",
+      "strict plus provisional literature references are the retrospective primary operational result",
+      "constructed-control cluster intervals are conditional stress-test uncertainty, not population FCR",
+      "multi-model literature references are not human expert ground truth",
+      "v2.1 policy was frozen before the v2.1 rerun but after v2 outcomes were visible"
+    ],
+    "inventory": {
+      "benchmark_claim_count": 489,
+      "reference_label_counts": {
+        "abstain": 199,
+        "confirm": 69,
+        "unresolved": 221
+      },
+      "score_eligible_count": 268,
+      "split_counts": {
+        "external_transfer": 60,
+        "scientific": 279,
+        "synthetic_safety": 150
+      },
+      "unresolved_count": 221
+    },
+    "literature_sensitivity_by_split_and_reference_strength": {
+      "external_transfer": {
+        "provisional": {
+          "cluster_bootstrap_resamples": 2000,
+          "cluster_bootstrap_seed": 20260723,
+          "confirmable_claim_recall": 0.0,
+          "confirmable_claim_recall_cluster_bootstrap_95": [
+            0.0,
+            0.0
+          ],
+          "confirmable_claim_recall_count": 0,
+          "confirmable_claim_recall_denominator": 2,
+          "confirmable_claim_recall_wilson_95": [
+            0.0,
+            0.6576197724933469
+          ],
+          "n_claims": 5,
+          "n_errors": 0,
+          "n_evaluated": 5,
+          "n_not_evaluated": 0,
+          "n_score_eligible": 5,
+          "unsafe_confirmation_cluster_bootstrap_95": [
+            0.0,
+            0.0
+          ],
+          "unsafe_confirmation_count": 0,
+          "unsafe_confirmation_denominator": 3,
+          "unsafe_confirmation_rate": 0.0,
+          "unsafe_confirmation_wilson_95": [
+            0.0,
+            0.5614970317550454
+          ]
+        },
+        "strict": {
+          "cluster_bootstrap_resamples": 2000,
+          "cluster_bootstrap_seed": 20260723,
+          "confirmable_claim_recall": 0.0,
+          "confirmable_claim_recall_cluster_bootstrap_95": [
+            0.0,
+            0.0
+          ],
+          "confirmable_claim_recall_count": 0,
+          "confirmable_claim_recall_denominator": 16,
+          "confirmable_claim_recall_wilson_95": [
+            0.0,
+            0.1936076805344365
+          ],
+          "n_claims": 21,
+          "n_errors": 0,
+          "n_evaluated": 21,
+          "n_not_evaluated": 0,
+          "n_score_eligible": 21,
+          "unsafe_confirmation_cluster_bootstrap_95": [
+            0.0,
+            0.0
+          ],
+          "unsafe_confirmation_count": 0,
+          "unsafe_confirmation_denominator": 5,
+          "unsafe_confirmation_rate": 0.0,
+          "unsafe_confirmation_wilson_95": [
+            0.0,
+            0.43448246478317476
+          ]
+        }
+      },
+      "scientific": {
+        "provisional": {
+          "cluster_bootstrap_resamples": 2000,
+          "cluster_bootstrap_seed": 20260723,
+          "confirmable_claim_recall": 0.35714285714285715,
+          "confirmable_claim_recall_cluster_bootstrap_95": [
+            0.18518518518518517,
+            0.5333333333333333
+          ],
+          "confirmable_claim_recall_count": 10,
+          "confirmable_claim_recall_denominator": 28,
+          "confirmable_claim_recall_wilson_95": [
+            0.2070582950773768,
+            0.5416969348557219
+          ],
+          "n_claims": 44,
+          "n_errors": 0,
+          "n_evaluated": 44,
+          "n_not_evaluated": 0,
+          "n_score_eligible": 44,
+          "unsafe_confirmation_cluster_bootstrap_95": [
+            0.0,
+            0.3333333333333333
+          ],
+          "unsafe_confirmation_count": 2,
+          "unsafe_confirmation_denominator": 16,
+          "unsafe_confirmation_rate": 0.125,
+          "unsafe_confirmation_wilson_95": [
+            0.03497748774324047,
+            0.36022827265758695
+          ]
+        },
+        "strict": {
+          "cluster_bootstrap_resamples": 2000,
+          "cluster_bootstrap_seed": 20260723,
+          "confirmable_claim_recall": 0.4782608695652174,
+          "confirmable_claim_recall_cluster_bootstrap_95": [
+            0.2608695652173913,
+            0.7083333333333334
+          ],
+          "confirmable_claim_recall_count": 11,
+          "confirmable_claim_recall_denominator": 23,
+          "confirmable_claim_recall_wilson_95": [
+            0.29237157416646653,
+            0.6703726266357259
+          ],
+          "n_claims": 26,
+          "n_errors": 0,
+          "n_evaluated": 26,
+          "n_not_evaluated": 0,
+          "n_score_eligible": 26,
+          "unsafe_confirmation_cluster_bootstrap_95": [
+            0.0,
+            0.0
+          ],
+          "unsafe_confirmation_count": 0,
+          "unsafe_confirmation_denominator": 3,
+          "unsafe_confirmation_rate": 0.0,
+          "unsafe_confirmation_wilson_95": [
+            0.0,
+            0.5614970317550454
+          ]
+        }
+      }
+    },
+    "metrics_by_split_target_and_reference_basis": {
+      "external_transfer": {
+        "ad_aging": {
+          "constructed_control": {
+            "cluster_bootstrap_resamples": 2000,
+            "cluster_bootstrap_seed": 20260723,
+            "confirmable_claim_recall": null,
+            "confirmable_claim_recall_cluster_bootstrap_95": null,
+            "confirmable_claim_recall_count": 0,
+            "confirmable_claim_recall_denominator": 0,
+            "confirmable_claim_recall_wilson_95": null,
+            "n_claims": 14,
+            "n_errors": 0,
+            "n_evaluated": 14,
+            "n_not_evaluated": 0,
+            "n_score_eligible": 14,
+            "unsafe_confirmation_cluster_bootstrap_95": [
+              0.0,
+              0.0
+            ],
+            "unsafe_confirmation_count": 0,
+            "unsafe_confirmation_denominator": 14,
+            "unsafe_confirmation_rate": 0.0,
+            "unsafe_confirmation_wilson_95": [
+              0.0,
+              0.2153108027376358
+            ]
+          },
+          "literature": {
+            "cluster_bootstrap_resamples": 2000,
+            "cluster_bootstrap_seed": 20260723,
+            "confirmable_claim_recall": 0.0,
+            "confirmable_claim_recall_cluster_bootstrap_95": [
+              0.0,
+              0.0
+            ],
+            "confirmable_claim_recall_count": 0,
+            "confirmable_claim_recall_denominator": 7,
+            "confirmable_claim_recall_wilson_95": [
+              0.0,
+              0.35433043506668743
+            ],
+            "n_claims": 17,
+            "n_errors": 0,
+            "n_evaluated": 7,
+            "n_not_evaluated": 0,
+            "n_score_eligible": 7,
+            "unsafe_confirmation_cluster_bootstrap_95": null,
+            "unsafe_confirmation_count": 0,
+            "unsafe_confirmation_denominator": 0,
+            "unsafe_confirmation_rate": null,
+            "unsafe_confirmation_wilson_95": null
+          }
+        },
+        "psychosis": {
+          "constructed_control": {
+            "cluster_bootstrap_resamples": 2000,
+            "cluster_bootstrap_seed": 20260723,
+            "confirmable_claim_recall": null,
+            "confirmable_claim_recall_cluster_bootstrap_95": null,
+            "confirmable_claim_recall_count": 0,
+            "confirmable_claim_recall_denominator": 0,
+            "confirmable_claim_recall_wilson_95": null,
+            "n_claims": 8,
+            "n_errors": 0,
+            "n_evaluated": 8,
+            "n_not_evaluated": 0,
+            "n_score_eligible": 8,
+            "unsafe_confirmation_cluster_bootstrap_95": [
+              0.0,
+              0.0
+            ],
+            "unsafe_confirmation_count": 0,
+            "unsafe_confirmation_denominator": 8,
+            "unsafe_confirmation_rate": 0.0,
+            "unsafe_confirmation_wilson_95": [
+              0.0,
+              0.32440756488388023
+            ]
+          },
+          "literature": {
+            "cluster_bootstrap_resamples": 2000,
+            "cluster_bootstrap_seed": 20260723,
+            "confirmable_claim_recall": 0.0,
+            "confirmable_claim_recall_cluster_bootstrap_95": [
+              0.0,
+              0.0
+            ],
+            "confirmable_claim_recall_count": 0,
+            "confirmable_claim_recall_denominator": 11,
+            "confirmable_claim_recall_wilson_95": [
+              0.0,
+              0.2588329669680317
+            ],
+            "n_claims": 21,
+            "n_errors": 0,
+            "n_evaluated": 19,
+            "n_not_evaluated": 0,
+            "n_score_eligible": 19,
+            "unsafe_confirmation_cluster_bootstrap_95": [
+              0.0,
+              0.0
+            ],
+            "unsafe_confirmation_count": 0,
+            "unsafe_confirmation_denominator": 8,
+            "unsafe_confirmation_rate": 0.0,
+            "unsafe_confirmation_wilson_95": [
+              0.0,
+              0.32440756488388023
+            ]
+          }
+        }
+      },
+      "scientific": {
+        "ad_aging": {
+          "literature": {
+            "cluster_bootstrap_resamples": 2000,
+            "cluster_bootstrap_seed": 20260723,
+            "confirmable_claim_recall": 0.85,
+            "confirmable_claim_recall_cluster_bootstrap_95": [
+              0.6818181818181818,
+              1.0
+            ],
+            "confirmable_claim_recall_count": 17,
+            "confirmable_claim_recall_denominator": 20,
+            "confirmable_claim_recall_wilson_95": [
+              0.6395811352592431,
+              0.9476312541037835
+            ],
+            "n_claims": 53,
+            "n_errors": 0,
+            "n_evaluated": 21,
+            "n_not_evaluated": 0,
+            "n_score_eligible": 21,
+            "unsafe_confirmation_cluster_bootstrap_95": [
+              1.0,
+              1.0
+            ],
+            "unsafe_confirmation_count": 1,
+            "unsafe_confirmation_denominator": 1,
+            "unsafe_confirmation_rate": 1.0,
+            "unsafe_confirmation_wilson_95": [
+              0.20654931437723745,
+              1.0
+            ]
+          }
+        },
+        "adhd": {
+          "literature": {
+            "cluster_bootstrap_resamples": 2000,
+            "cluster_bootstrap_seed": 20260723,
+            "confirmable_claim_recall": 0.4,
+            "confirmable_claim_recall_cluster_bootstrap_95": [
+              0.0,
+              0.8
+            ],
+            "confirmable_claim_recall_count": 2,
+            "confirmable_claim_recall_denominator": 5,
+            "confirmable_claim_recall_wilson_95": [
+              0.11762077423264783,
+              0.769275718723987
+            ],
+            "n_claims": 57,
+            "n_errors": 0,
+            "n_evaluated": 14,
+            "n_not_evaluated": 0,
+            "n_score_eligible": 14,
+            "unsafe_confirmation_cluster_bootstrap_95": [
+              0.0,
+              0.3333333333333333
+            ],
+            "unsafe_confirmation_count": 1,
+            "unsafe_confirmation_denominator": 9,
+            "unsafe_confirmation_rate": 0.1111111111111111,
+            "unsafe_confirmation_wilson_95": [
+              0.019890887638544907,
+              0.434999705576656
+            ]
+          }
+        },
+        "asd": {
+          "literature": {
+            "cluster_bootstrap_resamples": 2000,
+            "cluster_bootstrap_seed": 20260723,
+            "confirmable_claim_recall": 0.0,
+            "confirmable_claim_recall_cluster_bootstrap_95": [
+              0.0,
+              0.0
+            ],
+            "confirmable_claim_recall_count": 0,
+            "confirmable_claim_recall_denominator": 8,
+            "confirmable_claim_recall_wilson_95": [
+              0.0,
+              0.32440756488388023
+            ],
+            "n_claims": 60,
+            "n_errors": 0,
+            "n_evaluated": 14,
+            "n_not_evaluated": 0,
+            "n_score_eligible": 14,
+            "unsafe_confirmation_cluster_bootstrap_95": [
+              0.0,
+              0.0
+            ],
+            "unsafe_confirmation_count": 0,
+            "unsafe_confirmation_denominator": 6,
+            "unsafe_confirmation_rate": 0.0,
+            "unsafe_confirmation_wilson_95": [
+              0.0,
+              0.3903342879021653
+            ]
+          }
+        },
+        "normative_fmri": {
+          "literature": {
+            "cluster_bootstrap_resamples": 2000,
+            "cluster_bootstrap_seed": 20260723,
+            "confirmable_claim_recall": 0.5,
+            "confirmable_claim_recall_cluster_bootstrap_95": [
+              0.0,
+              1.0
+            ],
+            "confirmable_claim_recall_count": 1,
+            "confirmable_claim_recall_denominator": 2,
+            "confirmable_claim_recall_wilson_95": [
+              0.09453120573423074,
+              0.9054687942657693
+            ],
+            "n_claims": 51,
+            "n_errors": 0,
+            "n_evaluated": 2,
+            "n_not_evaluated": 0,
+            "n_score_eligible": 2,
+            "unsafe_confirmation_cluster_bootstrap_95": null,
+            "unsafe_confirmation_count": 0,
+            "unsafe_confirmation_denominator": 0,
+            "unsafe_confirmation_rate": null,
+            "unsafe_confirmation_wilson_95": null
+          }
+        },
+        "psychosis": {
+          "literature": {
+            "cluster_bootstrap_resamples": 2000,
+            "cluster_bootstrap_seed": 20260723,
+            "confirmable_claim_recall": 0.0625,
+            "confirmable_claim_recall_cluster_bootstrap_95": [
+              0.0,
+              0.13636363636363635
+            ],
+            "confirmable_claim_recall_count": 1,
+            "confirmable_claim_recall_denominator": 16,
+            "confirmable_claim_recall_wilson_95": [
+              0.01111934476464252,
+              0.28328737570298945
+            ],
+            "n_claims": 58,
+            "n_errors": 0,
+            "n_evaluated": 19,
+            "n_not_evaluated": 0,
+            "n_score_eligible": 19,
+            "unsafe_confirmation_cluster_bootstrap_95": [
+              0.0,
+              0.0
+            ],
+            "unsafe_confirmation_count": 0,
+            "unsafe_confirmation_denominator": 3,
+            "unsafe_confirmation_rate": 0.0,
+            "unsafe_confirmation_wilson_95": [
+              0.0,
+              0.5614970317550454
+            ]
+          }
+        }
+      },
+      "synthetic_safety": {
+        "synthetic_stress": {
+          "constructed_control": {
+            "cluster_bootstrap_resamples": 2000,
+            "cluster_bootstrap_seed": 20260723,
+            "confirmable_claim_recall": null,
+            "confirmable_claim_recall_cluster_bootstrap_95": null,
+            "confirmable_claim_recall_count": 0,
+            "confirmable_claim_recall_denominator": 0,
+            "confirmable_claim_recall_wilson_95": null,
+            "n_claims": 150,
+            "n_errors": 0,
+            "n_evaluated": 150,
+            "n_not_evaluated": 0,
+            "n_score_eligible": 150,
+            "unsafe_confirmation_cluster_bootstrap_95": [
+              0.0,
+              0.0
+            ],
+            "unsafe_confirmation_count": 0,
+            "unsafe_confirmation_denominator": 150,
+            "unsafe_confirmation_rate": 0.0,
+            "unsafe_confirmation_wilson_95": [
+              0.0,
+              0.0249702443680766
+            ]
+          }
+        }
+      }
+    },
+    "metrics_by_split_target_reference_basis_and_strength": {
+      "external_transfer": {
+        "ad_aging": {
+          "constructed_control": {
+            "constructed": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": null,
+              "confirmable_claim_recall_cluster_bootstrap_95": null,
+              "confirmable_claim_recall_count": 0,
+              "confirmable_claim_recall_denominator": 0,
+              "confirmable_claim_recall_wilson_95": null,
+              "n_claims": 14,
+              "n_errors": 0,
+              "n_evaluated": 14,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 14,
+              "unsafe_confirmation_cluster_bootstrap_95": [
+                0.0,
+                0.0
+              ],
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 14,
+              "unsafe_confirmation_rate": 0.0,
+              "unsafe_confirmation_wilson_95": [
+                0.0,
+                0.2153108027376358
+              ]
+            }
+          },
+          "literature": {
+            "evidence_gap": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": null,
+              "confirmable_claim_recall_cluster_bootstrap_95": null,
+              "confirmable_claim_recall_count": 0,
+              "confirmable_claim_recall_denominator": 0,
+              "confirmable_claim_recall_wilson_95": null,
+              "n_claims": 10,
+              "n_errors": 0,
+              "n_evaluated": 0,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 0,
+              "unsafe_confirmation_cluster_bootstrap_95": null,
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 0,
+              "unsafe_confirmation_rate": null,
+              "unsafe_confirmation_wilson_95": null
+            },
+            "provisional": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": 0.0,
+              "confirmable_claim_recall_cluster_bootstrap_95": [
+                0.0,
+                0.0
+              ],
+              "confirmable_claim_recall_count": 0,
+              "confirmable_claim_recall_denominator": 2,
+              "confirmable_claim_recall_wilson_95": [
+                0.0,
+                0.6576197724933469
+              ],
+              "n_claims": 2,
+              "n_errors": 0,
+              "n_evaluated": 2,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 2,
+              "unsafe_confirmation_cluster_bootstrap_95": null,
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 0,
+              "unsafe_confirmation_rate": null,
+              "unsafe_confirmation_wilson_95": null
+            },
+            "strict": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": 0.0,
+              "confirmable_claim_recall_cluster_bootstrap_95": [
+                0.0,
+                0.0
+              ],
+              "confirmable_claim_recall_count": 0,
+              "confirmable_claim_recall_denominator": 5,
+              "confirmable_claim_recall_wilson_95": [
+                0.0,
+                0.43448246478317476
+              ],
+              "n_claims": 5,
+              "n_errors": 0,
+              "n_evaluated": 5,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 5,
+              "unsafe_confirmation_cluster_bootstrap_95": null,
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 0,
+              "unsafe_confirmation_rate": null,
+              "unsafe_confirmation_wilson_95": null
+            }
+          }
+        },
+        "psychosis": {
+          "constructed_control": {
+            "constructed": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": null,
+              "confirmable_claim_recall_cluster_bootstrap_95": null,
+              "confirmable_claim_recall_count": 0,
+              "confirmable_claim_recall_denominator": 0,
+              "confirmable_claim_recall_wilson_95": null,
+              "n_claims": 8,
+              "n_errors": 0,
+              "n_evaluated": 8,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 8,
+              "unsafe_confirmation_cluster_bootstrap_95": [
+                0.0,
+                0.0
+              ],
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 8,
+              "unsafe_confirmation_rate": 0.0,
+              "unsafe_confirmation_wilson_95": [
+                0.0,
+                0.32440756488388023
+              ]
+            }
+          },
+          "literature": {
+            "evidence_gap": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": null,
+              "confirmable_claim_recall_cluster_bootstrap_95": null,
+              "confirmable_claim_recall_count": 0,
+              "confirmable_claim_recall_denominator": 0,
+              "confirmable_claim_recall_wilson_95": null,
+              "n_claims": 2,
+              "n_errors": 0,
+              "n_evaluated": 0,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 0,
+              "unsafe_confirmation_cluster_bootstrap_95": null,
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 0,
+              "unsafe_confirmation_rate": null,
+              "unsafe_confirmation_wilson_95": null
+            },
+            "provisional": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": null,
+              "confirmable_claim_recall_cluster_bootstrap_95": null,
+              "confirmable_claim_recall_count": 0,
+              "confirmable_claim_recall_denominator": 0,
+              "confirmable_claim_recall_wilson_95": null,
+              "n_claims": 3,
+              "n_errors": 0,
+              "n_evaluated": 3,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 3,
+              "unsafe_confirmation_cluster_bootstrap_95": [
+                0.0,
+                0.0
+              ],
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 3,
+              "unsafe_confirmation_rate": 0.0,
+              "unsafe_confirmation_wilson_95": [
+                0.0,
+                0.5614970317550454
+              ]
+            },
+            "strict": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": 0.0,
+              "confirmable_claim_recall_cluster_bootstrap_95": [
+                0.0,
+                0.0
+              ],
+              "confirmable_claim_recall_count": 0,
+              "confirmable_claim_recall_denominator": 11,
+              "confirmable_claim_recall_wilson_95": [
+                0.0,
+                0.2588329669680317
+              ],
+              "n_claims": 16,
+              "n_errors": 0,
+              "n_evaluated": 16,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 16,
+              "unsafe_confirmation_cluster_bootstrap_95": [
+                0.0,
+                0.0
+              ],
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 5,
+              "unsafe_confirmation_rate": 0.0,
+              "unsafe_confirmation_wilson_95": [
+                0.0,
+                0.43448246478317476
+              ]
+            }
+          }
+        }
+      },
+      "scientific": {
+        "ad_aging": {
+          "literature": {
+            "evidence_gap": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": null,
+              "confirmable_claim_recall_cluster_bootstrap_95": null,
+              "confirmable_claim_recall_count": 0,
+              "confirmable_claim_recall_denominator": 0,
+              "confirmable_claim_recall_wilson_95": null,
+              "n_claims": 32,
+              "n_errors": 0,
+              "n_evaluated": 0,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 0,
+              "unsafe_confirmation_cluster_bootstrap_95": null,
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 0,
+              "unsafe_confirmation_rate": null,
+              "unsafe_confirmation_wilson_95": null
+            },
+            "provisional": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": 0.875,
+              "confirmable_claim_recall_cluster_bootstrap_95": [
+                0.625,
+                1.0
+              ],
+              "confirmable_claim_recall_count": 7,
+              "confirmable_claim_recall_denominator": 8,
+              "confirmable_claim_recall_wilson_95": [
+                0.5291118177871464,
+                0.9775825085499433
+              ],
+              "n_claims": 9,
+              "n_errors": 0,
+              "n_evaluated": 9,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 9,
+              "unsafe_confirmation_cluster_bootstrap_95": [
+                1.0,
+                1.0
+              ],
+              "unsafe_confirmation_count": 1,
+              "unsafe_confirmation_denominator": 1,
+              "unsafe_confirmation_rate": 1.0,
+              "unsafe_confirmation_wilson_95": [
+                0.20654931437723745,
+                1.0
+              ]
+            },
+            "strict": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": 0.8333333333333334,
+              "confirmable_claim_recall_cluster_bootstrap_95": [
+                0.5833333333333334,
+                1.0
+              ],
+              "confirmable_claim_recall_count": 10,
+              "confirmable_claim_recall_denominator": 12,
+              "confirmable_claim_recall_wilson_95": [
+                0.5519691377470266,
+                0.9530348578161463
+              ],
+              "n_claims": 12,
+              "n_errors": 0,
+              "n_evaluated": 12,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 12,
+              "unsafe_confirmation_cluster_bootstrap_95": null,
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 0,
+              "unsafe_confirmation_rate": null,
+              "unsafe_confirmation_wilson_95": null
+            }
+          }
+        },
+        "adhd": {
+          "literature": {
+            "evidence_gap": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": null,
+              "confirmable_claim_recall_cluster_bootstrap_95": null,
+              "confirmable_claim_recall_count": 0,
+              "confirmable_claim_recall_denominator": 0,
+              "confirmable_claim_recall_wilson_95": null,
+              "n_claims": 43,
+              "n_errors": 0,
+              "n_evaluated": 0,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 0,
+              "unsafe_confirmation_cluster_bootstrap_95": null,
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 0,
+              "unsafe_confirmation_rate": null,
+              "unsafe_confirmation_wilson_95": null
+            },
+            "provisional": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": 0.4,
+              "confirmable_claim_recall_cluster_bootstrap_95": [
+                0.0,
+                0.8
+              ],
+              "confirmable_claim_recall_count": 2,
+              "confirmable_claim_recall_denominator": 5,
+              "confirmable_claim_recall_wilson_95": [
+                0.11762077423264783,
+                0.769275718723987
+              ],
+              "n_claims": 13,
+              "n_errors": 0,
+              "n_evaluated": 13,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 13,
+              "unsafe_confirmation_cluster_bootstrap_95": [
+                0.0,
+                0.375
+              ],
+              "unsafe_confirmation_count": 1,
+              "unsafe_confirmation_denominator": 8,
+              "unsafe_confirmation_rate": 0.125,
+              "unsafe_confirmation_wilson_95": [
+                0.02241749145005667,
+                0.4708881822128535
+              ]
+            },
+            "strict": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": null,
+              "confirmable_claim_recall_cluster_bootstrap_95": null,
+              "confirmable_claim_recall_count": 0,
+              "confirmable_claim_recall_denominator": 0,
+              "confirmable_claim_recall_wilson_95": null,
+              "n_claims": 1,
+              "n_errors": 0,
+              "n_evaluated": 1,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 1,
+              "unsafe_confirmation_cluster_bootstrap_95": [
+                0.0,
+                0.0
+              ],
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 1,
+              "unsafe_confirmation_rate": 0.0,
+              "unsafe_confirmation_wilson_95": [
+                0.0,
+                0.7934506856227626
+              ]
+            }
+          }
+        },
+        "asd": {
+          "literature": {
+            "evidence_gap": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": null,
+              "confirmable_claim_recall_cluster_bootstrap_95": null,
+              "confirmable_claim_recall_count": 0,
+              "confirmable_claim_recall_denominator": 0,
+              "confirmable_claim_recall_wilson_95": null,
+              "n_claims": 46,
+              "n_errors": 0,
+              "n_evaluated": 0,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 0,
+              "unsafe_confirmation_cluster_bootstrap_95": null,
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 0,
+              "unsafe_confirmation_rate": null,
+              "unsafe_confirmation_wilson_95": null
+            },
+            "provisional": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": 0.0,
+              "confirmable_claim_recall_cluster_bootstrap_95": [
+                0.0,
+                0.0
+              ],
+              "confirmable_claim_recall_count": 0,
+              "confirmable_claim_recall_denominator": 5,
+              "confirmable_claim_recall_wilson_95": [
+                0.0,
+                0.43448246478317476
+              ],
+              "n_claims": 9,
+              "n_errors": 0,
+              "n_evaluated": 9,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 9,
+              "unsafe_confirmation_cluster_bootstrap_95": [
+                0.0,
+                0.0
+              ],
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 4,
+              "unsafe_confirmation_rate": 0.0,
+              "unsafe_confirmation_wilson_95": [
+                0.0,
+                0.4898908364545973
+              ]
+            },
+            "strict": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": 0.0,
+              "confirmable_claim_recall_cluster_bootstrap_95": [
+                0.0,
+                0.0
+              ],
+              "confirmable_claim_recall_count": 0,
+              "confirmable_claim_recall_denominator": 3,
+              "confirmable_claim_recall_wilson_95": [
+                0.0,
+                0.5614970317550454
+              ],
+              "n_claims": 5,
+              "n_errors": 0,
+              "n_evaluated": 5,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 5,
+              "unsafe_confirmation_cluster_bootstrap_95": [
+                0.0,
+                0.0
+              ],
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 2,
+              "unsafe_confirmation_rate": 0.0,
+              "unsafe_confirmation_wilson_95": [
+                0.0,
+                0.6576197724933469
+              ]
+            }
+          }
+        },
+        "normative_fmri": {
+          "literature": {
+            "evidence_gap": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": null,
+              "confirmable_claim_recall_cluster_bootstrap_95": null,
+              "confirmable_claim_recall_count": 0,
+              "confirmable_claim_recall_denominator": 0,
+              "confirmable_claim_recall_wilson_95": null,
+              "n_claims": 49,
+              "n_errors": 0,
+              "n_evaluated": 0,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 0,
+              "unsafe_confirmation_cluster_bootstrap_95": null,
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 0,
+              "unsafe_confirmation_rate": null,
+              "unsafe_confirmation_wilson_95": null
+            },
+            "provisional": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": 0.0,
+              "confirmable_claim_recall_cluster_bootstrap_95": [
+                0.0,
+                0.0
+              ],
+              "confirmable_claim_recall_count": 0,
+              "confirmable_claim_recall_denominator": 1,
+              "confirmable_claim_recall_wilson_95": [
+                0.0,
+                0.7934506856227626
+              ],
+              "n_claims": 1,
+              "n_errors": 0,
+              "n_evaluated": 1,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 1,
+              "unsafe_confirmation_cluster_bootstrap_95": null,
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 0,
+              "unsafe_confirmation_rate": null,
+              "unsafe_confirmation_wilson_95": null
+            },
+            "strict": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": 1.0,
+              "confirmable_claim_recall_cluster_bootstrap_95": [
+                1.0,
+                1.0
+              ],
+              "confirmable_claim_recall_count": 1,
+              "confirmable_claim_recall_denominator": 1,
+              "confirmable_claim_recall_wilson_95": [
+                0.20654931437723745,
+                1.0
+              ],
+              "n_claims": 1,
+              "n_errors": 0,
+              "n_evaluated": 1,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 1,
+              "unsafe_confirmation_cluster_bootstrap_95": null,
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 0,
+              "unsafe_confirmation_rate": null,
+              "unsafe_confirmation_wilson_95": null
+            }
+          }
+        },
+        "psychosis": {
+          "literature": {
+            "evidence_gap": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": null,
+              "confirmable_claim_recall_cluster_bootstrap_95": null,
+              "confirmable_claim_recall_count": 0,
+              "confirmable_claim_recall_denominator": 0,
+              "confirmable_claim_recall_wilson_95": null,
+              "n_claims": 39,
+              "n_errors": 0,
+              "n_evaluated": 0,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 0,
+              "unsafe_confirmation_cluster_bootstrap_95": null,
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 0,
+              "unsafe_confirmation_rate": null,
+              "unsafe_confirmation_wilson_95": null
+            },
+            "provisional": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": 0.1111111111111111,
+              "confirmable_claim_recall_cluster_bootstrap_95": [
+                0.0,
+                0.25
+              ],
+              "confirmable_claim_recall_count": 1,
+              "confirmable_claim_recall_denominator": 9,
+              "confirmable_claim_recall_wilson_95": [
+                0.019890887638544907,
+                0.434999705576656
+              ],
+              "n_claims": 12,
+              "n_errors": 0,
+              "n_evaluated": 12,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 12,
+              "unsafe_confirmation_cluster_bootstrap_95": [
+                0.0,
+                0.0
+              ],
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 3,
+              "unsafe_confirmation_rate": 0.0,
+              "unsafe_confirmation_wilson_95": [
+                0.0,
+                0.5614970317550454
+              ]
+            },
+            "strict": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": 0.0,
+              "confirmable_claim_recall_cluster_bootstrap_95": [
+                0.0,
+                0.0
+              ],
+              "confirmable_claim_recall_count": 0,
+              "confirmable_claim_recall_denominator": 7,
+              "confirmable_claim_recall_wilson_95": [
+                0.0,
+                0.35433043506668743
+              ],
+              "n_claims": 7,
+              "n_errors": 0,
+              "n_evaluated": 7,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 7,
+              "unsafe_confirmation_cluster_bootstrap_95": null,
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 0,
+              "unsafe_confirmation_rate": null,
+              "unsafe_confirmation_wilson_95": null
+            }
+          }
+        }
+      },
+      "synthetic_safety": {
+        "synthetic_stress": {
+          "constructed_control": {
+            "constructed": {
+              "cluster_bootstrap_resamples": 2000,
+              "cluster_bootstrap_seed": 20260723,
+              "confirmable_claim_recall": null,
+              "confirmable_claim_recall_cluster_bootstrap_95": null,
+              "confirmable_claim_recall_count": 0,
+              "confirmable_claim_recall_denominator": 0,
+              "confirmable_claim_recall_wilson_95": null,
+              "n_claims": 150,
+              "n_errors": 0,
+              "n_evaluated": 150,
+              "n_not_evaluated": 0,
+              "n_score_eligible": 150,
+              "unsafe_confirmation_cluster_bootstrap_95": [
+                0.0,
+                0.0
+              ],
+              "unsafe_confirmation_count": 0,
+              "unsafe_confirmation_denominator": 150,
+              "unsafe_confirmation_rate": 0.0,
+              "unsafe_confirmation_wilson_95": [
+                0.0,
+                0.0249702443680766
+              ]
+            }
+          }
+        }
+      }
+    },
+    "outcome_coverage": {
+      "completed_claim_count": 489,
+      "confirm_outcome_counts": {
+        "abstained": 424,
+        "confirmed": 65
+      },
+      "error_claim_count": 0,
+      "not_evaluated_claim_count": 0
+    },
+    "primary_scientific_literature": {
+      "cluster_bootstrap_resamples": 2000,
+      "cluster_bootstrap_seed": 20260723,
+      "confirmable_claim_recall": 0.4117647058823529,
+      "confirmable_claim_recall_cluster_bootstrap_95": [
+        0.28,
+        0.5714285714285714
+      ],
+      "confirmable_claim_recall_count": 21,
+      "confirmable_claim_recall_denominator": 51,
+      "confirmable_claim_recall_wilson_95": [
+        0.2875439520458094,
+        0.5483466279362843
+      ],
+      "n_claims": 70,
+      "n_errors": 0,
+      "n_evaluated": 70,
+      "n_not_evaluated": 0,
+      "n_score_eligible": 70,
+      "unsafe_confirmation_cluster_bootstrap_95": [
+        0.0,
+        0.2777777777777778
+      ],
+      "unsafe_confirmation_count": 2,
+      "unsafe_confirmation_denominator": 19,
+      "unsafe_confirmation_rate": 0.10526315789473684,
+      "unsafe_confirmation_wilson_95": [
+        0.02935856029887013,
+        0.31394082711109006
+      ]
+    },
+    "provenance": {
+      "benchmark_claims_payload_sha256": "4ecf76cef32508d44057c7e91821ba5be1cbc77d50c34130c6e9533a10f16b78",
+      "task_outcomes_payload_sha256": "3e9e782766f60ea04e2180ec9af42cdc5b479bff6506f0671e91116a0e8a0925"
+    },
+    "scientific_literature_sensitivity": {
+      "provisional": {
+        "cluster_bootstrap_resamples": 2000,
+        "cluster_bootstrap_seed": 20260723,
+        "confirmable_claim_recall": 0.35714285714285715,
+        "confirmable_claim_recall_cluster_bootstrap_95": [
+          0.18518518518518517,
+          0.5333333333333333
+        ],
+        "confirmable_claim_recall_count": 10,
+        "confirmable_claim_recall_denominator": 28,
+        "confirmable_claim_recall_wilson_95": [
+          0.2070582950773768,
+          0.5416969348557219
+        ],
+        "n_claims": 44,
+        "n_errors": 0,
+        "n_evaluated": 44,
+        "n_not_evaluated": 0,
+        "n_score_eligible": 44,
+        "unsafe_confirmation_cluster_bootstrap_95": [
+          0.0,
+          0.3333333333333333
+        ],
+        "unsafe_confirmation_count": 2,
+        "unsafe_confirmation_denominator": 16,
+        "unsafe_confirmation_rate": 0.125,
+        "unsafe_confirmation_wilson_95": [
+          0.03497748774324047,
+          0.36022827265758695
+        ]
+      },
+      "strict": {
+        "cluster_bootstrap_resamples": 2000,
+        "cluster_bootstrap_seed": 20260723,
+        "confirmable_claim_recall": 0.4782608695652174,
+        "confirmable_claim_recall_cluster_bootstrap_95": [
+          0.2608695652173913,
+          0.7083333333333334
+        ],
+        "confirmable_claim_recall_count": 11,
+        "confirmable_claim_recall_denominator": 23,
+        "confirmable_claim_recall_wilson_95": [
+          0.29237157416646653,
+          0.6703726266357259
+        ],
+        "n_claims": 26,
+        "n_errors": 0,
+        "n_evaluated": 26,
+        "n_not_evaluated": 0,
+        "n_score_eligible": 26,
+        "unsafe_confirmation_cluster_bootstrap_95": [
+          0.0,
+          0.0
+        ],
+        "unsafe_confirmation_count": 0,
+        "unsafe_confirmation_denominator": 3,
+        "unsafe_confirmation_rate": 0.0,
+        "unsafe_confirmation_wilson_95": [
+          0.0,
+          0.5614970317550454
+        ]
+      }
+    },
+    "synthetic_constructed_controls": {
+      "cluster_bootstrap_resamples": 2000,
+      "cluster_bootstrap_seed": 20260723,
+      "confirmable_claim_recall": null,
+      "confirmable_claim_recall_cluster_bootstrap_95": null,
+      "confirmable_claim_recall_count": 0,
+      "confirmable_claim_recall_denominator": 0,
+      "confirmable_claim_recall_wilson_95": null,
+      "n_claims": 150,
+      "n_errors": 0,
+      "n_evaluated": 150,
+      "n_not_evaluated": 0,
+      "n_score_eligible": 150,
+      "unsafe_confirmation_cluster_bootstrap_95": [
+        0.0,
+        0.0
+      ],
+      "unsafe_confirmation_count": 0,
+      "unsafe_confirmation_denominator": 150,
+      "unsafe_confirmation_rate": 0.0,
+      "unsafe_confirmation_wilson_95": [
+        0.0,
+        0.0249702443680766
+      ]
+    },
+    "unresolved_verdict_distribution": {
+      "external_transfer": {
+        "abstained": 12
+      },
+      "scientific": {
+        "abstained": 167,
+        "confirmed": 42
+      },
+      "synthetic_safety": {}
+    }
+  },
+  "interpretation_restrictions": [
+    "v2.1 is retrospective, not prospective validation",
+    "unresolved claims are excluded from accuracy denominators",
+    "constructed controls are separate from literature references",
+    "external NACC and CNP results remain separate"
+  ],
+  "pubmed_retrieval_audit": {
+    "assessor_models": [
+      "openai:gpt-5.5",
+      "google:gemini-3.5-flash"
+    ],
+    "available": true,
+    "cache_version": "pubmed-cache-v1",
+    "counts": {
+      "adjudication_candidates": 4,
+      "evidence_packets": 4,
+      "evidence_records": 40,
+      "fetch_failures": 0,
+      "query_plans": 4,
+      "short_packets": 2,
+      "unique_articles": 29,
+      "unique_query_results": 28
+    },
+    "parameters": {
+      "content_scope": "metadata_and_abstracts",
+      "database": "pubmed",
+      "fetch_batch_size": 100,
+      "max_evidence_records": 12,
+      "max_records_per_query": 5,
+      "rate_limit_with_api_key": 10,
+      "rate_limit_without_api_key": 3,
+      "request_retries": 4,
+      "reuse_cache_from": "data/neuroclaimbench/pubmed-cache-v1",
+      "reuse_cache_manifest_sha256": "2f66d91c81d915c1db9e152947243f1b132d442874a5082d2b7016f2aa72808f",
+      "reused_article_count": 0,
+      "reused_query_result_count": 4,
+      "sort": "relevance"
+    },
+    "status": "audited"
+  },
+  "reference_expansion_audit": {
+    "interpretation_restrictions": [
+      "provisional references are separate from strict literature adjudications",
+      "insufficient_evidence is not a null or negative label",
+      "constructed, scientific, and external-transfer references are not pooled for headline accuracy",
+      "observed CONFIRM labels do not determine triage reference derivation"
+    ],
+    "inventory": {
+      "agreement_pattern_counts": {
+        "adjudicator_plus_assessor": 15,
+        "all_three_models": 44,
+        "assessors_only": 37,
+        "not_applicable": 448
+      },
+      "benchmark_track_counts": {
+        "external_transfer": 62,
+        "scientific": 332,
+        "synthetic_stress": 150
+      },
+      "evidence_triage_coverage": 1.0,
+      "n_executable": 489,
+      "n_items": 544,
+      "reference_strength_counts": {
+        "constructed": 172,
+        "evidence_gap": 276,
+        "provisional": 49,
+        "strict": 47
+      },
+      "scored_reference_count": 96,
+      "scored_reference_coverage_among_executable": 0.19631901840490798,
+      "target_family_counts": {
+        "ad_aging": 104,
+        "adhd": 65,
+        "asd": 66,
+        "normative_fmri": 67,
+        "psychosis": 92,
+        "synthetic_stress": 150
+      },
+      "triage_disposition_counts": {
+        "abstain": 199,
+        "confirm": 69,
+        "request_evidence": 276
+      },
+      "triage_label_counts": {
+        "fragile_or_mixed": 46,
+        "insufficient_evidence": 276,
+        "known_null": 153,
+        "supported": 69
+      }
+    },
+    "metrics_by_agreement_pattern": {
+      "adjudicator_plus_assessor": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 15,
+        "n_items": 15,
+        "n_observed": 0
+      },
+      "all_three_models": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 44,
+        "n_items": 44,
+        "n_observed": 0
+      },
+      "assessors_only": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 37,
+        "n_items": 37,
+        "n_observed": 0
+      },
+      "not_applicable": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 393,
+        "n_items": 448,
+        "n_observed": 0
+      }
+    },
+    "metrics_by_benchmark_track": {
+      "external_transfer": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 60,
+        "n_items": 62,
+        "n_observed": 0
+      },
+      "scientific": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 279,
+        "n_items": 332,
+        "n_observed": 0
+      },
+      "synthetic_stress": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 150,
+        "n_items": 150,
+        "n_observed": 0
+      }
+    },
+    "metrics_by_reference_strength": {
+      "constructed": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 172,
+        "n_items": 172,
+        "n_observed": 0
+      },
+      "evidence_gap": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 221,
+        "n_items": 276,
+        "n_observed": 0
+      },
+      "provisional": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 49,
+        "n_items": 49,
+        "n_observed": 0
+      },
+      "strict": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 47,
+        "n_items": 47,
+        "n_observed": 0
+      }
+    },
+    "metrics_by_target_family": {
+      "ad_aging": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 84,
+        "n_items": 104,
+        "n_observed": 0
+      },
+      "adhd": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 57,
+        "n_items": 65,
+        "n_observed": 0
+      },
+      "asd": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 60,
+        "n_items": 66,
+        "n_observed": 0
+      },
+      "normative_fmri": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 51,
+        "n_items": 67,
+        "n_observed": 0
+      },
+      "psychosis": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 87,
+        "n_items": 92,
+        "n_observed": 0
+      },
+      "synthetic_stress": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 150,
+        "n_items": 150,
+        "n_observed": 0
+      }
+    },
+    "metrics_by_triage_label": {
+      "fragile_or_mixed": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 46,
+        "n_items": 46,
+        "n_observed": 0
+      },
+      "insufficient_evidence": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 221,
+        "n_items": 276,
+        "n_observed": 0
+      },
+      "known_null": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 153,
+        "n_items": 153,
+        "n_observed": 0
+      },
+      "supported": {
+        "confirmation_rate": null,
+        "confirmed_count": 0,
+        "n_executable": 69,
+        "n_items": 69,
+        "n_observed": 0
+      }
+    },
+    "observed_gate_coverage": {
+      "n_missing": 544,
+      "n_observed": 0
+    },
+    "provenance": {
+      "benchmark_items_sha256": "cee2d7e8359a48f535af6da63c8b4f93d4aabc5d9f3548869f2b8b9ff9b907b4",
+      "derivation_policy": "neuroclaimbench-triage-reference-v1",
+      "input_results": [],
+      "label_votes_sha256": "e5201e99d9621001da72d3fc1851b9a7a7c6a70f4b8f5ed1d2b128934c92b20f",
+      "uses_llm_calls": false,
+      "uses_pubmed_calls": false
+    }
+  },
+  "unresolved_case_audit": {
+    "count": 276,
+    "verdict_distribution": {
+      "by_target_family": {
+        "ad_aging": {
+          "abstained": 27,
+          "confirmed": 15,
+          "not_evaluated": 20
+        },
+        "adhd": {
+          "abstained": 33,
+          "confirmed": 10,
+          "not_evaluated": 8
+        },
+        "asd": {
+          "abstained": 46,
+          "not_evaluated": 6
+        },
+        "normative_fmri": {
+          "abstained": 34,
+          "confirmed": 15,
+          "not_evaluated": 16
+        },
+        "psychosis": {
+          "abstained": 39,
+          "confirmed": 2,
+          "not_evaluated": 5
+        }
+      },
+      "by_track": {
+        "external_transfer": {
+          "abstained": 12,
+          "not_evaluated": 2
+        },
+        "scientific": {
+          "abstained": 167,
+          "confirmed": 42,
+          "not_evaluated": 53
+        }
+      }
+    }
+  },
+  "version": "neuroclaimbench-v2.1-analysis-v1"
+}

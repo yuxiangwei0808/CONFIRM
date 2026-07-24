@@ -21,7 +21,12 @@ from confirm.candidate_preflight import CandidatePreflightContext, CandidatePref
 from confirm.contract import ClaimContract
 from confirm.derived_columns import columns_with_virtuals
 from confirm.evidence_partitions import canonical_base_cohort, is_excluded_evidence_cohort
-from confirm.llm import LLMClient, make_llm
+from confirm.llm import (
+    LLMClient,
+    complete_structured,
+    make_llm,
+    parse_structured,
+)
 
 DEFAULT_MODEL = "openai:gpt-5.5"
 DEFAULT_TARGET_FAMILIES = ("normative_fmri", "adhd", "asd", "ad_aging", "psychosis")
@@ -261,17 +266,15 @@ def _question_generation_prompt(target_family: str, catalog: dict[str, Any], exa
 
 
 def _complete_structured(llm: LLMClient, system: str, user: str, response_model: type[BaseModel]) -> str:
-    complete_structured = getattr(llm, "complete_structured", None)
-    if callable(complete_structured):
-        return str(complete_structured(system, user, response_model))
-    return llm.complete(system, user)
+    """Compatibility wrapper for the frozen Stage 1 implementation."""
+
+    return complete_structured(llm, system, user, response_model)
 
 
 def _parse_json_model(text: str, response_model: type[BaseModel]) -> BaseModel:
-    try:
-        return response_model.model_validate_json(text)
-    except Exception:
-        return response_model.model_validate(json.loads(text))
+    """Compatibility wrapper for the frozen Stage 1 implementation."""
+
+    return parse_structured(text, response_model)
 
 
 def _make_llm(model_spec: str, max_tokens: int) -> LLMClient:

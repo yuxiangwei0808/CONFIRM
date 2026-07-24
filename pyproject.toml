@@ -25,6 +25,7 @@ dependencies = [
   "python-dotenv",
   "openai",
   "anthropic",
+  "google-genai",
 ]
 
 [project.scripts]

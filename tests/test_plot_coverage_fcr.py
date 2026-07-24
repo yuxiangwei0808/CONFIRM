@@ -1,6 +1,6 @@
 import json
 
-from bench.plot_coverage_fcr import generate
+from nbs.plot_coverage_fcr import generate
 
 
 def _metric(value: float) -> dict:

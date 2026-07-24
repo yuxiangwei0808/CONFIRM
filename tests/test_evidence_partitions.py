@@ -4,10 +4,9 @@ import json
 
 import pandas as pd
 
-from bench.run_iterative_claim_search_replay import _candidate_evaluator
 from confirm.candidate_preflight import CandidatePreflightContext
-from confirm.claim_search import summarize_claim_search
 from confirm.contract import ClaimContract
+from confirm.excluded_evidence import mapped_contract_for_evidence
 from confirm.evidence_partitions import (
     EvidencePartitionManifest,
     EvidencePartitionRecord,
@@ -162,20 +161,18 @@ def test_target_family_and_base_cohort_helpers_for_ad_claim():
     assert infer_target_family(contract) == "ad_aging"
 
 
-def test_manifest_mapped_holdout_evaluator_uses_holdout_paths(tmp_path):
+def test_manifest_maps_contract_to_distinct_holdout_paths_outcome_blind(tmp_path):
     config_path, out_root = _write_config(tmp_path)
     manifest = build_evidence_partitions(config_path, out_root)
-    evaluator = _candidate_evaluator([out_root / "cohorts"], evidence_manifest=manifest, evidence_kind="holdout")
+    mapped, discovery, replications, evidence_set_id = mapped_contract_for_evidence(
+        _contract(), manifest, "holdout"
+    )
 
-    class Candidate:
-        proposed_contract = _contract()
-
-    result = evaluator(Candidate())
-    paths = result["gate_results"]["data_paths"]
-
-    assert paths["discovery"].endswith("ADNI_HOLDOUT_DISC.parquet")
-    assert paths["replication"][0].endswith("OASIS3_HOLDOUT_REP.parquet")
-    assert result["gate_results"]["evidence_scope"]["scope"] == "holdout"
+    assert mapped.discovery_cohort == "ADNI_HOLDOUT_DISC"
+    assert mapped.replication_cohorts == ["OASIS3_HOLDOUT_REP"]
+    assert discovery.path.endswith("ADNI_HOLDOUT_DISC.parquet")
+    assert replications[0].path.endswith("OASIS3_HOLDOUT_REP.parquet")
+    assert evidence_set_id is None
 
 
 def test_same_base_contract_uses_distinct_holdout_evaluation_pair(tmp_path):
@@ -193,6 +190,26 @@ def test_same_base_contract_uses_distinct_holdout_evaluation_pair(tmp_path):
     assert manifest.has_excluded_evidence_for_contract(contract)
 
 
+def test_holdout_mapping_deduplicates_repeated_replication_bases(tmp_path):
+    config_path, out_root = _write_config(tmp_path)
+    manifest = build_evidence_partitions(config_path, out_root)
+    contract = _contract(
+        discovery_cohort="ADNI_DISC",
+        replication_cohorts=["OASIS3_DISC", "ADNI_REP", "OASIS3_REP"],
+    )
+
+    pair = manifest.holdout_evaluation_pair_for_contract(contract)
+
+    assert pair is not None
+    discovery, replications = pair
+    assert discovery.partition_id == "ADNI_HOLDOUT_DISC"
+    assert [record.partition_id for record in replications] == [
+        "OASIS3_HOLDOUT_REP",
+        "ADNI_HOLDOUT_REP",
+    ]
+    assert len({discovery.path, *[record.path for record in replications]}) == 3
+
+
 def test_contract_that_already_used_holdout_cannot_reuse_internal_holdout(tmp_path):
     config_path, out_root = _write_config(tmp_path)
     manifest = build_evidence_partitions(config_path, out_root)
@@ -202,45 +219,6 @@ def test_contract_that_already_used_holdout_cannot_reuse_internal_holdout(tmp_pa
     )
 
     assert manifest.holdout_evaluation_pair_for_contract(contract) is None
-
-
-def test_summary_counts_holdout_confirmed_as_final_not_exploratory():
-    from confirm.claim_search import run_claim_search
-
-    contract = _contract()
-
-    def generator(contract, localization, config, round_index, parent_claim_id):
-        from tests.test_claim_search import _candidate
-
-        return [
-            _candidate(
-                contract,
-                proposal_type="independent_replication_claim",
-                transform_type="stronger_design",
-                provenance="independent_replication",
-                validation_split="excluded_validation",
-                proposed_contract=contract,
-                proposed_question="Replicate the Dementia vs CN smri claim in excluded validation evidence.",
-            )
-        ]
-
-    state = run_claim_search(
-        contract,
-        {"label": "fragile", "abstained": True, "rationale": "Failed gates: replication", "gates": {"replication": False}},
-        {"replication": {"passed": False}},
-        candidate_generator=generator,
-        evaluator=lambda candidate: {"final_label": "confirmed", "gate_results": {}},
-        external_evaluator=lambda candidate: {"final_label": "confirmed", "gate_results": {}},
-        excluded_validation_available=True,
-        excluded_evidence_kind="holdout",
-    )
-
-    summary = summarize_claim_search([state])
-
-    assert state.evaluations[0].final_label == "holdout_confirmed"
-    assert summary["holdout_confirmed_count"] == 1
-    assert summary["confirmed_count"] == 1
-    assert summary["exploratory_confirmed_count"] == 0
 
 
 def _external_record(
@@ -376,3 +354,53 @@ def test_external_selection_rejects_incompatible_group_levels_or_missing_outcome
         record.group_levels = {"dx": ["CN", "Dementia"]}
         record.columns = [column for column in record.columns if column != "smri_hippocampus"]
     assert manifest.external_pair_for_contract(_contract()) is None
+
+
+def test_cnp_external_compatibility_derives_confirm_dx_from_raw_manifest_levels():
+    records = [
+        _external_record(
+            "ds000030_EXTERNAL_DISC",
+            "ds000030",
+            "discovery",
+            group_levels={"confirm_dx": ["control"], "dx": ["SCHZ", "CONTROL", "BIPOLAR", "ADHD"]},
+        ),
+        _external_record(
+            "ds000030_EXTERNAL_REP",
+            "ds000030",
+            "replication",
+            group_levels={"confirm_dx": ["control"], "dx": ["SCHZ", "CONTROL", "BIPOLAR", "ADHD"]},
+        ),
+    ]
+    records = [record.model_copy(update={"target_family": "psychosis"}) for record in records]
+    evidence_set = ExternalEvidenceSetRecord(
+        evidence_set_id="psychosis_cnp_smri",
+        target_family="psychosis",
+        modality="sMRI",
+        feature_family="regional_volume",
+        discovery_partition_id="ds000030_EXTERNAL_DISC",
+        replication_partition_ids=["ds000030_EXTERNAL_REP"],
+        supported_predictors=["confirm_dx"],
+        supported_group_vars=["confirm_dx"],
+        priority=1,
+    )
+    contract = _contract(
+        claim_id="psychosis_claim",
+        question="Do psychosis cases differ from controls?",
+        estimand={
+            "type": "group_diff",
+            "outcome": "smri_hippocampus",
+            "predictor": "confirm_dx",
+            "group": {"var": "confirm_dx", "case": "case", "control": "control"},
+            "direction": "negative",
+            "unit": "scalar",
+            "region_set": None,
+        },
+        discovery_cohort="COBRE_DISC",
+        replication_cohorts=["FBIRN_REP"],
+    )
+    manifest = EvidencePartitionManifest(seed=7, records=records, external_evidence_sets=[evidence_set])
+
+    compatible = manifest.external_pair_for_contract(contract)
+
+    assert compatible is not None
+    assert compatible[2].evidence_set_id == "psychosis_cnp_smri"

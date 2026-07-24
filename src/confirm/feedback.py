@@ -9,6 +9,12 @@ from pydantic import BaseModel, ConfigDict, Field
 
 DispositionLabel = Literal["needs_more_data", "non_replicated", "under_powered", "fragile", "abandon_claim"]
 
+_PATTERN_REPLICATION_GATES = {
+    "pattern_corr",
+    "region_replication_fraction",
+    "dice",
+}
+
 
 class ClaimFeedback(BaseModel):
     """Minimal verdict-derived failure evidence used by proposal/search layers."""
@@ -61,14 +67,9 @@ def _primary_failure(
     if source_verdict == "confirmed":
         return "none"
     text = rationale.lower()
-    contract = _mapping(results.get("contract"))
-    search = _mapping(contract.get("search_provenance"))
-    selection = str(search.get("selection") or "").lower()
     if "execution_error" in text:
         return "execution_error"
     if "unverifiable_search" in text or "search_provenance" in failed:
-        return "search_provenance"
-    if selection in {"discovery_only", "full_data", "unknown"} and "multiplicity" in failed:
         return "search_provenance"
     if "confound_completeness" in failed or "confound_incomplete" in text:
         return "confound"
@@ -78,9 +79,13 @@ def _primary_failure(
         return "multiplicity"
     if "power" in failed or source_verdict == "under_powered":
         return "power"
-    if "multiverse" in failed or "pattern_corr" in failed or "region_replication_fraction" in failed:
+    if "multiverse" in failed:
         return "multiverse"
-    if "replication" in failed or source_verdict == "non_replicated":
+    if (
+        "replication" in failed
+        or _PATTERN_REPLICATION_GATES.intersection(failed)
+        or source_verdict == "non_replicated"
+    ):
         return "replication"
     return "abstention"
 
@@ -119,16 +124,24 @@ def _instruction(primary: str, rationale: str, results: Mapping[str, Any]) -> st
     if primary == "power":
         return "Require additional sample size or report an under-powered disposition."
     if primary == "multiverse":
-        return "Treat current evidence as fragile and require a predeclared future specification."
+        return (
+            "Use a fixed, scientifically justified specification for a connected follow-up; "
+            "any adaptive same-data support remains exploratory."
+        )
     if primary == "replication":
-        return "Require independent replication evidence or report non-replication."
+        return (
+            "Address the failed replication metrics with a connected follow-up; "
+            "any adaptive same-data support remains exploratory."
+        )
     if primary == "multiplicity":
         if _direction_drives_multiplicity_failure(results):
             return (
                 "Preserve the declared direction; do not reverse it after observing the effect. "
                 "Generate only connected follow-ups requiring adaptive or excluded-evidence labels."
             )
-        return "Do not shrink the searched family; require a connected follow-up with excluded validation evidence."
+        return (
+            "Do not shrink the searched family; evaluate connected follow-ups under the cumulative adaptive family size."
+        )
     if primary == "execution_error":
         return "Only true executable contract corrections may be rerun on current data."
     return "Do not force confirmation; produce a disposition or a provenance-safe follow-up."
@@ -241,7 +254,7 @@ def _evidence_from_results(
         evidence.append("; ".join(parts) + ".")
 
     multiverse = _mapping(results.get("multiverse"))
-    if "multiverse" in failed or "pattern_corr" in failed or "region_replication_fraction" in failed:
+    if "multiverse" in failed:
         fraction = _num(multiverse.get("fraction_consistent"))
         threshold = _num(_mapping(gate_config.get("multiverse")).get("min_fraction_consistent"))
         specs = multiverse.get("specs")
@@ -257,11 +270,27 @@ def _evidence_from_results(
         evidence.append("; ".join(parts) + ".")
 
     replication = _mapping(results.get("replication"))
-    if "replication" in failed:
+    if "replication" in failed or _PATTERN_REPLICATION_GATES.intersection(failed):
         reason = str(replication.get("reason") or "").strip()
         parts = ["Replication gate failed"]
         if reason:
             parts.append(f"reason={reason}")
+        replication_config = _mapping(gate_config.get("replication"))
+        for metric, threshold_name in (
+            ("pattern_corr", "pattern_corr_min"),
+            ("region_replication_fraction", "region_replication_frac_min"),
+            ("dice", "dice_min"),
+        ):
+            if metric not in failed:
+                continue
+            observed = replication.get(metric)
+            required = replication_config.get(threshold_name)
+            detail = metric
+            if observed is not None:
+                detail += f"={_fmt(observed)}"
+            if required is not None:
+                detail += f" required>={_fmt(required)}"
+            parts.append(detail)
         cohort_results = replication.get("cohort_results")
         if isinstance(cohort_results, list):
             cohort_parts = []

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import json
 
 import pandas as pd
@@ -10,13 +11,15 @@ from confirm.claim_search import (
     CandidateClaimProposal,
     CandidateDomainCore,
     CandidateEvidencePolicy,
+    CandidateFailureSummary,
     CandidatePreservationCheck,
     ClaimSearchConfig,
+    ClaimSearchState,
     LLMClaimCandidateGenerator,
     LLMCandidateGenerationResponse,
+    RoundFailureContext,
     build_claim_search_artifacts,
     build_candidate_generation_prompt,
-    generate_connected_candidates,
     localize_failure,
     parse_candidate_generation_response,
     run_claim_search,
@@ -100,6 +103,13 @@ def _results(contract):
 
 
 def _candidate(contract, **overrides):
+    default_contract = contract.model_copy(
+        update={
+            "claim_id": f"{contract.claim_id}_followup",
+            "question": "Does the connected contrast extend to smri_entorhinal?",
+            "estimand": contract.estimand.model_copy(update={"outcome": "smri_entorhinal"}),
+        }
+    )
     domain_core = CandidateDomainCore(
         population_or_disease="Dementia vs CN",
         cohort_family="ADNI;OASIS3",
@@ -121,9 +131,9 @@ def _candidate(contract, **overrides):
     )
     evidence_policy = CandidateEvidencePolicy(
         provenance=overrides.get("provenance", "post_hoc_followup"),
-        requires_new_evidence=overrides.get("requires_new_evidence", True),
-        can_confirm_on_current_data=overrides.get("can_confirm_on_current_data", False),
-        validation_split=overrides.get("validation_split", "future_required"),
+        requires_new_evidence=overrides.get("requires_new_evidence", False),
+        can_confirm_on_current_data=overrides.get("can_confirm_on_current_data", True),
+        validation_split=overrides.get("validation_split", "current_data_adaptive"),
     )
     data = {
         "candidate_id": "candidate",
@@ -134,20 +144,54 @@ def _candidate(contract, **overrides):
         "preservation_check": preservation_check,
         "evidence_policy": evidence_policy,
         "connection_rationale": "Preserves Dementia vs CN and smri modality.",
-        "validation_split": "future_required",
+        "validation_split": "current_data_adaptive",
         "source_claim_id": contract.claim_id,
         "proposal_type": "exploratory_followup_claim",
         "rationale": "Connected follow-up.",
         "proposed_question": "In excluded validation evidence, test a narrower smri Dementia vs CN outcome.",
-        "proposed_contract": contract,
+        "proposed_contract": default_contract,
         "disposition_label": None,
         "provenance": "post_hoc_followup",
-        "requires_new_evidence": True,
-        "can_confirm_on_current_data": False,
+        "requires_new_evidence": False,
+        "can_confirm_on_current_data": True,
         "supported_by_evidence": [],
     }
     data.update(overrides)
     return CandidateClaimProposal.model_validate(data)
+
+
+def _stub_candidate_generator(contract, localization, config, round_index, parent_claim_id):
+    outcomes = [
+        "smri_entorhinal",
+        "smri_fusiform",
+        "smri_middletemporal",
+        "smri_amygdala",
+        "smri_thalamus",
+    ]
+    candidates = []
+    for index, outcome in enumerate(outcomes[: config.max_candidates_per_round], start=1):
+        proposed_contract = contract.model_copy(
+            update={
+                "claim_id": f"{contract.claim_id}_r{round_index}_c{index}",
+                "question": f"Does the connected contrast extend to {outcome}?",
+                "estimand": contract.estimand.model_copy(update={"outcome": outcome}),
+            }
+        )
+        candidates.append(
+            _candidate(
+                contract,
+                candidate_id=f"stub_r{round_index}_c{index}",
+                parent_claim_id=parent_claim_id,
+                round_index=round_index,
+                proposed_question=proposed_contract.question,
+                proposed_contract=proposed_contract,
+                supported_by_evidence=list(localization.evidence),
+                responds_to_candidate_ids=(
+                    [f"stub_r{round_index - 1}_c1"] if round_index > 1 else []
+                ),
+            )
+        )
+    return candidates
 
 
 class _FakeCandidateLLM:
@@ -156,7 +200,10 @@ class _FakeCandidateLLM:
     def complete(self, system, user):
         payload = json.loads(user)
         evidence = payload["failure_localization"]["evidence"][:1]
-        proposed_contract = payload["original_contract"]
+        proposed_contract = json.loads(json.dumps(payload["original_contract"]))
+        proposed_contract["estimand"]["outcome"] = "smri_entorhinal"
+        subgroup_contract = json.loads(json.dumps(payload["original_contract"]))
+        subgroup_contract["inclusion"] = 'sex == "F"'
         domain_core = {
             "population_or_disease": "Dementia vs CN",
             "cohort_family": "ADNI;OASIS3",
@@ -190,31 +237,31 @@ class _FakeCandidateLLM:
                         "connection_rationale": "Preserves Dementia vs CN and smri modality.",
                         "evidence_policy": {
                             "provenance": "post_hoc_followup",
-                            "requires_new_evidence": True,
-                            "can_confirm_on_current_data": False,
-                            "validation_split": "future_required",
+                            "requires_new_evidence": False,
+                            "can_confirm_on_current_data": True,
+                            "validation_split": "current_data_adaptive",
                         },
                         "supported_by_evidence": evidence,
                         "disposition_label": None,
                     },
                     {
-                        "proposal_type": "independent_replication_claim",
-                        "transform_type": "stronger_design",
+                        "proposal_type": "exploratory_followup_claim",
+                        "transform_type": "moderator_or_subgroup",
                         "domain_core": domain_core,
                         "preservation_check": {
                             **preservation_check,
-                            "changed_fields": ["validation_evidence"],
-                            "allowed_change_rationale": "Preserves the same claim but moves it to independent evidence.",
+                            "changed_fields": ["inclusion"],
+                            "allowed_change_rationale": "Preserves the same claim in a feasible source-data subgroup.",
                         },
                         "proposed_question": "Replicate the original Dementia vs CN smri claim in an independent cohort.",
-                        "proposed_contract": proposed_contract,
-                        "rationale": "This asks for independent evidence rather than same-data optimization.",
+                        "proposed_contract": subgroup_contract,
+                        "rationale": "This is a connected source-data subgroup follow-up.",
                         "connection_rationale": "Preserves the Dementia vs CN contrast, smri modality, and gates.",
                         "evidence_policy": {
-                            "provenance": "independent_replication",
-                            "requires_new_evidence": True,
-                            "can_confirm_on_current_data": False,
-                            "validation_split": "future_required",
+                            "provenance": "post_hoc_followup",
+                            "requires_new_evidence": False,
+                            "can_confirm_on_current_data": True,
+                            "validation_split": "current_data_adaptive",
                         },
                         "supported_by_evidence": evidence,
                         "disposition_label": None,
@@ -267,6 +314,9 @@ class _PreflightRetryLLM:
         if self.calls == 1:
             proposed_contract = json.loads(json.dumps(proposed_contract))
             proposed_contract["estimand"]["outcome"] = "smri_missing"
+        else:
+            proposed_contract = json.loads(json.dumps(proposed_contract))
+            proposed_contract["estimand"]["outcome"] = "smri_entorhinal"
         evidence = payload["failure_localization"]["evidence"][:1]
         domain_core = {
             "population_or_disease": "Dementia vs CN",
@@ -301,9 +351,9 @@ class _PreflightRetryLLM:
                         "connection_rationale": "Preserves Dementia vs CN and smri modality.",
                         "evidence_policy": {
                             "provenance": "post_hoc_followup",
-                            "requires_new_evidence": True,
-                            "can_confirm_on_current_data": False,
-                            "validation_split": "future_required",
+                            "requires_new_evidence": False,
+                            "can_confirm_on_current_data": True,
+                            "validation_split": "current_data_adaptive",
                         },
                         "supported_by_evidence": evidence,
                         "disposition_label": None,
@@ -325,6 +375,7 @@ class _ValidationRetryLLM:
         payload = json.loads(user)
         self.saw_validation_feedback = self.saw_validation_feedback or "candidate_validation_retry" in payload
         proposed_contract = json.loads(json.dumps(payload["original_contract"]))
+        proposed_contract["estimand"]["outcome"] = "smri_entorhinal"
         if self.calls == 1:
             proposed_contract["estimand"]["group"] = {"var": "dx", "case": "MCI", "control": "CN"}
         evidence = payload["failure_localization"]["evidence"][:1]
@@ -373,6 +424,23 @@ class _ValidationRetryLLM:
         )
 
 
+class _PartialValidationLLM:
+    model = "partial-validation-generator"
+
+    def __init__(self):
+        self.calls = 0
+
+    def complete(self, system, user):
+        self.calls += 1
+        payload = json.loads(_FakeCandidateLLM().complete(system, user))
+        payload["candidates"][1]["proposed_contract"]["estimand"]["group"] = {
+            "var": "dx",
+            "case": "MCI",
+            "control": "CN",
+        }
+        return json.dumps(payload)
+
+
 def _preflight_context(tmp_path):
     root = tmp_path / "cohorts"
     root.mkdir()
@@ -393,16 +461,35 @@ def _preflight_context(tmp_path):
     return CandidatePreflightContext.from_roots([root])
 
 
-def test_config_enforces_budget_and_generator_respects_candidate_limit():
+def test_config_enforces_budget_and_stub_generator_respects_candidate_limit():
     with pytest.raises(ValueError):
         ClaimSearchConfig(max_rounds=0)
+    with pytest.raises(ValueError):
+        ClaimSearchConfig(brainwide_min_features=2)
     contract = _contract()
     loc = localize_failure(contract, _verdict(), _results(contract))
     config = ClaimSearchConfig(max_rounds=2, max_candidates_per_round=2)
 
-    candidates = generate_connected_candidates(contract, loc, config, 1, contract.claim_id)
+    candidates = _stub_candidate_generator(contract, loc, config, 1, contract.claim_id)
 
     assert len(candidates) == 2
+
+
+def test_v6_search_state_has_no_one_shot_or_excluded_evidence_fields():
+    properties = ClaimSearchState.model_json_schema()["properties"]
+    assert {
+        "internally_supported_candidate_ids",
+        "round_failure_contexts",
+        "round_summaries",
+        "final_search_family_size",
+    }.issubset(properties)
+    assert {
+        "selected_candidate_id",
+        "selection_reason",
+        "confirmed_candidates",
+        "excluded_evidence_query_count",
+        "excluded_evidence_status",
+    }.isdisjoint(properties)
 
 
 def test_loop_stops_without_forcing_success_when_no_evaluator_exists():
@@ -412,10 +499,10 @@ def test_loop_stops_without_forcing_success_when_no_evaluator_exists():
         _verdict(),
         _results(contract),
         config=ClaimSearchConfig(max_rounds=3, max_candidates_per_round=3),
-        candidate_generator=generate_connected_candidates,
+        candidate_generator=_stub_candidate_generator,
     )
 
-    assert state.confirmed_candidates == []
+    assert state.internally_supported_candidate_ids == []
     assert state.stopped_reason == "no_evaluator"
     assert state.candidate_history
 
@@ -442,7 +529,8 @@ def test_llm_prompt_and_parser_generate_typed_candidates():
         executable_catalog=executable_catalog,
     )
 
-    assert "goal is not to make the failed claim pass" in system
+    assert "legitimate chance of passing" in system
+    assert "do not manipulate the contract" in system
     assert "forbidden_actions" in user
     assert "executable_data_catalog" in user
     assert "output_schema" in user
@@ -452,7 +540,11 @@ def test_llm_prompt_and_parser_generate_typed_candidates():
     assert "evidence_policy" in user
     prompt_payload = json.loads(user)
     assert prompt_payload["max_candidates"] == 2
+    assert "external_evidence_sets" not in prompt_payload
+    assert "holdout_evaluation_pair" not in prompt_payload
     assert "Generate up to 2 scientifically distinct candidates" in prompt_payload["generation_policy"][0]
+    assert "multivariate_pattern" in prompt_payload["allowed_transform_types"]
+    assert any("brainwide" in item for item in prompt_payload["generation_policy"])
 
     generator = LLMClaimCandidateGenerator(_FakeCandidateLLM())
     candidates = generator(contract, loc, config, 1, contract.claim_id)
@@ -482,23 +574,72 @@ def test_llm_prompt_honors_candidate_limits_above_five():
     assert "Generate 2-5 candidates" not in user
 
 
-def test_llm_candidate_schema_encodes_valid_proposal_transform_pairs():
+def test_generic_retry_hides_structured_failure_diagnosis_but_keeps_failed_ids():
+    contract = _contract()
+    localization = localize_failure(contract, _verdict(), _results(contract))
+    context = RoundFailureContext(
+        round_index=1,
+        failed_candidates=[
+            CandidateFailureSummary(
+                candidate_id="candidate_r1_c1",
+                failed_gates=["replication"],
+                localized_cause=localization,
+                effective_contract=contract,
+                execution_status="gate_failed",
+            )
+        ],
+    )
+    _, structured_user = build_candidate_generation_prompt(
+        contract,
+        localization,
+        ClaimSearchConfig(feedback_mode="structured_diagnosis"),
+        2,
+        contract.claim_id,
+        round_failure_context=context,
+    )
+    _, generic_user = build_candidate_generation_prompt(
+        contract,
+        localization,
+        ClaimSearchConfig(feedback_mode="generic_retry"),
+        2,
+        contract.claim_id,
+        round_failure_context=context,
+    )
+
+    structured_payload = json.loads(structured_user)
+    generic_payload = json.loads(generic_user)
+    structured = structured_payload["round_failure_context"]
+    generic = generic_payload["round_failure_context"]
+    assert structured["failed_candidates"][0]["failed_gates"] == ["replication"]
+    assert generic["failed_candidate_ids"] == ["candidate_r1_c1"]
+    assert "failed_candidates" not in generic
+    assert structured_payload["failure_localization"]["failed_gates"]
+    assert generic_payload["failure_localization"]["failed_gates"] == []
+    assert generic_payload["failure_localization"]["evidence"] == []
+
+
+def test_llm_candidate_schema_requires_executable_proposals_but_does_not_enforce_transform_labels():
     schema = LLMCandidateGenerationResponse.model_json_schema()
     candidate_items = schema["properties"]["candidates"]["items"]
-    refs = {item["$ref"].split("/")[-1] for item in candidate_items["anyOf"]}
-
-    assert refs == {
-        "LLMExploratoryCandidateProposal",
-        "LLMIndependentReplicationCandidateProposal",
-        "LLMCorrectedContractCandidateProposal",
+    assert candidate_items["$ref"].endswith("/LLMCandidateProposal")
+    properties = schema["$defs"]["LLMCandidateProposal"]["properties"]
+    assert set(properties["proposal_type"]["enum"]) == {
+        "corrected_contract",
+        "exploratory_followup_claim",
     }
-    definitions = schema["$defs"]
-    assert definitions["LLMIndependentReplicationCandidateProposal"]["properties"]["proposal_type"]["const"] == "independent_replication_claim"
-    assert definitions["LLMIndependentReplicationCandidateProposal"]["properties"]["transform_type"]["const"] == "stronger_design"
-    assert set(definitions["LLMExploratoryCandidateProposal"]["properties"]["transform_type"]["enum"]) == {
+    assert set(properties["transform_type"]["enum"]) == {
         "narrower_outcome_family",
+        "alternative_same_modality_outcome",
+        "multivariate_pattern",
         "moderator_or_subgroup",
+        "stronger_design",
         "fixed_estimand",
+        "contract_correction",
+    }
+    policy_properties = schema["$defs"]["CandidateEvidencePolicy"]["properties"]
+    assert set(policy_properties["validation_split"]["enum"]) == {
+        "current_data_adaptive",
+        "current_data_contract_repair",
     }
 
 
@@ -516,10 +657,13 @@ def test_llm_generator_retries_after_schema_failure():
     assert len(generator.prompt_records) == 2
     assert generator.response_records[0]["parse_error"]
     assert generator.response_records[1]["parse_error"] is None
+    assert generator.response_records[0]["retry_kind"] == "none"
+    assert generator.response_records[1]["retry_kind"] == "schema"
+    assert generator.response_records[1]["is_retry"] is True
     assert "schema_validation_error" in generator.prompt_records[1]["user"]
 
 
-def test_llm_generator_retries_after_invalid_proposal_transform_pair():
+def test_llm_generator_does_not_retry_a_schema_valid_transform_mismatch():
     contract = _contract()
     loc = localize_failure(contract, _verdict(), _results(contract))
     config = ClaimSearchConfig(max_rounds=1, max_candidates_per_round=2, llm_schema_retries=1)
@@ -529,10 +673,8 @@ def test_llm_generator_retries_after_invalid_proposal_transform_pair():
     candidates = generator(contract, loc, config, 1, contract.claim_id)
 
     assert len(candidates) == 2
-    assert llm.calls == 2
-    assert generator.response_records[0]["parse_error"]
-    assert "stronger_design" in generator.response_records[0]["parse_error"]
-    assert "schema_validation_error" in generator.prompt_records[1]["user"]
+    assert llm.calls == 1
+    assert generator.response_records[0]["parse_error"] is None
 
 
 def test_parser_rejects_malformed_llm_output():
@@ -543,7 +685,7 @@ def test_parser_rejects_malformed_llm_output():
         parse_candidate_generation_response("{}", contract, loc, ClaimSearchConfig(), 1, contract.claim_id)
 
 
-def test_parser_rejects_mismatched_proposal_transform_pair():
+def test_parser_accepts_transform_intent_for_later_deterministic_audit():
     contract = _contract()
     loc = localize_failure(contract, _verdict(), _results(contract))
     raw = json.loads(
@@ -555,8 +697,27 @@ def test_parser_rejects_mismatched_proposal_transform_pair():
     raw["candidates"][0]["transform_type"] = "stronger_design"
     raw["candidates"][0]["proposal_type"] = "exploratory_followup_claim"
 
-    with pytest.raises(ValueError, match="stronger_design"):
-        parse_candidate_generation_response(json.dumps(raw), contract, loc, ClaimSearchConfig(), 1, contract.claim_id)
+    candidates = parse_candidate_generation_response(
+        json.dumps(raw), contract, loc, ClaimSearchConfig(), 1, contract.claim_id
+    )
+
+    assert candidates[0].transform_type == "stronger_design"
+
+
+def test_parser_ignores_round_one_candidate_references():
+    contract = _contract()
+    loc = localize_failure(contract, _verdict(), _results(contract))
+    raw = json.loads(_FakeCandidateLLM().complete("", json.dumps({
+        "failure_localization": {"evidence": ["replication failed"]},
+        "original_contract": contract.model_dump(mode="json"),
+    })))
+    raw["candidates"][0]["responds_to_candidate_ids"] = ["self_reference"]
+
+    candidates = parse_candidate_generation_response(
+        json.dumps(raw), contract, loc, ClaimSearchConfig(), 1, contract.claim_id
+    )
+
+    assert candidates[0].responds_to_candidate_ids == []
 
 
 def test_posthoc_candidate_can_use_adaptive_current_data_evaluation():
@@ -569,7 +730,7 @@ def test_posthoc_candidate_can_use_adaptive_current_data_evaluation():
         requires_new_evidence=False,
     )
 
-    result = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig(), excluded_validation_available=False)
+    result = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig())
 
     assert result.ok
 
@@ -588,11 +749,53 @@ def test_contract_correction_may_use_current_data_when_estimand_preserved():
         requires_new_evidence=False,
         can_confirm_on_current_data=True,
         proposed_question=repaired.question,
+        rationale="Add measured site as a confound required by the failed confound audit.",
+        connection_rationale="Add measured site while preserving the original estimand and cohorts.",
     )
 
-    result = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig(), excluded_validation_available=False)
+    result = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig())
 
     assert result.ok
+
+
+def test_added_confound_must_update_covariates_and_required_gate_together():
+    contract = _contract()
+    loc = localize_failure(contract, _verdict(failed=["confound"]), _results(contract))
+    repaired = _contract(covariates=["age", "sex", "site"])
+    candidate = _candidate(
+        contract,
+        proposal_type="corrected_contract",
+        transform_type="contract_correction",
+        provenance="contract_correction",
+        validation_split="current_data_contract_repair",
+        proposed_contract=repaired,
+        requires_new_evidence=False,
+        can_confirm_on_current_data=True,
+        rationale="Add measured site as a confound.",
+        connection_rationale="Preserve the original estimand and cohorts.",
+    )
+
+    result = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig())
+
+    assert not result.ok
+    assert any("both covariates and required" in item for item in result.violations)
+
+
+def test_candidate_cannot_disable_parent_motion_check():
+    contract = _contract(gates={"confound": {"motion_check": True}})
+    loc = localize_failure(contract, _verdict(failed=["confound"]), _results(contract))
+    repaired = _contract(gates={"confound": {"motion_check": False}})
+    candidate = _candidate(
+        contract,
+        proposed_contract=repaired,
+        rationale="Keep the same analysis.",
+        connection_rationale="Preserve the original estimand and cohorts.",
+    )
+
+    result = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig())
+
+    assert not result.ok
+    assert any("motion confound check" in item for item in result.violations)
 
 
 def test_noop_contract_correction_is_rejected():
@@ -610,10 +813,160 @@ def test_noop_contract_correction_is_rejected():
         proposed_question=contract.question,
     )
 
-    result = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig(), excluded_validation_available=False)
+    result = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig())
 
     assert not result.ok
     assert any("does not change" in item for item in result.violations)
+
+
+@pytest.mark.parametrize(
+    ("parent_outcome", "candidate_outcome"),
+    [
+        ("smri_hippocampus", "smri_hippocampus_z"),
+        ("smri_hippocampus_z", "smri_hippocampus_z_z"),
+        ("smri_hippocampus_z_z", "smri_hippocampus"),
+    ],
+)
+def test_z_suffixed_outcome_columns_are_treated_as_distinct_executable_fields(
+    parent_outcome,
+    candidate_outcome,
+):
+    contract = _contract(estimand={"outcome": parent_outcome})
+    loc = localize_failure(contract, _verdict(), _results(contract))
+    revised = _contract(estimand={"outcome": candidate_outcome})
+    candidate = _candidate(contract, proposed_contract=revised)
+
+    result = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig())
+
+    assert result.ok, result.violations
+
+
+def test_two_outcome_brainwide_pattern_is_retained_but_not_executable():
+    contract = _contract(estimand={"outcome": "fc_edge_z", "unit": "scalar"})
+    localization = localize_failure(contract, _verdict(), _results(contract))
+    revised = _contract(
+        estimand={
+            "outcome": ["fc_edge_z", "fc_edge"],
+            "unit": "brainwide",
+            "region_set": "raw_and_standardized_pair",
+        }
+    )
+    candidate = _candidate(contract, proposed_contract=revised)
+
+    result = validate_candidate_claim(
+        contract,
+        candidate,
+        localization,
+        ClaimSearchConfig(),
+    )
+
+    assert not result.ok
+    assert any("at least 3 distinct outcome" in item for item in result.violations)
+
+
+def test_connected_scalar_to_brainwide_pattern_is_allowed_with_policy_floor_and_feature_burden():
+    contract = _contract(
+        gates={"replication": {"pattern_corr_min": 0.0}},
+    )
+    pattern_contract = _contract(
+        estimand={
+            "outcome": [
+                "smri_hippocampus",
+                "smri_entorhinal",
+                "smri_amygdala",
+            ],
+            "unit": "brainwide",
+            "region_set": "medial_temporal_pattern",
+        },
+        gates={"replication": {"pattern_corr_min": 0.0}},
+    )
+    evaluated = []
+
+    def generator(contract, localization, config, round_index, parent_claim_id):
+        return [
+            _candidate(
+                contract,
+                transform_type="multivariate_pattern",
+                proposed_contract=pattern_contract,
+            )
+        ]
+
+    def evaluator(candidate):
+        evaluated.append(candidate)
+        return {"final_label": "fragile", "gate_results": {}}
+
+    state = run_claim_search(
+        contract,
+        _verdict(),
+        _results(contract),
+        config=ClaimSearchConfig(max_rounds=1, max_candidates_per_round=1),
+        candidate_generator=generator,
+        evaluator=evaluator,
+    )
+
+    assert len(evaluated) == 1
+    effective = evaluated[0]
+    assert effective.inferred_transform == "multivariate_pattern"
+    assert effective.transform_match is True
+    assert effective.proposed_contract.gates.replication.pattern_corr_min == 0.5
+    assert effective.policy_adjustments["adaptive_brainwide_pattern_policy"]["effective_pattern_corr_min"] == 0.5
+    assert state.evaluations[0].search_hypothesis_count == 4
+    assert state.unique_hypotheses_tested_count == 4
+    assert state.evaluations[0].effective_family_size == 5
+    assert summarize_claim_search([state])["unique_hypotheses_tested_count"] == 4
+
+
+def test_brainwide_pattern_requires_shared_not_only_per_cohort_features(tmp_path):
+    root = tmp_path / "cohorts"
+    root.mkdir()
+    base = {
+        "subject_id": [f"sub-{index}" for index in range(40)],
+        "site": ["site1", "site2"] * 20,
+        "age": [65 + index % 5 for index in range(40)],
+        "sex": ["F", "M"] * 20,
+        "dx": ["Dementia", "CN"] * 20,
+        "smri_hippocampus": [1.0 + index * 0.01 for index in range(40)],
+    }
+    pd.DataFrame(
+        {
+            **base,
+            "smri_entorhinal": [2.0 + index * 0.01 for index in range(40)],
+            "smri_amygdala": [3.0 + index * 0.01 for index in range(40)],
+        }
+    ).to_parquet(root / "ADNI.parquet")
+    pd.DataFrame(
+        {
+            **base,
+            "smri_precuneus": [4.0 + index * 0.01 for index in range(40)],
+            "smri_thalamus": [5.0 + index * 0.01 for index in range(40)],
+        }
+    ).to_parquet(root / "OASIS3.parquet")
+    context = CandidatePreflightContext.from_roots([root])
+    contract = _contract()
+    pattern_contract = _contract(
+        estimand={
+            "outcome": "smri_",
+            "unit": "brainwide",
+            "region_set": "connected_smri_pattern",
+        }
+    )
+    candidate = _candidate(
+        contract,
+        transform_type="multivariate_pattern",
+        proposed_contract=pattern_contract,
+    )
+
+    validation = validate_candidate_claim(
+        contract,
+        candidate,
+        localize_failure(contract, _verdict(), _results(contract)),
+        ClaimSearchConfig(),
+        preflight_context=context,
+    )
+
+    assert not validation.ok
+    assert any("shared across every source cohort" in item for item in validation.violations)
+    assert validation.design_diagnostics["brainwide_pattern"]["shared_outcome_count"] == 1
 
 
 def test_unrelated_outcome_and_direction_changes_are_rejected():
@@ -622,7 +975,7 @@ def test_unrelated_outcome_and_direction_changes_are_rejected():
     unrelated = _contract(estimand={"outcome": "pet_amyloid", "direction": "positive"})
     candidate = _candidate(contract, proposed_contract=unrelated)
 
-    result = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig(), excluded_validation_available=False)
+    result = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig())
 
     assert not result.ok
     assert any("modality" in item or "direction" in item for item in result.violations)
@@ -644,7 +997,7 @@ def test_domain_core_mismatch_is_rejected_without_contract():
         },
     )
 
-    result = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig(), excluded_validation_available=False)
+    result = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig())
 
     assert not result.ok
     assert any("domain_core changes outcome modality" in item for item in result.violations)
@@ -655,6 +1008,9 @@ def test_domain_core_accepts_known_modality_and_direction_aliases():
     loc = localize_failure(contract, _verdict(), _results(contract))
     candidate = _candidate(
         contract,
+        proposed_contract=contract.model_copy(
+            update={"estimand": contract.estimand.model_copy(update={"outcome": "fc_network_mean_abs"})}
+        ),
         domain_core={
             "population_or_disease": "Dementia vs CN",
             "cohort_family": "ADNI;OASIS3",
@@ -668,7 +1024,7 @@ def test_domain_core_accepts_known_modality_and_direction_aliases():
         connection_rationale="Preserves Dementia vs CN and resting-state fMRI functional connectivity.",
     )
 
-    result = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig(), excluded_validation_available=False)
+    result = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig())
 
     assert result.ok
 
@@ -688,7 +1044,6 @@ def test_structured_connection_does_not_require_literal_prose_tokens():
         candidate,
         localization,
         ClaimSearchConfig(),
-        excluded_validation_available=False,
     )
 
     assert result.ok
@@ -707,23 +1062,23 @@ def test_followup_contract_cannot_weaken_gates():
     )
     candidate = _candidate(contract, proposed_contract=weakened)
 
-    result = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig(), excluded_validation_available=False)
+    result = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig())
 
     assert not result.ok
-    assert any("weakened" in item for item in result.violations)
+    assert any("changes multiplicity alpha" in item for item in result.violations)
 
 
-def test_narrower_same_modality_contract_is_connected_but_requires_new_evidence():
+def test_narrower_same_modality_contract_is_connected_for_adaptive_source_evaluation():
     contract = _contract()
     loc = localize_failure(contract, _verdict(), _results(contract))
     narrower = _contract(estimand={"outcome": "smri_entorhinal"})
     candidate = _candidate(contract, proposed_contract=narrower)
 
-    result = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig(), excluded_validation_available=False)
+    result = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig())
 
     assert result.ok
-    assert candidate.requires_new_evidence
-    assert candidate.validation_split == "future_required"
+    assert not candidate.requires_new_evidence
+    assert candidate.validation_split == "current_data_adaptive"
 
 
 def test_data_preflight_rejects_schema_valid_nonexecutable_contract(tmp_path):
@@ -738,7 +1093,6 @@ def test_data_preflight_rejects_schema_valid_nonexecutable_contract(tmp_path):
         candidate,
         loc,
         ClaimSearchConfig(),
-        excluded_validation_available=False,
         preflight_context=context,
     )
 
@@ -809,6 +1163,7 @@ def test_subgroup_candidates_are_limited_to_parent_feasible_inclusions(tmp_path)
             "sex": ["F" if idx % 4 < 2 else "M" for idx in range(n)],
             "dx": ["Dementia" if idx % 2 else "CN" for idx in range(n)],
             "smri_hippocampus": [1.0 + idx * 0.01 + (idx % 7) * 0.001 for idx in range(n)],
+            "smri_entorhinal": [2.0 + idx * 0.01 + (idx % 5) * 0.001 for idx in range(n)],
         }
     )
     frame.to_parquet(root / "ADNI.parquet")
@@ -833,13 +1188,24 @@ def test_subgroup_candidates_are_limited_to_parent_feasible_inclusions(tmp_path)
         transform_type="moderator_or_subgroup",
         proposed_contract=contract.model_copy(update={"inclusion": "age >= 61.234"}),
     )
+    compound_contract = contract.model_copy(
+        update={
+            "estimand": contract.estimand.model_copy(update={"outcome": "smri_entorhinal"}),
+            "inclusion": allowed[0],
+        }
+    )
+    compound = _candidate(
+        contract,
+        transform_type="moderator_or_subgroup",
+        proposed_contract=compound_contract,
+        rationale=f"Test the connected outcome using the feasible subgroup {allowed[0]}.",
+    )
 
     accepted_result = validate_candidate_claim(
         contract,
         accepted,
         localization,
         ClaimSearchConfig(),
-        excluded_validation_available=False,
         preflight_context=context,
     )
     rejected_result = validate_candidate_claim(
@@ -847,13 +1213,170 @@ def test_subgroup_candidates_are_limited_to_parent_feasible_inclusions(tmp_path)
         rejected,
         localization,
         ClaimSearchConfig(),
-        excluded_validation_available=False,
+        preflight_context=context,
+    )
+    compound_result = validate_candidate_claim(
+        contract,
+        compound,
+        localization,
+        ClaimSearchConfig(),
         preflight_context=context,
     )
 
     assert accepted_result.ok, accepted_result.violations
+    assert compound_result.ok, compound_result.violations
+    assert any("does not match inferred transform" in item for item in compound_result.warnings)
     assert not rejected_result.ok
     assert any("parent-data-feasible inclusion" in item for item in rejected_result.violations)
+
+
+def test_candidate_rationale_may_use_group_label_numbers():
+    contract = _contract(
+        question="Do diagnosis group 2 participants differ from group 0?",
+        estimand={
+            "outcome": "smri_hippocampus",
+            "predictor": "dx",
+            "group": {"var": "dx", "case": "2", "control": "0"},
+        },
+    )
+    localization = localize_failure(contract, _verdict(), _results(contract))
+    candidate = _candidate(
+        contract,
+        domain_core=CandidateDomainCore(
+            population_or_disease="2 vs 0",
+            cohort_family="ADNI;OASIS3",
+            predictor_or_contrast="2 vs 0",
+            outcome_modality="smri",
+            outcome_family="smri_hippocampus",
+            direction_family="negative",
+            scientific_motivation=contract.question,
+        ),
+        proposed_contract=_contract(
+            question=contract.question,
+            estimand={
+                "outcome": "smri_entorhinal",
+                "predictor": "dx",
+                "group": {"var": "dx", "case": "2", "control": "0"},
+            },
+        ),
+        rationale="Keep the diagnosis contrast dx=2 versus dx=0 for a connected structural outcome.",
+    )
+
+    result = validate_candidate_claim(
+        contract,
+        candidate,
+        localization,
+        ClaimSearchConfig(),
+    )
+
+    assert result.ok, result.violations
+
+
+def test_distinct_z_suffixed_outcomes_are_not_deduplicated_by_name():
+    contract = _contract()
+
+    def generator(contract, localization, config, round_index, parent_claim_id):
+        first = _candidate(
+            contract,
+            candidate_id="raw_alias",
+            proposed_contract=_contract(estimand={"outcome": "smri_entorhinal"}),
+        )
+        second = _candidate(
+            contract,
+            candidate_id="standardized_alias",
+            proposed_contract=_contract(estimand={"outcome": "smri_entorhinal_z"}),
+        )
+        return [first, second]
+
+    state = run_claim_search(
+        contract,
+        _verdict(),
+        _results(contract),
+        config=ClaimSearchConfig(max_rounds=1, max_candidates_per_round=2),
+        candidate_generator=generator,
+        evaluator=lambda candidate: {"final_label": "fragile", "gate_results": {}},
+    )
+
+    assert state.unique_candidate_count == 2
+    assert state.duplicate_candidates == []
+
+
+def test_reordered_brainwide_pattern_is_deduplicated_as_same_executable_claim():
+    contract = _contract()
+    outcomes = ["smri_hippocampus", "smri_entorhinal", "smri_amygdala"]
+
+    def generator(contract, localization, config, round_index, parent_claim_id):
+        return [
+            _candidate(
+                contract,
+                candidate_id="pattern_a",
+                transform_type="multivariate_pattern",
+                proposed_contract=_contract(
+                    estimand={
+                        "outcome": outcomes,
+                        "unit": "brainwide",
+                        "region_set": "medial_temporal_pattern",
+                    }
+                ),
+            ),
+            _candidate(
+                contract,
+                candidate_id="pattern_b",
+                transform_type="multivariate_pattern",
+                proposed_contract=_contract(
+                    estimand={
+                        "outcome": list(reversed(outcomes)),
+                        "unit": "brainwide",
+                        "region_set": "medial_temporal_pattern",
+                    }
+                ),
+            ),
+        ]
+
+    state = run_claim_search(
+        contract,
+        _verdict(),
+        _results(contract),
+        config=ClaimSearchConfig(max_rounds=1, max_candidates_per_round=2),
+        candidate_generator=generator,
+        evaluator=lambda candidate: {"final_label": "fragile", "gate_results": {}},
+    )
+
+    assert state.unique_candidate_count == 1
+    assert len(state.duplicate_candidates) == 1
+    assert state.duplicate_candidates[0].duplicate_of == "pattern_a"
+
+
+def test_prompt_catalog_preserves_exact_z_suffixed_outcome_columns(tmp_path):
+    root = tmp_path / "cohorts"
+    root.mkdir()
+    frame = pd.DataFrame(
+        {
+            "subject_id": [f"sub-{idx}" for idx in range(40)],
+            "site": ["site1", "site2"] * 20,
+            "age": [60 + idx % 10 for idx in range(40)],
+            "sex": ["F", "M"] * 20,
+            "dx": ["Dementia", "CN"] * 20,
+            "fc_edge": [idx * 0.01 for idx in range(40)],
+            "fc_edge_z": [idx * 0.02 for idx in range(40)],
+            "fc_edge_z_z": [idx * 0.03 for idx in range(40)],
+            "fc_other": [idx * 0.04 for idx in range(40)],
+            "fc_other_z": [idx * 0.05 for idx in range(40)],
+        }
+    )
+    frame.to_parquet(root / "ADNI.parquet")
+    frame.to_parquet(root / "OASIS3.parquet")
+    context = CandidatePreflightContext.from_roots([root])
+    contract = _contract(estimand={"outcome": "fc_edge_z"})
+
+    catalog = context.prompt_catalog(contract)
+
+    outcomes = catalog["common_outcome_columns_sample"]
+    assert "fc_edge_z" in outcomes
+    assert "fc_edge" in outcomes
+    assert "fc_edge_z_z" in outcomes
+    assert "fc_other" in outcomes
+    assert "fc_other_z" in outcomes
 
 
 def test_llm_candidate_generation_retries_after_preflight_failure(tmp_path):
@@ -873,9 +1396,21 @@ def test_llm_candidate_generation_retries_after_preflight_failure(tmp_path):
 
     assert llm.calls == 2
     assert llm.saw_validation_feedback
-    assert state.stopped_reason == "exploratory_confirmed"
+    assert state.stopped_reason == "all_candidates_supported"
     assert state.evaluations[0].validation.ok
     assert not any("Preflight:" in item for item in state.evaluations[0].validation.violations)
+    assert [item["retry_kind"] for item in state.llm_candidate_responses] == [
+        "none",
+        "deterministic_validation",
+    ]
+    assert state.llm_candidate_responses[1]["validation_retry_index"] == 1
+    assert state.llm_candidate_responses[1]["is_retry"] is True
+    assert len(state.unretained_candidate_attempts) == 1
+    assert state.unretained_candidate_attempts[0].validation_retry_index == 0
+    assert any(
+        "Preflight:" in violation
+        for violation in state.unretained_candidate_attempts[0].validation.violations
+    )
 
 
 def test_llm_candidate_generation_retries_after_deterministic_validation_failure():
@@ -903,31 +1438,185 @@ def test_llm_candidate_generation_retries_after_deterministic_validation_failure
     assert llm.calls == 2
     assert llm.saw_validation_feedback
     assert state.evaluations[0].validation.ok
-    assert state.stopped_reason == "exploratory_confirmed"
+    assert state.stopped_reason == "all_candidates_supported"
     assert summarize_claim_search([state])["unretained_generated_candidate_count"] == 1
+    assert [item["retry_kind"] for item in state.llm_candidate_responses] == [
+        "none",
+        "deterministic_validation",
+    ]
+    assert len(state.unretained_candidate_attempts) == 1
+    assert state.unretained_candidate_attempts[0].proposal.proposed_contract.estimand.group.case == "MCI"
 
 
-def test_independent_replication_candidate_requires_excluded_validation_evidence():
+def test_partially_valid_llm_response_is_not_retried_or_backfilled():
     contract = _contract()
-    loc = localize_failure(contract, _verdict(failed=["replication"]), _results(contract))
-    candidate = _candidate(
+    llm = _PartialValidationLLM()
+
+    state = run_claim_search(
         contract,
-        proposal_type="independent_replication_claim",
-        transform_type="stronger_design",
-        provenance="independent_replication",
-        validation_split="excluded_validation",
-        proposed_question="Replicate the Dementia vs CN smri claim in excluded validation evidence.",
+        _verdict(),
+        _results(contract),
+        config=ClaimSearchConfig(max_rounds=1, max_candidates_per_round=2, llm_schema_retries=2),
+        llm=llm,
+        evaluator=lambda candidate: {"final_label": "fragile", "gate_results": {}},
     )
 
-    missing = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig(), excluded_validation_available=False)
-    available = validate_candidate_claim(contract, candidate, loc, ClaimSearchConfig(), excluded_validation_available=True)
+    assert llm.calls == 1
+    assert state.generated_candidate_count == 2
+    assert state.schema_valid_candidate_count == 2
+    assert state.valid_candidate_count == 1
+    assert state.current_data_evaluated_count == 1
 
-    assert not missing.ok
-    assert any("none is available" in item for item in missing.violations)
-    assert available.ok
+
+def test_transform_mismatch_is_a_warning_and_does_not_block_execution():
+    contract = _contract()
+
+    def generator(contract, localization, config, round_index, parent_claim_id):
+        return [_candidate(contract, transform_type="stronger_design")]
+
+    state = run_claim_search(
+        contract,
+        _verdict(),
+        _results(contract),
+        config=ClaimSearchConfig(max_rounds=1, max_candidates_per_round=1),
+        candidate_generator=generator,
+        evaluator=lambda candidate: {"final_label": "confirmed", "gate_results": {}},
+    )
+
+    candidate = state.candidate_history[0]
+    assert candidate.declared_transform == "stronger_design"
+    assert candidate.inferred_transform == "alternative_same_modality_outcome"
+    assert candidate.transform_match is False
+    assert state.evaluations[0].validation.ok
+    assert any("does not match inferred transform" in item for item in state.evaluations[0].validation.warnings)
 
 
-def test_external_only_replication_contract_is_routed_through_parent_before_excluded_evaluation():
+def test_mixed_pass_fail_round_evaluates_all_candidates_and_continues():
+    contract = _contract()
+    evaluated_outcomes = []
+
+    def generator(contract, localization, config, round_index, parent_claim_id):
+        if round_index == 1:
+            specs = [
+                ("candidate_r1_c1", "smri_entorhinal", []),
+                ("candidate_r1_c2", "smri_amygdala", []),
+            ]
+        else:
+            specs = [("candidate_r2_c1", "smri_temporal", ["candidate_r1_c2"])]
+        return [
+            _candidate(
+                contract,
+                candidate_id=candidate_id,
+                round_index=round_index,
+                proposed_contract=contract.model_copy(
+                    update={"estimand": contract.estimand.model_copy(update={"outcome": outcome})}
+                ),
+                responds_to_candidate_ids=responds_to,
+            )
+            for candidate_id, outcome, responds_to in specs
+        ]
+
+    def evaluator(candidate):
+        outcome = candidate.proposed_contract.estimand.outcome
+        evaluated_outcomes.append(str(outcome))
+        label = "fragile" if outcome == "smri_amygdala" else "confirmed"
+        return {"final_label": label, "gate_results": {"verdict": _verdict(label, ["multiplicity"])}}
+
+    state = run_claim_search(
+        contract,
+        _verdict(),
+        _results(contract),
+        config=ClaimSearchConfig(max_rounds=2, max_candidates_per_round=2),
+        candidate_generator=generator,
+        evaluator=evaluator,
+    )
+
+    assert "smri_amygdala" in evaluated_outcomes
+    assert any(candidate.round_index == 2 for candidate in state.candidate_history)
+    assert state.round_failure_contexts[0].failed_candidates[0].candidate_id == "candidate_r1_c2"
+    assert set(state.internally_supported_candidate_ids) == {"candidate_r1_c1", "candidate_r2_c1"}
+    assert state.stopped_reason == "all_candidates_supported"
+
+
+def test_final_realized_family_size_can_retract_an_early_pass():
+    contract = _contract()
+
+    def generator(contract, localization, config, round_index, parent_claim_id):
+        return [
+            _candidate(
+                contract,
+                candidate_id=f"candidate_r1_c{index}",
+                proposed_contract=contract.model_copy(
+                    update={"estimand": contract.estimand.model_copy(update={"outcome": outcome})}
+                ),
+            )
+            for index, outcome in enumerate(("smri_entorhinal", "smri_amygdala"), start=1)
+        ]
+
+    def evaluator(candidate):
+        family_size = candidate.proposed_contract.gates.multiplicity.family_size
+        outcome = candidate.proposed_contract.estimand.outcome
+        label = "confirmed" if outcome == "smri_entorhinal" and family_size == 2 else "fragile"
+        return {"final_label": label, "gate_results": {"verdict": _verdict(label, ["multiplicity"])}}
+
+    state = run_claim_search(
+        contract,
+        _verdict(),
+        _results(contract),
+        config=ClaimSearchConfig(max_rounds=1, max_candidates_per_round=2),
+        candidate_generator=generator,
+        evaluator=evaluator,
+    )
+
+    first = state.evaluations[0]
+    assert first.provisional_supported is True
+    assert first.current_data_supported is False
+    assert first.multiplicity_retracted is True
+    assert first.final_family_size == 3
+    assert state.internally_supported_candidate_ids == []
+    summary = summarize_claim_search([state])
+    assert summary["provisional_internal_pass_count"] == 1
+    assert summary["final_multiplicity_adjusted_internal_pass_count"] == 0
+    assert summary["multiplicity_retraction_count"] == 1
+
+
+def test_later_round_candidate_must_reference_preceding_failed_candidate():
+    contract = _contract()
+    localization = localize_failure(contract, _verdict(), _results(contract))
+    candidate = _candidate(contract, round_index=2, responds_to_candidate_ids=[])
+
+    validation = validate_candidate_claim(
+        contract,
+        candidate,
+        localization,
+        ClaimSearchConfig(max_rounds=2),
+        preceding_failed_candidate_ids={"candidate_r1_c1"},
+    )
+
+    assert not validation.ok
+    assert any("must respond" in item for item in validation.violations)
+
+
+def test_external_routing_proposal_type_is_rejected_by_stage3_schema():
+    contract = _contract()
+    raw = json.loads(
+        _FakeCandidateLLM().complete(
+            "",
+            json.dumps(
+                {
+                    "failure_localization": {"evidence": []},
+                    "original_contract": contract.model_dump(mode="json"),
+                }
+            ),
+        )
+    )
+    raw["candidates"][0]["proposal_type"] = "independent_replication_claim"
+
+    with pytest.raises(ValueError):
+        LLMCandidateGenerationResponse.model_validate(raw)
+
+
+def test_external_only_contract_is_blocked_before_source_evaluation():
     contract = _contract()
     external_contract = contract.model_copy(
         update={
@@ -941,10 +1630,7 @@ def test_external_only_replication_contract_is_routed_through_parent_before_excl
         return [
             _candidate(
                 contract,
-                proposal_type="independent_replication_claim",
                 transform_type="stronger_design",
-                provenance="independent_replication",
-                validation_split="excluded_validation",
                 proposed_contract=external_contract,
                 proposed_question="Replicate the parent claim on external evidence.",
             )
@@ -961,27 +1647,21 @@ def test_external_only_replication_contract_is_routed_through_parent_before_excl
         config=ClaimSearchConfig(max_rounds=1, max_candidates_per_round=1),
         candidate_generator=generator,
         evaluator=current_evaluator,
-        external_evaluator=lambda candidate: {
-            "final_label": "confirmed",
-            "gate_results": {"evidence_scope": {"scope": "external"}},
-        },
-        excluded_validation_available=True,
     )
 
-    assert current_contracts[0].discovery_cohort == contract.discovery_cohort
-    assert current_contracts[0].replication_cohorts == contract.replication_cohorts
-    assert state.evaluations[0].validation.ok
-    assert state.evaluations[0].final_label == "external_confirmed"
+    assert current_contracts == []
+    assert not state.evaluations[0].validation.ok
+    assert any("external evidence" in item for item in state.evaluations[0].validation.violations)
 
 
-def test_default_generated_candidate_can_be_exploratory_confirmed_on_same_data():
+def test_stub_generated_candidate_can_be_exploratory_confirmed_on_same_data():
     contract = _contract()
     state = run_claim_search(
         contract,
         _verdict(),
         _results(contract),
         config=ClaimSearchConfig(max_rounds=1, max_candidates_per_round=2),
-        candidate_generator=generate_connected_candidates,
+        candidate_generator=_stub_candidate_generator,
         evaluator=lambda candidate: {
             "final_label": "confirmed",
             "gate_results": {
@@ -994,18 +1674,17 @@ def test_default_generated_candidate_can_be_exploratory_confirmed_on_same_data()
         },
     )
 
-    assert state.supported_candidates
-    assert not state.confirmed_candidates
+    assert state.internally_supported_candidate_ids
     assert state.evaluations[0].validation_split == "current_data_adaptive"
     assert state.evaluations[0].eligible_for_confirmation
     assert state.evaluations[0].final_label == "exploratory_confirmed"
     assert state.evaluations[0].same_underlying_data is True
-    assert state.stopped_reason == "exploratory_confirmed"
+    assert state.stopped_reason == "all_candidates_supported"
     summary = summarize_claim_search([state])
-    assert summary["same_data_exploratory_confirmed_count"] == 1
+    assert summary["same_data_exploratory_confirmed_count"] == 2
     assert summary["confirmed_count"] == 0
     assert summary["final_confirmed_count"] == 0
-    assert summary["any_supported_candidate_count"] == 1
+    assert summary["any_supported_candidate_count"] == 2
 
 
 def test_duplicate_candidates_are_removed_across_rounds():
@@ -1038,117 +1717,96 @@ def test_duplicate_candidates_are_removed_across_rounds():
     assert state.duplicate_candidates[0].candidate_id == "candidate_r2"
     assert state.duplicate_candidates[0].duplicate_of == "candidate_r1"
     assert state.stopped_reason == "no_candidates"
+    assert len(state.round_summaries) == 2
+    assert sum(item.proposals_returned for item in state.round_summaries) == state.generated_candidate_count
+    assert state.round_summaries[1].unique_source_tested == 0
     assert summarize_claim_search([state])["duplicate_candidate_count"] == 1
 
 
-def test_controlled_holdout_candidate_can_be_confirmed_by_stub_evaluator():
+def test_duplicates_from_rejected_validation_attempts_remain_in_ledger():
     contract = _contract()
-    excluded_calls = 0
 
-    def generator(contract, localization, config, round_index, parent_claim_id):
-        return [
-            _candidate(
-                contract,
-                validation_split="excluded_validation",
-                proposed_question="In excluded validation evidence, test a narrower smri Dementia vs CN outcome.",
+    class RetryGenerator:
+        validation_feedback = None
+        validation_retry_index = 0
+
+        def __call__(self, contract, localization, config, round_index, parent_claim_id):
+            if round_index == 1:
+                return [
+                    _candidate(
+                        contract,
+                        candidate_id="candidate_r1",
+                        round_index=1,
+                    )
+                ]
+            if self.validation_retry_index == 0:
+                duplicate = _candidate(
+                    contract,
+                    candidate_id="duplicate_r2",
+                    round_index=2,
+                    responds_to_candidate_ids=["candidate_r1"],
+                )
+                invalid_contract = contract.model_copy(
+                    update={
+                        "claim_id": "invalid_r2_contract",
+                        "estimand": contract.estimand.model_copy(
+                            update={
+                                "outcome": "smri_temporal",
+                                "direction": "positive",
+                            }
+                        ),
+                    }
+                )
+                invalid = _candidate(
+                    contract,
+                    candidate_id="invalid_r2",
+                    round_index=2,
+                    responds_to_candidate_ids=["candidate_r1"],
+                    proposed_contract=invalid_contract,
+                )
+                return [duplicate, invalid]
+            valid_contract = contract.model_copy(
+                update={
+                    "claim_id": "valid_r2_contract",
+                    "estimand": contract.estimand.model_copy(update={"outcome": "smri_temporal"}),
+                }
             )
-        ]
-
-    def excluded_evaluator(candidate):
-        nonlocal excluded_calls
-        excluded_calls += 1
-        return {
-            "final_label": "confirmed",
-            "gate_results": {"external_candidate_id": candidate.candidate_id},
-        }
-
-    state = run_claim_search(
-        contract,
-        _verdict(),
-        _results(contract),
-        config=ClaimSearchConfig(max_rounds=2, max_candidates_per_round=2),
-        candidate_generator=generator,
-        evaluator=lambda candidate: {"final_label": "confirmed", "gate_results": {"candidate_id": candidate.candidate_id}},
-        external_evaluator=excluded_evaluator,
-        excluded_evidence_kind="holdout",
-    )
-
-    assert state.confirmed_candidates
-    assert state.stopped_reason == "holdout_confirmed"
-    assert state.evaluations[0].holdout_confirmed
-    assert state.evaluations[0].final_label == "holdout_confirmed"
-    assert excluded_calls == 1
-    assert state.excluded_evidence_query_count == 1
-
-
-def test_excluded_evaluator_scope_can_upgrade_to_external_label():
-    contract = _contract()
-
-    def generator(contract, localization, config, round_index, parent_claim_id):
-        return [
-            _candidate(
-                contract,
-                validation_split="excluded_validation",
-                proposed_question="Evaluate the same claim on excluded evidence.",
-            )
-        ]
+            return [
+                _candidate(
+                    contract,
+                    candidate_id="valid_r2",
+                    round_index=2,
+                    responds_to_candidate_ids=["candidate_r1"],
+                    proposed_contract=valid_contract,
+                )
+            ]
 
     state = run_claim_search(
         contract,
         _verdict(),
         _results(contract),
-        config=ClaimSearchConfig(max_rounds=1, max_candidates_per_round=1),
-        candidate_generator=generator,
-        evaluator=lambda candidate: {"final_label": "confirmed", "gate_results": {}},
-        external_evaluator=lambda candidate: {
-            "final_label": "confirmed",
-            "gate_results": {"evidence_scope": {"scope": "external"}},
-        },
-        excluded_evidence_kind="holdout",
-        excluded_validation_available=True,
+        config=ClaimSearchConfig(max_rounds=2, max_candidates_per_round=2, llm_schema_retries=1),
+        candidate_generator=RetryGenerator(),
+        evaluator=lambda candidate: {"final_label": "fragile", "gate_results": {}},
     )
 
-    evaluation = state.evaluations[0]
-    assert state.stopped_reason == "external_confirmed"
-    assert evaluation.final_label == "external_confirmed"
-    assert evaluation.external_confirmed
-    assert not evaluation.holdout_confirmed
-    assert evaluation.excluded_evidence_kind == "external"
-
-
-def test_optional_external_error_preserves_exploratory_confirmation():
-    contract = _contract()
-
-    def external_evaluator(candidate):
-        raise FileNotFoundError("external unavailable")
-
-    state = run_claim_search(
-        contract,
-        _verdict(),
-        _results(contract),
-        config=ClaimSearchConfig(max_rounds=1, max_candidates_per_round=1),
-        candidate_generator=generate_connected_candidates,
-        evaluator=lambda candidate: {"final_label": "confirmed", "gate_results": {"candidate_id": candidate.candidate_id}},
-        external_evaluator=external_evaluator,
+    assert state.generated_candidate_count == 4
+    assert len(state.candidate_history) == 2
+    assert len(state.duplicate_candidates) == 1
+    assert state.duplicate_candidates[0].candidate_id == "duplicate_r2"
+    assert len(state.unretained_candidate_attempts) == 1
+    assert state.unretained_candidate_attempts[0].proposal.candidate_id == "invalid_r2"
+    assert state.generated_candidate_count == (
+        len(state.candidate_history)
+        + len(state.duplicate_candidates)
+        + len(state.unretained_candidate_attempts)
     )
-
-    assert state.stopped_reason == "exploratory_confirmed"
-    assert state.evaluations[0].final_label == "exploratory_confirmed"
-    assert state.evaluations[0].exploratory_confirmed
-    assert state.evaluations[0].execution_error is None
-    assert "excluded_evidence_unavailable" in str(state.evaluations[0].excluded_evidence_error)
-    assert state.supported_candidates
-    assert not state.confirmed_candidates
     summary = summarize_claim_search([state])
-    assert summary["raw_final_label_counts"]["exploratory_confirmed"] == 1
-    assert summary["effective_final_label_counts"]["exploratory_confirmed"] == 1
-    assert summary["final_label_counts"] == summary["effective_final_label_counts"]
-    assert summary["any_supported_candidate_count"] == 1
-    assert summary["execution_error_count"] == 0
-    assert summary["excluded_evidence_error_count"] == 1
+    assert summary["duplicate_candidate_count"] == 1
+    assert summary["unretained_validation_candidate_count"] == 1
 
 
-def test_excluded_execution_error_is_not_reclassified_as_unavailable():
+def test_search_api_has_no_excluded_evidence_evaluator():
     contract = _contract()
 
     state = run_claim_search(
@@ -1156,16 +1814,12 @@ def test_excluded_execution_error_is_not_reclassified_as_unavailable():
         _verdict(),
         _results(contract),
         config=ClaimSearchConfig(max_rounds=1, max_candidates_per_round=1),
-        candidate_generator=generate_connected_candidates,
+        candidate_generator=_stub_candidate_generator,
         evaluator=lambda candidate: {"final_label": "confirmed", "gate_results": {}},
-        external_evaluator=lambda candidate: (_ for _ in ()).throw(RuntimeError("stats engine failed")),
     )
 
-    evaluation = state.evaluations[0]
-    assert evaluation.excluded_evidence_status == "error"
-    assert evaluation.execution_error == "stats engine failed"
-    assert evaluation.excluded_evidence_error is None
-    assert not state.confirmed_candidates
+    assert "external_evaluator" not in inspect.signature(run_claim_search).parameters
+    assert summarize_claim_search([state])["excluded_evidence_query_count"] == 0
 
 
 def test_canonical_coverage_requires_successful_current_data_execution():
@@ -1175,7 +1829,7 @@ def test_canonical_coverage_requires_successful_current_data_execution():
         _verdict(),
         _results(contract),
         config=ClaimSearchConfig(max_rounds=1, max_candidates_per_round=1),
-        candidate_generator=generate_connected_candidates,
+        candidate_generator=_stub_candidate_generator,
         evaluator=lambda candidate: (_ for _ in ()).throw(RuntimeError("stats engine failed")),
     )
 
@@ -1188,26 +1842,17 @@ def test_canonical_coverage_requires_successful_current_data_execution():
 
 def test_excluded_evidence_is_not_queried_without_current_data_support():
     contract = _contract()
-    excluded_calls = 0
-
-    def excluded_evaluator(candidate):
-        nonlocal excluded_calls
-        excluded_calls += 1
-        return {"final_label": "confirmed", "gate_results": {}}
 
     state = run_claim_search(
         contract,
         _verdict(),
         _results(contract),
         config=ClaimSearchConfig(max_rounds=2, max_candidates_per_round=1),
-        candidate_generator=generate_connected_candidates,
+        candidate_generator=_stub_candidate_generator,
         evaluator=lambda candidate: {"final_label": "fragile", "gate_results": {}},
-        external_evaluator=excluded_evaluator,
     )
 
-    assert excluded_calls == 0
-    assert state.excluded_evidence_query_count == 0
-    assert state.excluded_evidence_status == "not_requested"
+    assert summarize_claim_search([state])["excluded_evidence_query_count"] == 0
     assert state.stopped_reason in {"no_candidates", "no_supported_candidate"}
 
 
@@ -1228,6 +1873,9 @@ def test_effective_family_size_counts_every_unique_candidate_tested():
                 round_index=round_index,
                 proposed_contract=contract.model_copy(
                     update={"estimand": contract.estimand.model_copy(update={"outcome": outcome})}
+                ),
+                responds_to_candidate_ids=(
+                    [f"candidate_r{round_index - 1}_c1"] if round_index > 1 else []
                 ),
             )
             for index, outcome in enumerate(outcomes, start=1)
@@ -1251,7 +1899,7 @@ def test_effective_family_size_counts_every_unique_candidate_tested():
     assert seen_selections == ["discovery_only"] * 4
     assert [item.effective_family_size for item in state.evaluations] == [4, 5, 6, 7]
     assert state.current_data_evaluated_count == 4
-    assert state.excluded_evidence_query_count == 0
+    assert summarize_claim_search([state])["excluded_evidence_query_count"] == 0
 
 
 def test_hacking_metric_counts_holdout_cohort_misuse():
@@ -1275,7 +1923,7 @@ def test_hacking_metric_counts_holdout_cohort_misuse():
 
     summary = summarize_claim_search([state])
     assert not state.evaluations[0].validation.ok
-    assert any("uses holdout partitions" in item for item in state.evaluations[0].validation.violations)
+    assert any("introduces holdout partitions" in item for item in state.evaluations[0].validation.violations)
     assert summary["hacking_block_count"] == 1
 
 

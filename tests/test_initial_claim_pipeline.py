@@ -980,7 +980,7 @@ def test_gate_runner_writes_feedback_compatible_rows(monkeypatch, tmp_path: Path
         verdict = Verdict(label="confirmed", abstained=False, rationale="ok", gates={"primary": True})
         return verdict, {"contract": contract.model_dump(mode="json"), "primary": {"p": 0.01}}, [tmp_path / "ADNI_DISC.parquet"]
 
-    monkeypatch.setattr(gates, "_execute_contract", fake_execute)
+    monkeypatch.setattr(gates, "evaluate_contract", fake_execute)
 
     out = tmp_path / "out"
     args = argparse.Namespace(

@@ -1,17 +1,23 @@
 # Implementation Notes
 
-Updated: 2026-07-16
+Updated: 2026-07-23
 
 ## Current Pipeline
 
-The active CONFIRM workflow has three completed stages and one optional
-feedback-loop stage.
+The active CONFIRM workflow has three completed core stages, an initial-claim
+excluded-evidence audit, one optional feedback-loop search stage, and a frozen
+feedback-output excluded-evidence audit.
 
 1. Stage 0 creates literature-grounded claim seeds.
 2. Stage 1 creates initial claim questions and drafts frozen `ClaimContract`s.
 3. Stage 2 evaluates those contracts with unchanged CONFIRM gates.
-4. Stage 3 optionally diagnoses failed claims and asks an LLM to propose
+4. Stage 2B freezes the initial claims and evaluates them on compatible
+   internal holdout and external evidence.
+5. Stage 3 optionally diagnoses failed claims and asks an LLM to propose
    connected follow-up candidates.
+6. Stage 4 freezes every final internally supported Stage 3 candidate and
+   evaluates each compatible excluded-evidence pair without outcome-dependent
+   routing.
 
 Final scientific verdicts are owned only by `confirm.verdict`. LLMs draft
 questions, contracts, diagnoses, and candidate proposals; deterministic code
@@ -155,6 +161,66 @@ By source:
 | literature_grounded | 12 | 27 | 2 | 0 |
 | llm_proposed | 62 | 142 | 36 | 8 |
 
+## Stage 2B: Initial-Claim Retrospective Evidence Audit
+
+Launcher:
+
+```bash
+scripts/launch_initial_claim_evidence.sh
+```
+
+Default output:
+
+```text
+review-stage/initial-claims-gpt55-retrospective-evidence-v1/
+```
+
+This audit freezes all 289 Stage 2 contracts before consulting excluded
+evidence. `preflight` selects compatible internal holdout and external pairs
+without reading outcomes, hashes the query plan, and deduplicates identical
+executable contracts. `evaluate` runs only frozen tasks; `summarize` maps each
+deduplicated result back to every original claim and reports matched
+internal-versus-excluded outcomes. No LLM/API call is reachable from this
+launcher.
+
+```bash
+OUT=review-stage/initial-claims-gpt55-retrospective-evidence-v1 \
+PHASE=freeze scripts/launch_initial_claim_evidence.sh
+
+OUT=review-stage/initial-claims-gpt55-retrospective-evidence-v1 \
+PHASE=preflight MAX_WORKERS=8 scripts/launch_initial_claim_evidence.sh
+
+OUT=review-stage/initial-claims-gpt55-retrospective-evidence-v1 \
+PHASE=evaluate MAX_WORKERS=8 scripts/launch_initial_claim_evidence.sh
+
+OUT=review-stage/initial-claims-gpt55-retrospective-evidence-v1 \
+PHASE=summarize scripts/launch_initial_claim_evidence.sh
+```
+
+Current claim-level results:
+
+| Evidence scope | Eligible/evaluated claims | Supported claims | Support rate |
+|---|---:|---:|---:|
+| Stage 2 discovery/replication | 289 | 74 | 25.6% |
+| internal holdout | 209 | 21 | 10.0% |
+| external NACC | 35 | 24 | 68.6% |
+
+Among the 74 Stage 2-confirmed claims, 65 were holdout-compatible and 16 passed
+holdout; 27 were external-compatible and 18 passed external evaluation. Among
+initially non-confirmed claims, 5 of 144 holdout-compatible claims and 6 of 8
+external-compatible claims passed the corresponding excluded evaluation.
+
+Exact execution deduplication reduced the 209 holdout claim references to 204
+tasks and the 35 external references to 22 tasks. There were 21 supported
+holdout tasks and 12 supported external tasks. External coverage is limited to
+NACC-compatible AD/aging structural-MRI contracts; it does not cover the other
+four target families in this inventory.
+
+All current holdout and NACC evidence is marked
+`evidence_freshness=previously_queried` and
+`final_confirmation_eligible=false`. These counts measure retrospective
+concordance, not fresh or prospective confirmation.
+
 ## Target Families And Data
 
 The active full pipeline uses target families:
@@ -213,46 +279,12 @@ Labels mean:
 
 ## Optional Feedback Loop
 
-The feedback loop starts from the failed Stage 2 contracts. It first runs a
-same-data candidate-search sweep and only then evaluates the selected canonical
-configuration on excluded evidence. Sweep arms never receive holdout or
-external data roots.
-
-Safety run:
-
-```bash
-OUT=review-stage/claim-search-safety-gpt55-r10-c10-v5 \
-MODEL=openai:gpt-5.5 MAX_ROUNDS=10 MAX_CANDIDATES=10 MAX_WORKERS=8 \
-scripts/launch_claim_search_safety.sh
-```
-
-Twelve-arm descriptive sweep:
-
-```bash
-OUT=review-stage/claim-search-gpt55-sweep-v5 \
-MODEL=openai:gpt-5.5 \
-ROUNDS="1 3 5 10" CANDIDATES="2 5 10" \
-BUILD_EVIDENCE_PARTITIONS=off MAX_WORKERS=8 \
-scripts/launch_claim_search_sweep.sh
-```
-
-The matrix summarizer writes `selected_config.json`. It selects the smallest
-`rounds * candidates` arm whose valid-connected-executable lineage coverage is
-within one percentage point of the maximum; ties prefer fewer rounds and then
-fewer candidates. Coverage uses every searchable source lineage, including
-worker-skipped lineages in the denominator. The summarizer rejects incomplete
-arms, missing grid cells, mixed source hashes/models, and inconsistent source
-counts. Candidate support counts are not used for this selection.
-
-Canonical excluded-evidence run:
-
-```bash
-OUT=review-stage/claim-search-gpt55-canonical-v5 \
-SELECTION_FILE=review-stage/claim-search-gpt55-sweep-v5/selected_config.json \
-CLAIM_SEARCH_SOURCE=review-stage/claim-search-gpt55-sweep-v5/source/claim_search_source.json \
-BUILD_EVIDENCE_PARTITIONS=off MAX_WORKERS=8 \
-scripts/launch_claim_search_fullscale.sh
-```
+The feedback loop starts from all 215 failed Stage 2 contracts. Search inclusion
+does not depend on holdout or external availability, and sweep arms receive
+source discovery/replication data only. The five ASD parents whose Stage 2
+source already used `ABIDE1_HOLDOUT` remain searchable, but that partition is
+recorded in their source-evidence ledger and cannot later count as excluded
+evidence.
 
 Default input:
 
@@ -260,51 +292,255 @@ Default input:
 review-stage/confirm-gates-all-gpt55/combined_benchmark_results.json
 ```
 
-Claim search uses failed-claim evidence for diagnosis and prompt context. LLM
-candidates must remain connected to the original claim and pass deterministic
-validation before evaluation. Same-data adaptive support is labeled separately
-from holdout or external confirmation when those evidence paths are supplied.
-Subgroup candidates may use only complete-case-safe inclusion predicates derived
-from the parent DISC/REP covariates; other transforms preserve the parent
-inclusion exactly.
-Candidates are generated, validated, deduplicated, and tested in deterministic
-round/candidate order. The first current-data-supported candidate is selected;
-the search then makes at most one primary excluded-evidence query and stops.
-If no candidate receives current-data support, excluded evidence is not queried.
+For each parent and round, GPT-5.5 returns up to the configured candidate count
+as Pydantic-validated executable contracts. A partially valid response is not
+backfilled; malformed or wholly invalid responses may be retried. Deterministic
+code rejects duplicates, no-op rewrites, unrelated cohorts/modalities, changed
+predictors or group contrasts, reversed directions, weaker gates, removed
+covariates, unsupported fields, and invalid inclusion filters. Added confounds
+must exist in every source cohort and include a scientific justification.
+Declared transform labels are descriptive. The executable contract delta is
+inferred independently, and transform disagreement is an audit warning rather
+than an eligibility rule.
 
-Candidate-search multiplicity grows for every distinct candidate tested:
-`effective_family_size = parent_declared_family_size + cumulative_unique_tests`
-(or a larger predeclared value). The same effective contract is reused for the
-excluded evaluation. Exact-rank, finite-statistic, and conditioning diagnostics
-are shared by preflight and execution. Failed multiverse specifications remain
-in the consistency denominator.
+Outcome identity follows the exact executable column because `_z`-suffixed
+columns in the prepared datasets are not consistently deterministic transforms
+of their unsuffixed names. The LLM may propose creative alternative outcomes or
+`multivariate_pattern` contracts within the original modality, including a
+scalar-to-brainwide transition. A brainwide candidate must resolve to at least
+three outcomes shared across every source cohort; two-point Pearson pattern
+correlations are otherwise mechanically `-1` or `1`. For a scalar-to-brainwide
+transition, the pipeline raises the effective `pattern_corr_min` to at least
+`0.5` and records that normalization in `policy_adjustments`; the LLM is not
+allowed to modify gates itself. Inclusion changes are judged against feasible
+parent-data predicates independently of the declared or inferred transform.
 
-Evidence labels are explicit:
+Every valid unique candidate is evaluated on source data in deterministic
+round/candidate order. All provisional passes are retained while failed
+candidates drive the next round. Round 2 and later proposals must reference
+failed candidates from the immediately preceding round through
+`responds_to_candidate_ids`. Search stops when the round has no failed
+candidate, no valid proposal remains, generation fails, or the round budget is
+exhausted. Passing is not forced.
+
+Multiplicity is finalized after each round. Every provisional pass is
+re-adjudicated with:
+
+```text
+final_family_size = max(
+    candidate_declared_family_size,
+    parent_declared_family_size + cumulative_unique_hypotheses_tested,
+)
+```
+
+A scalar candidate contributes one adaptive hypothesis. A brainwide candidate
+contributes its distinct regional hypotheses plus one pattern hypothesis;
+overlapping exact hypotheses are counted once within a lineage. Artifacts retain
+candidate counts and hypothesis counts separately.
+
+An early pass that fails under the realized burden is retracted and becomes
+failure context for the next round. Rechecks do not add hypotheses. Only passes
+under the final realized family size enter
+`internally_supported_candidate_ids`, and that exact effective contract is
+frozen for excluded-evidence evaluation.
+
+Search artifacts checkpoint complete parent states atomically. Resume verifies
+source, config, model, prompt, schema, implementation-file,
+evidence-manifest, and partition hashes before reusing a checkpoint, verifies
+each parent-checkpoint content hash, and does not repeat completed LLM calls.
+Each state records a hashed source-evidence ledger reconstructed from the
+frozen contract when Stage 2 did not serialize execution paths. LLM records
+separate schema-attempt and deterministic-validation-retry indices and a typed
+`retry_kind`; parsed candidates discarded before a whole-response retry remain
+in `unretained_candidate_attempts` with their deterministic validation result.
+Source ledgers prefer parquet content hashes and record the hash kind; run
+provenance also reports duplicate logical partition IDs and rejects conflicting
+duplicates. Aggregate JSON/CSV artifacts are rewritten every 10 completed
+parents by default; per-parent durability is immediate. Each arm must finish
+exactly 215 parent states and must contain zero excluded-evidence queries.
+
+Current-data and retrospective evidence labels are explicit:
 
 - `exploratory_confirmed`: adaptive candidate passed on reused source data;
-- `holdout_confirmed`: candidate passed on excluded internal holdout evidence;
-- `external_confirmed`: candidate passed on a predeclared primary external set;
-- secondary external sets are robustness checks and cannot upgrade the label.
+- `retrospective_holdout_supported`: frozen parent/candidate contract passed on
+  a compatible internal holdout pair;
+- `retrospective_external_supported`: frozen parent/candidate contract passed
+  on a compatible NACC/CNP pair;
+- `excluded_evidence_unavailable`: no outcome-blind compatible excluded pair;
+- `final_confirmation_eligible=false` for every retrospective audit result.
 
-`supported_candidates` contains same-data exploratory or contract-repair
-support. `confirmed_candidates` contains only `holdout_confirmed` and
-`external_confirmed` candidates. The current internal holdouts, NACC, and CNP
-have been queried in prior development runs, so canonical artifacts mark
-their `evidence_freshness` as `previously_queried`; they are retrospective
-benchmark evidence, not pristine prospective confirmation.
+The current internal holdouts, NACC, and CNP have been queried in prior
+development runs. Audit artifacts therefore set
+`evidence_freshness=previously_queried`; they are retrospective benchmark
+evidence, not pristine prospective confirmation.
 
-The retained `R=1, C=2` GPT-5.5 readiness smoke is
-`review-stage/claim-search-gpt55-sweep-smoke-v5/`. It completed all 194
-evidence-eligible failed source claims, evaluated 351 valid connected
-candidates, made zero excluded-evidence queries, and had zero execution or
-non-identifiability errors. Its `selected_config.json` is not canonical because
-the smoke contains only one matrix arm.
+The completed v7 structured-versus-generic control uses the exact completed sweep
+source and structured `R3/C5` artifact. The launcher runs only the missing
+generic-retry arm:
 
-Each replay writes `run_provenance.json` and
-`excluded_query_ledger.json`, including the command, git state, GPT model,
-static and rendered-prompt/schema hashes, source and manifest hashes, full
-partition checksums, partition seeds, selected candidate, primary/secondary
-evidence-set IDs, evidence path, status, and freshness.
+```bash
+OUT=review-stage/claim-search-gpt55-control-r3-c5-v7 \
+SWEEP=review-stage/claim-search-gpt55-sweep-v7 \
+MAX_WORKERS=24 scripts/launch_claim_search_control.sh
+```
+
+The control withholds gate-specific localization and evidence from
+`generic_retry`; both arms retain the same source, catalog, model, budget,
+validator, and multiplicity policy. `control_summary.json` and
+`control_parent_pairs.csv` verify those invariants and report paired descriptive
+differences. One realization is not a causal estimate of diagnosis benefit.
+The older v6 control is not interchangeable because its source and
+search-implementation hashes differ. The control summary compares the recorded
+search-relevant implementation files and separately reports the complete hashes;
+`confirm.frozen_evidence` is analysis-only and does not force a search rerun.
+The completed control has 215 matched parents and zero execution errors or
+excluded-evidence queries. Structured diagnosis uses 653 calls and supports 70
+candidates across 24 parents; generic retry's completed trace uses 693 calls and
+supports 49 candidates across 20 parents. Generic retry also records 72
+superseded transport-failed attempts, for 765 total API attempts. Paired support
+cells are 17 both, seven structured-only, three generic-only, and 188 neither.
+The legacy structured artifact lacks the newer explicit search-only fingerprint
+field, so the result is reported with that provenance warning and remains
+descriptive.
+
+Known-negative smoke or stress run:
+
+```bash
+OUT=review-stage/claim-search-safety-gpt55-r1-c2-v7 \
+MAX_ROUNDS=1 MAX_CANDIDATES=2 MAX_WORKERS=8 \
+scripts/launch_claim_search_safety.sh
+
+OUT=review-stage/claim-search-safety-gpt55-r10-c10-v7 \
+MAX_ROUNDS=10 MAX_CANDIDATES=10 MAX_WORKERS=8 \
+scripts/launch_claim_search_safety.sh
+```
+
+Synthetic p-fishing inventories use exact prepared feature columns. Suffixes
+alone are not used to collapse hypotheses because those columns can contain
+different measurements.
+
+Twelve-arm descriptive sweep:
+
+```bash
+OUT=review-stage/claim-search-gpt55-sweep-v7 \
+ROUNDS="1 3 5 10" CANDIDATES="2 5 10" \
+BUILD_EVIDENCE_PARTITIONS=off MAX_WORKERS=8 \
+scripts/launch_claim_search_sweep.sh
+```
+
+The matrix summary reports each arm independently and does not select a winner,
+write `selected_config.json`, pool repeated claims across arms, or use excluded
+outcomes. Budget differences are descriptive for one GPT-5.5 realization.
+
+## Stage 4: Frozen Retrospective Evidence Audit
+
+The audit launcher contains no LLM/API path:
+
+```bash
+scripts/launch_claim_search_retrospective_evidence.sh
+```
+
+It runs four explicit phases. `freeze` reads the 215 hash-checked atomic parent
+checkpoints plus `run_provenance.json` and the finalized matrix summary. It
+streams the monolithic artifact hash without loading the multi-gigabyte JSON
+tail, reconciles every arm's complete adaptive search funnel, and writes each
+unmodified LLM response once to
+`frozen_llm_responses.jsonl`. Every final internally supported candidate is
+frozen; no `selected_candidate_id` is used. `preflight` checks schema, complete
+cases, group counts, rank, condition number, modality, outcome family, units,
+and partition overlap without reading effect or gate outcomes. It schedules a
+compatible internal holdout pair unless that evidence was already used by the
+lineage, and schedules every compatible external evidence set independently.
+It then hashes the complete outcome-blind query plan. `evaluate` executes only
+tasks in that plan with atomic checkpoints and a deterministic hash-chained
+query ledger. `summarize` reports each arm, target, source, transform, and
+external dataset separately.
+
+```bash
+OUT=review-stage/claim-search-gpt55-retrospective-evidence-v3 \
+SWEEP=review-stage/claim-search-gpt55-sweep-v7 \
+PHASE=freeze scripts/launch_claim_search_retrospective_evidence.sh
+
+OUT=review-stage/claim-search-gpt55-retrospective-evidence-v3 \
+SWEEP=review-stage/claim-search-gpt55-sweep-v7 \
+PHASE=preflight MAX_WORKERS=8 \
+scripts/launch_claim_search_retrospective_evidence.sh
+```
+
+After reviewing `preflight_summary.json` and `evidence_query_plan.jsonl`:
+
+```bash
+OUT=review-stage/claim-search-gpt55-retrospective-evidence-v3 \
+SWEEP=review-stage/claim-search-gpt55-sweep-v7 \
+PHASE=evaluate MAX_WORKERS=8 \
+scripts/launch_claim_search_retrospective_evidence.sh
+
+OUT=review-stage/claim-search-gpt55-retrospective-evidence-v3 \
+SWEEP=review-stage/claim-search-gpt55-sweep-v7 \
+PHASE=summarize scripts/launch_claim_search_retrospective_evidence.sh
+```
+
+Every later phase verifies the sweep hashes, implementation hashes, evidence
+manifest hash, and all partition hashes. Exact executable tasks are deduplicated
+only when the effective contract, inclusion, evidence pair, family size, and
+partition hashes are identical; each result maps back to every originating arm
+event. Effective family size is never changed for deduplication. Failed parents
+are linked from the separately frozen Stage 2B audit and are not rerun here.
+
+The audit may report retrospective survival, candidate-only support, and
+candidate-generation yield. It may not claim fresh confirmation, causal
+feedback-loop improvement, a winning budget, or general external validity.
+Known-negative safety is assessed only by the separate synthetic search and
+frozen-evidence path; one GPT-5.5 realization does not establish general safety.
+
+## Paper Analysis Layer
+
+All statistical, tabular, and figure generation remains outside production
+code in `nbs/`. The predeclared reference is `R3/C5`; all 12 arms are
+descriptive robustness analyses. Sweep, deterministic novelty, and evidence
+analyses can run after the sweep and freeze are complete:
+
+```bash
+PHASE=sweep scripts/launch_claim_search_paper_analysis.sh
+PHASE=novelty-metrics scripts/launch_claim_search_paper_analysis.sh
+PHASE=evidence scripts/launch_claim_search_paper_analysis.sh
+```
+
+The matched packet phase uses the completed v7 generic-retry control:
+
+```bash
+PHASE=novelty scripts/launch_claim_search_paper_analysis.sh
+```
+
+After three reviewers complete the 600-row rating template:
+
+```bash
+PHASE=ratings \
+RATINGS=review-stage/claim-search-gpt55-paper-analysis-v1/rating_template.csv \
+scripts/launch_claim_search_paper_analysis.sh
+```
+
+Outputs stay under
+`review-stage/claim-search-gpt55-paper-analysis-v1/` until reviewed. The
+analysis manifest hashes every input and output and records that budget effects
+are not causal, internal support is adaptive, excluded evidence is previously
+queried, and novelty is parent-relative rather than literature-wide.
+
+The safety replay uses the same freezer with its own generated manifest:
+
+```bash
+SAFETY=review-stage/claim-search-safety-gpt55-r10-c10-v7
+OUT=$SAFETY/retrospective-evidence \
+SWEEP=$SAFETY EVIDENCE_MANIFEST=$SAFETY/data/manifest.json \
+EVIDENCE_ROOTS=$SAFETY/data/cohorts SOURCE_ROOTS=$SAFETY/data/cohorts \
+ALLOW_NONREFERENCE_COUNTS=on PHASE=freeze \
+scripts/launch_claim_search_retrospective_evidence.sh
+```
+
+Run the same command with `PHASE=preflight`, inspect the frozen query plan, then
+run `PHASE=evaluate` and `PHASE=summarize`. Safety summaries are stratified by
+synthetic failure family and report internal, holdout, external, unavailable,
+non-identifiable, and execution-error risk counts separately.
 
 ## Evidence Partitions And External Data
 
@@ -327,8 +563,9 @@ confirmation.
 External evidence is selected by `ClaimContract`, not target name alone. A set
 must match target, modality, feature family, predictor/group support, required
 columns, outcome family, and observed group levels on both partitions. The
-lowest-priority-number compatible primary set is selected before results are
-read. A secondary set remains a robustness evaluation.
+frozen Stage 4 audit schedules every compatible set before results are read and
+reports each external dataset separately. Primary/secondary roles remain
+descriptive manifest metadata and do not cause outcome-dependent routing.
 
 The current active external tables are NACC sMRI and ds000030/CNP sMRI. NACC
 uses canonical FreeSurfer-style names and mm3 volumes. In the current 289-claim
@@ -437,6 +674,67 @@ Promotion validates canonical schemas, archives replaced active files, rebuilds
 the evidence manifest with overlap checks, and regenerates the 289-contract
 external coverage report.
 
+## NeuroClaimBench v2.1 Outcome-Blind Repair
+
+NeuroClaimBench v2.1 is the only active benchmark version. Its frozen
+pre-alignment input is stored as `data/neuroclaimbench/v2.1-source/`; this
+source snapshot is a construction input, not a second benchmark release.
+Question-contract alignment does not consult CONFIRM outcomes, labels,
+p-values, effect estimates, adjudication votes, or feedback-search results:
+
+1. `launch_neuroclaimbench_build.sh` with `PHASE=source` assembles the frozen
+   source snapshot. The same launcher with `PHASE=alignment` then freezes the repair policy and
+   runs deterministic alignment over every source item. Low sample size is not
+   an exclusion; requested groups/outcomes, full rank, required columns, and
+   positive residual degrees of freedom determine executability.
+2. Gemini 3.5 Flash acts as an outcome-blind eligibility adjudicator for every
+   literature-derived executable item. It receives only the canonical
+   question, executable contract, cohort schemas, category levels, and sample
+   counts. Deterministic rules remain the only contract-repair authority, but
+   Gemini can classify an otherwise aligned item as ambiguous. This affected
+   40 items; they remain unresolved and are not scored.
+3. `launch_neuroclaimbench_build.sh` with `PHASE=package` applies the frozen deterministic repair
+   manifest, hashes canonical questions separately from executable contracts,
+   hashes every evidence parquet, and records assignment and selected-row hashes
+   for generated controls. Changed literature contracts lose stale
+   adjudications; unchanged contract-plus-question identities retain them.
+4. The PubMed cache is rebuilt only for changed literature items. Exact old
+   query results may be copied from the audited v1 cache, but a changed query is
+   a cache miss. Offline GPT-5.5, Gemini 3.5 Flash, and Claude Opus 4.8 voting
+   then refreshes only invalidated adjudications.
+5. `launch_neuroclaimbench_build.sh` with `PHASE=reference` derives orthogonal
+   `reference_basis` and `reference_strength` fields. Constructed controls use
+   `constructed_control/constructed`, never a strict literature label.
+6. `launch_neuroclaimbench_evaluate.sh` reruns every executable v2.1 task
+   under one current CONFIRM revision. Checkpoints are reusable only when the
+   complete contract, question, evidence, generator, schema, and gate-policy
+   fingerprint matches.
+7. `launch_neuroclaimbench_analyze.sh` produces tiered
+   literature/constructed-control summaries, clustered uncertainty,
+   exact pre-repair feedback joins, and a checksummed metadata-only release.
+
+The primary scientific result combines strict and provisional literature
+references within each split. Strict-only and provisional-only results are
+sensitivity analyses. NACC and CNP are reported separately, constructed random
+controls are never pooled with external literature references, and unresolved
+claims receive verdict distributions but no accuracy score. Version 2.1 is a
+retrospective benchmark revision whose policy is frozen before the v2.1 gate
+rerun; it is not prospective validation.
+
+The local result-preserving launch order is:
+
+```bash
+PHASE=package scripts/launch_neuroclaimbench_build.sh
+PHASE=reference scripts/launch_neuroclaimbench_build.sh
+PHASE=all MAX_WORKERS=8 scripts/launch_neuroclaimbench_evaluate.sh
+PHASE=all scripts/launch_neuroclaimbench_analyze.sh
+```
+
+API and PubMed phases require `ALLOW_API=1`. The v2.1 cache workflow does not
+reuse an older cache by default. An explicitly
+provided reuse cache may contribute only exact query-result keys; packets and
+votes are never reused for changed identities.
+
 ## Active Result Hygiene
 
 Active result folders are:
@@ -445,9 +743,20 @@ Active result folders are:
 review-stage/literature-grounding-gpt55/
 review-stage/initial-claims-all-gpt55/
 review-stage/confirm-gates-all-gpt55/
-review-stage/claim-search-gpt55-sweep-smoke-v5/
+review-stage/initial-claims-gpt55-retrospective-evidence-v1/
+review-stage/claim-search-gpt55-control-r3-c5-v7/
+review-stage/claim-search-gpt55-sweep-v7/
+review-stage/claim-search-safety-gpt55-r10-c10-v7/
+review-stage/claim-search-gpt55-retrospective-evidence-v3/
+review-stage/claim-search-gpt55-paper-analysis-v1/
+review-stage/neuroclaimbench-v2.1/alignment/
+review-stage/neuroclaimbench-v2.1/adjudication/
+review-stage/neuroclaimbench-v2.1/reference/
+review-stage/neuroclaimbench-v2.1/results/
+review-stage/neuroclaimbench-v2.1/analysis/
+review-stage/neuroclaimbench-v2.1/feedback-crosswalk/
 ```
 
-Superseded experiment folders and prior local archives have been removed. The
-`v5` smoke remains only as a readiness receipt and should be removed after the
-full `v5` sweep is audited and accepted.
+Superseded NeuroClaimBench versions and development audits are not active
+workspace artifacts. Primary reusable artifact hashes are frozen in
+`RESULTS_SHA256SUMS`.

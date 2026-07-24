@@ -1,0 +1,13 @@
+stratum,benchmark_split,reference_basis,reference_strength,dataset_id,n_claims,n_score_eligible,n_evaluated,n_errors,confirmable_count,confirmable_denominator,confirmable_recall,confirmable_wilson_95,confirmable_cluster_bootstrap_95,unsafe_count,unsafe_denominator,unsafe_rate,unsafe_wilson_95,unsafe_cluster_bootstrap_95
+scientific_literature_combined,scientific,literature,strict+provisional,,70,70,70,0,21,51,0.4117647058823529,"[0.2875439520458094, 0.5483466279362843]","[0.28, 0.5714285714285714]",2,19,0.10526315789473684,"[0.02935856029887013, 0.31394082711109006]","[0.0, 0.2777777777777778]"
+scientific_literature_provisional,scientific,literature,provisional,,44,44,44,0,10,28,0.35714285714285715,"[0.2070582950773768, 0.5416969348557219]","[0.18518518518518517, 0.5333333333333333]",2,16,0.125,"[0.03497748774324047, 0.36022827265758695]","[0.0, 0.3333333333333333]"
+scientific_literature_strict,scientific,literature,strict,,26,26,26,0,11,23,0.4782608695652174,"[0.29237157416646653, 0.6703726266357259]","[0.2608695652173913, 0.7083333333333334]",0,3,0.0,"[0.0, 0.5614970317550454]","[0.0, 0.0]"
+external_literature_NACC_combined_primary,external_transfer,literature,strict+provisional,NACC,7,7,7,0,0,7,0.0,"[0.0, 0.35433043506668743]","[0.0, 0.0]",0,0,,null,null
+external_literature_NACC_provisional,external_transfer,literature,provisional,NACC,2,2,2,0,0,2,0.0,"[0.0, 0.6576197724933469]","[0.0, 0.0]",0,0,,null,null
+external_literature_NACC_strict,external_transfer,literature,strict,NACC,5,5,5,0,0,5,0.0,"[0.0, 0.43448246478317476]","[0.0, 0.0]",0,0,,null,null
+external_literature_ds000030_combined_primary,external_transfer,literature,strict+provisional,ds000030,19,19,19,0,0,11,0.0,"[0.0, 0.2588329669680317]","[0.0, 0.0]",0,8,0.0,"[0.0, 0.32440756488388023]","[0.0, 0.0]"
+external_literature_ds000030_provisional,external_transfer,literature,provisional,ds000030,3,3,3,0,0,0,,null,null,0,3,0.0,"[0.0, 0.5614970317550454]","[0.0, 0.0]"
+external_literature_ds000030_strict,external_transfer,literature,strict,ds000030,16,16,16,0,0,11,0.0,"[0.0, 0.2588329669680317]","[0.0, 0.0]",0,5,0.0,"[0.0, 0.43448246478317476]","[0.0, 0.0]"
+external_constructed_NACC,external_transfer,constructed_control,constructed,NACC,14,14,14,0,0,0,,null,null,0,14,0.0,"[0.0, 0.2153108027376358]","[0.0, 0.0]"
+external_constructed_ds000030,external_transfer,constructed_control,constructed,ds000030,8,8,8,0,0,0,,null,null,0,8,0.0,"[0.0, 0.32440756488388023]","[0.0, 0.0]"
+synthetic_constructed,synthetic_safety,constructed_control,constructed,,150,150,150,0,0,0,,null,null,0,150,0.0,"[0.0, 0.0249702443680766]","[0.0, 0.0]"

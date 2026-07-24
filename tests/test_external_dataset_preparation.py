@@ -8,7 +8,6 @@ import pandas as pd
 import pytest
 
 import nbs_data.run_external_freesurfer as freesurfer_runner
-from bench.prepare_nacc_external import cm3_to_mm3
 from nbs_data.external_dataset_registry import (
     ExternalDatasetSpec,
     MetadataSpec,
@@ -16,6 +15,7 @@ from nbs_data.external_dataset_registry import (
     build_subject_manifest,
     load_registry,
 )
+from nbs_data.prepare_nacc_external import cm3_to_mm3
 from nbs_data.external_fmri import (
     _descriptor_feature_name,
     _prepare_descriptor_csv,

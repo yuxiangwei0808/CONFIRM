@@ -11,6 +11,11 @@ from pathlib import Path
 from typing import Any
 
 
+CLAIM_SEARCH_NON_RUNTIME_PATHS = {
+    "src/confirm/frozen_evidence.py",
+}
+
+
 def _jsonable(value: Any) -> Any:
     if hasattr(value, "to_dict"):
         return _jsonable(value.to_dict())
@@ -31,6 +36,30 @@ def file_sha256(path: str | Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def claim_search_implementation_hashes(
+    repository_root: str | Path | None = None,
+) -> dict[str, str]:
+    """Hash code that can affect source-data claim generation or evaluation."""
+
+    root = Path(repository_root) if repository_root is not None else Path(__file__).resolve().parents[2]
+    paths = [
+        root / "src/bench/run_iterative_claim_search_replay.py",
+        *sorted((root / "src/confirm").glob("*.py")),
+    ]
+    return {
+        str(path.relative_to(root)): file_sha256(path)
+        for path in paths
+        if str(path.relative_to(root)) not in CLAIM_SEARCH_NON_RUNTIME_PATHS
+    }
+
+
+def mapping_sha256(value: dict[str, Any]) -> str:
+    """Hash a mapping using deterministic JSON serialization."""
+
+    payload = json.dumps(value, sort_keys=True, separators=(",", ":"), default=str)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def git_sha() -> str | None:
@@ -98,4 +127,3 @@ def write_receipt(out_dir: str | Path, receipt: dict[str, Any]) -> Path:
         json.dump(_jsonable(receipt), handle, indent=2, sort_keys=True)
         handle.write("\n")
     return path
-

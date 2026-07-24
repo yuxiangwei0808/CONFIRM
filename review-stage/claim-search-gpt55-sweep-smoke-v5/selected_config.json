@@ -1,9 +1,0 @@
-{
-  "max_rounds": 1,
-  "max_candidates_per_round": 2,
-  "valid_connected_executable_lineage_coverage": 0.9896907216494846,
-  "maximum_coverage": 0.9896907216494846,
-  "within_one_percentage_point_threshold": 0.9796907216494846,
-  "selected_artifact": "review-stage/claim-search-gpt55-sweep-smoke-v5/matrix/rounds_1/candidates_2/iterative_candidate_replay.json",
-  "selection_used_support_counts": false
-}

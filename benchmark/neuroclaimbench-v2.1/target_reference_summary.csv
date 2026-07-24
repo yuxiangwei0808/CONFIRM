@@ -1,0 +1,25 @@
+stratum,benchmark_split,target_family,reference_basis,reference_strength,n_claims,n_score_eligible,n_evaluated,n_errors,confirmable_count,confirmable_denominator,confirmable_recall,confirmable_wilson_95,confirmable_cluster_bootstrap_95,unsafe_count,unsafe_denominator,unsafe_rate,unsafe_wilson_95,unsafe_cluster_bootstrap_95
+external_transfer:ad_aging:constructed_control:constructed,external_transfer,ad_aging,constructed_control,constructed,14,14,14,0,0,0,,null,null,0,14,0.0,"[0.0, 0.2153108027376358]","[0.0, 0.0]"
+external_transfer:ad_aging:literature:evidence_gap,external_transfer,ad_aging,literature,evidence_gap,10,0,0,0,0,0,,null,null,0,0,,null,null
+external_transfer:ad_aging:literature:provisional,external_transfer,ad_aging,literature,provisional,2,2,2,0,0,2,0.0,"[0.0, 0.6576197724933469]","[0.0, 0.0]",0,0,,null,null
+external_transfer:ad_aging:literature:strict,external_transfer,ad_aging,literature,strict,5,5,5,0,0,5,0.0,"[0.0, 0.43448246478317476]","[0.0, 0.0]",0,0,,null,null
+external_transfer:psychosis:constructed_control:constructed,external_transfer,psychosis,constructed_control,constructed,8,8,8,0,0,0,,null,null,0,8,0.0,"[0.0, 0.32440756488388023]","[0.0, 0.0]"
+external_transfer:psychosis:literature:evidence_gap,external_transfer,psychosis,literature,evidence_gap,2,0,0,0,0,0,,null,null,0,0,,null,null
+external_transfer:psychosis:literature:provisional,external_transfer,psychosis,literature,provisional,3,3,3,0,0,0,,null,null,0,3,0.0,"[0.0, 0.5614970317550454]","[0.0, 0.0]"
+external_transfer:psychosis:literature:strict,external_transfer,psychosis,literature,strict,16,16,16,0,0,11,0.0,"[0.0, 0.2588329669680317]","[0.0, 0.0]",0,5,0.0,"[0.0, 0.43448246478317476]","[0.0, 0.0]"
+scientific:ad_aging:literature:evidence_gap,scientific,ad_aging,literature,evidence_gap,32,0,0,0,0,0,,null,null,0,0,,null,null
+scientific:ad_aging:literature:provisional,scientific,ad_aging,literature,provisional,9,9,9,0,7,8,0.875,"[0.5291118177871464, 0.9775825085499433]","[0.625, 1.0]",1,1,1.0,"[0.20654931437723745, 1.0]","[1.0, 1.0]"
+scientific:ad_aging:literature:strict,scientific,ad_aging,literature,strict,12,12,12,0,10,12,0.8333333333333334,"[0.5519691377470266, 0.9530348578161463]","[0.5833333333333334, 1.0]",0,0,,null,null
+scientific:adhd:literature:evidence_gap,scientific,adhd,literature,evidence_gap,43,0,0,0,0,0,,null,null,0,0,,null,null
+scientific:adhd:literature:provisional,scientific,adhd,literature,provisional,13,13,13,0,2,5,0.4,"[0.11762077423264783, 0.769275718723987]","[0.0, 0.8]",1,8,0.125,"[0.02241749145005667, 0.4708881822128535]","[0.0, 0.375]"
+scientific:adhd:literature:strict,scientific,adhd,literature,strict,1,1,1,0,0,0,,null,null,0,1,0.0,"[0.0, 0.7934506856227626]","[0.0, 0.0]"
+scientific:asd:literature:evidence_gap,scientific,asd,literature,evidence_gap,46,0,0,0,0,0,,null,null,0,0,,null,null
+scientific:asd:literature:provisional,scientific,asd,literature,provisional,9,9,9,0,0,5,0.0,"[0.0, 0.43448246478317476]","[0.0, 0.0]",0,4,0.0,"[0.0, 0.4898908364545973]","[0.0, 0.0]"
+scientific:asd:literature:strict,scientific,asd,literature,strict,5,5,5,0,0,3,0.0,"[0.0, 0.5614970317550454]","[0.0, 0.0]",0,2,0.0,"[0.0, 0.6576197724933469]","[0.0, 0.0]"
+scientific:normative_fmri:literature:evidence_gap,scientific,normative_fmri,literature,evidence_gap,49,0,0,0,0,0,,null,null,0,0,,null,null
+scientific:normative_fmri:literature:provisional,scientific,normative_fmri,literature,provisional,1,1,1,0,0,1,0.0,"[0.0, 0.7934506856227626]","[0.0, 0.0]",0,0,,null,null
+scientific:normative_fmri:literature:strict,scientific,normative_fmri,literature,strict,1,1,1,0,1,1,1.0,"[0.20654931437723745, 1.0]","[1.0, 1.0]",0,0,,null,null
+scientific:psychosis:literature:evidence_gap,scientific,psychosis,literature,evidence_gap,39,0,0,0,0,0,,null,null,0,0,,null,null
+scientific:psychosis:literature:provisional,scientific,psychosis,literature,provisional,12,12,12,0,1,9,0.1111111111111111,"[0.019890887638544907, 0.434999705576656]","[0.0, 0.25]",0,3,0.0,"[0.0, 0.5614970317550454]","[0.0, 0.0]"
+scientific:psychosis:literature:strict,scientific,psychosis,literature,strict,7,7,7,0,0,7,0.0,"[0.0, 0.35433043506668743]","[0.0, 0.0]",0,0,,null,null
+synthetic_safety:synthetic_stress:constructed_control:constructed,synthetic_safety,synthetic_stress,constructed_control,constructed,150,150,150,0,0,0,,null,null,0,150,0.0,"[0.0, 0.0249702443680766]","[0.0, 0.0]"

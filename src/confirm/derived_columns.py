@@ -8,6 +8,12 @@ from collections.abc import Iterable
 import pandas as pd
 
 CONFIRM_DX = "confirm_dx"
+_VIRTUAL_COLUMN_ALIASES = {
+    "NACC": {
+        "smri_lateralventricle": "smri_ventricles",
+        "smri_midtemporal": "smri_midtemp",
+    },
+}
 
 
 def cohort_base(cohort: str) -> str:
@@ -70,7 +76,14 @@ def confirm_dx_mapping(cohort: str) -> dict[str, str]:
         "COBRE", "FBIRN", "BSNIP", "BSNIP2", "CHINESESZ", "JH", "OLIN_SZ",
         "CNP", "DS000030", "LA5C", "PK_MPRC", "SHILE_NANJING",
     }:
-        return {"sz": "case", "schizophrenia": "case", "psychosis": "case", "hc": "control", "control": "control"}
+        return {
+            "sz": "case",
+            "schz": "case",
+            "schizophrenia": "case",
+            "psychosis": "case",
+            "hc": "control",
+            "control": "control",
+        }
     return {}
 
 
@@ -103,6 +116,10 @@ def columns_with_virtuals(cohort: str, columns: Iterable[str], dx_levels: Iterab
     out = list(columns)
     if CONFIRM_DX not in out and has_confirm_dx(cohort, out, dx_levels):
         out.append(CONFIRM_DX)
+    aliases = _VIRTUAL_COLUMN_ALIASES.get(cohort_base(cohort).upper(), {})
+    for alias, source in aliases.items():
+        if alias not in out and source in out:
+            out.append(alias)
     return out
 
 
@@ -115,4 +132,8 @@ def add_virtual_columns(df: pd.DataFrame, cohort: str) -> pd.DataFrame:
         if mapping:
             mapped = out["dx"].map(lambda value: mapping.get(_norm_label(value), pd.NA))
             out[CONFIRM_DX] = mapped.astype("string")
+    aliases = _VIRTUAL_COLUMN_ALIASES.get(cohort_base(cohort).upper(), {})
+    for alias, source in aliases.items():
+        if alias not in out.columns and source in out.columns:
+            out[alias] = out[source]
     return out

@@ -1,0 +1,35 @@
+{
+  "allowed_repairs": [
+    "restore an explicitly stated ADHD subtype contrast using raw dx labels",
+    "restore a question-stated executable outcome",
+    "add required measured confounds as safety_covariate_augmentation"
+  ],
+  "canonical_question": "The original scientific question is canonical.",
+  "gemini_role": "Advisory semantic audit only; deterministic rules authorize repairs.",
+  "immutable_fields": [
+    "predictor",
+    "group_contrast",
+    "population",
+    "outcome",
+    "modality",
+    "direction"
+  ],
+  "low_power_policy": "Low sample size alone is not an exclusion; the unchanged power gate adjudicates it.",
+  "non_executable_only_when": [
+    "requested group is absent",
+    "requested outcome is absent",
+    "required columns are unavailable",
+    "design is rank deficient",
+    "residual degrees of freedom are nonpositive"
+  ],
+  "policy_sha256": "ec29615ad0f3a814162c0ae1dd84448ea57b08fa5e2dcc165dfbc0fa05ab30ad",
+  "prohibited_inputs": [
+    "CONFIRM verdicts",
+    "p-values",
+    "effect estimates",
+    "benchmark labels",
+    "adjudication votes",
+    "feedback-search results"
+  ],
+  "version": "neuroclaimbench-v2.1-alignment-20260723"
+}

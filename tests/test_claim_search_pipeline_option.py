@@ -120,8 +120,8 @@ def test_cli_claim_search_option_parses_for_run_and_ask():
             "3",
             "--claim-search-schema-retries",
             "1",
-            "--claim-search-external-data-dir",
-            "external",
+            "--claim-search-feedback-mode",
+            "generic_retry",
         ]
     )
     ask = parser.parse_args(
@@ -138,8 +138,8 @@ def test_cli_claim_search_option_parses_for_run_and_ask():
             "3",
             "--claim-search-schema-retries",
             "1",
-            "--claim-search-external-data-dir",
-            "external",
+            "--claim-search-feedback-mode",
+            "generic_retry",
             "--auto",
         ]
     )
@@ -148,10 +148,10 @@ def test_cli_claim_search_option_parses_for_run_and_ask():
     assert run.claim_search_max_rounds == 2
     assert run.claim_search_max_candidates == 3
     assert run.claim_search_schema_retries == 1
-    assert run.claim_search_external_data_dir == "external"
+    assert run.claim_search_feedback_mode == "generic_retry"
     assert ask.claim_search == "on"
     assert ask.claim_search_schema_retries == 1
-    assert ask.claim_search_external_data_dir == "external"
+    assert ask.claim_search_feedback_mode == "generic_retry"
 
 
 def test_contract_parser_extracts_embedded_code_fence():
@@ -204,7 +204,6 @@ def test_run_claim_does_not_write_claim_search_artifacts_by_default(tmp_path, mo
     )
 
     monkeypatch.setattr("confirm.agent.load_contract", lambda _: contract)
-    monkeypatch.setattr("confirm.agent.lookup_ref_effect", lambda *_: None)
     monkeypatch.setattr(
         "confirm.agent._execute_contract",
         lambda *_args, **_kwargs: (verdict, {"contract": contract.model_dump(mode="json")}, []),
@@ -264,7 +263,6 @@ def test_run_claim_writes_claim_search_artifacts_when_enabled(tmp_path, monkeypa
     )
 
     monkeypatch.setattr("confirm.agent.load_contract", lambda _: contract)
-    monkeypatch.setattr("confirm.agent.lookup_ref_effect", lambda *_: None)
     monkeypatch.setattr(
         "confirm.agent._execute_contract",
         lambda *_args, **_kwargs: (verdict, {"contract": contract.model_dump(mode="json")}, []),
@@ -288,7 +286,7 @@ def test_run_claim_writes_claim_search_artifacts_when_enabled(tmp_path, monkeypa
     assert (out_dir / "llm_candidate_responses.jsonl").exists()
     trace = json.loads((out_dir / "claim_search_trace.json").read_text(encoding="utf-8"))
     receipt = json.loads((out_dir / "receipt.json").read_text(encoding="utf-8"))
-    assert trace["stopped_reason"] == "no_candidates"
-    assert len(trace["duplicate_candidates"]) == 1
+    assert trace["stopped_reason"] == "no_valid_candidates"
+    assert len(trace["duplicate_candidates"]) == 0
     assert "candidate_claims" in receipt["results"]
     assert "duplicate_candidates" in receipt["results"]

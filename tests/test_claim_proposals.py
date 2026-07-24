@@ -113,6 +113,17 @@ def test_multiplicity_failure_is_evidence_failure_not_current_data_repairable():
     assert "corrected_contract" not in loc.allowed_proposal_types
 
 
+def test_adaptive_multiplicity_failure_is_not_reclassified_as_search_provenance():
+    contract = _contract(search_provenance={"selection": "discovery_only"})
+
+    loc = localize_failure(contract, _verdict("fragile", ["multiplicity"]), _results(contract))
+
+    assert loc.primary_failure == "multiplicity"
+    assert loc.failure_kind == "evidence_failure"
+    assert "multiplicity" in loc.diagnosis.lower()
+    assert all("search provenance" not in item.lower() for item in loc.evidence)
+
+
 def test_multiplicity_localization_distinguishes_opposite_direction_from_nonsignificance():
     contract = _contract(estimand={"direction": "positive"})
     results = _results(contract)
@@ -123,6 +134,35 @@ def test_multiplicity_localization_distinguishes_opposite_direction_from_nonsign
     assert "opposite" in loc.diagnosis
     assert "Directional consistency failed" in loc.evidence[0]
     assert "declared direction=positive" in loc.evidence[0]
+
+
+def test_pattern_replication_failure_is_not_reported_as_multiverse_failure():
+    contract = _contract()
+    results = _results(contract)
+    results["multiverse"] = {"fraction_consistent": 1.0, "passed": True, "specs": []}
+    results["replication"].update(
+        {
+            "pattern_corr": 0.42,
+            "region_replication_fraction": 0.2,
+            "dice": 0.1,
+        }
+    )
+
+    loc = localize_failure(
+        contract,
+        _verdict(
+            "non_replicated",
+            ["replication", "pattern_corr", "region_replication_fraction", "dice"],
+        ),
+        results,
+    )
+
+    evidence = " ".join(loc.evidence)
+    assert loc.primary_failure == "replication"
+    assert "Multiverse gate failed" not in evidence
+    assert "pattern_corr=0.42 required>=0.5" in evidence
+    assert "region_replication_fraction=0.2 required>=0.5" in evidence
+    assert "dice=0.1 required>=0" in evidence
 
 
 def test_multiverse_failure_allows_fragile_or_future_claim_only():

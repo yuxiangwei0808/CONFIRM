@@ -9,6 +9,7 @@ import pandas as pd
 
 from bench import run_initial_claim_drafting as drafting
 from bench import run_literature_claim_grounding as grounding
+from bench.pubmed import parse_pubmed_xml
 
 
 def _write_smri_cohorts(root: Path) -> None:
@@ -137,7 +138,7 @@ def test_parse_pubmed_xml_extracts_abstract_record() -> None:
     </PubmedArticleSet>
     """
 
-    records = grounding._parse_pubmed_xml(
+    records = parse_pubmed_xml(
         xml,
         query="query",
         target_family="ad_aging",
