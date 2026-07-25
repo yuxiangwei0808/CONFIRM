@@ -1,4 +1,7 @@
-from nbs.analyze_neuroclaimbench_gate_attribution import analyze_records
+from nbs.analyze_neuroclaimbench_gate_attribution import (
+    analyze_records,
+    analyze_reporting_policies,
+)
 
 
 def _record(
@@ -74,3 +77,39 @@ def test_gate_attribution_reconciles_ladder_and_leave_one_out():
         and row["stage_index"] == 6
     )
     assert final_stage["pass_count"] == 1
+
+
+def test_reporting_policies_compare_simple_rules_with_full_confirm():
+    records = [
+        _record("confirmed", disposition="confirm", cluster="a"),
+        _record(
+            "replication-only",
+            disposition="confirm",
+            cluster="b",
+            failed=("replication",),
+        ),
+        _record(
+            "confounding-only",
+            disposition="confirm",
+            cluster="c",
+            failed=("confounding",),
+        ),
+        _record(
+            "multiplicity-only",
+            disposition="confirm",
+            cluster="d",
+            failed=("multiplicity",),
+        ),
+    ]
+    rows = analyze_reporting_policies(records)
+    counts = {
+        row["policy"]: row["pass_count"]
+        for row in rows
+        if row["reference_disposition"] == "confirm"
+    }
+    assert counts == {
+        "execution_only": 4,
+        "multiplicity_corrected": 3,
+        "multiplicity_replication": 2,
+        "full_confirm": 1,
+    }

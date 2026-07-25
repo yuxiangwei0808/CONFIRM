@@ -118,6 +118,7 @@ class FrozenLLMResponse(BaseModel):
     round_index: int
     response_sequence: int
     attempt_index: int
+    call_type: str = "candidate_generation"
     raw_response: str
     raw_response_sha256: str
     parse_error: Optional[str] = None
@@ -658,6 +659,8 @@ def _freeze_arm_sources(root: Path) -> list[dict[str, Any]]:
         artifacts = sorted(
             root.glob("replay/iterative_candidate_replay.json")
         )
+    if not artifacts and (root / "iterative_candidate_replay.json").exists():
+        artifacts = [root / "iterative_candidate_replay.json"]
     return [
         {
             "artifact": artifact,
@@ -934,6 +937,9 @@ def freeze_sweep(
                 response_records: dict[int, FrozenLLMResponse] = {}
                 for sequence, response in enumerate(responses):
                     raw_response = str(response.get("raw_response") or "")
+                    call_type = str(
+                        response.get("call_type") or "candidate_generation"
+                    )
                     response_id = sha256_json(
                         {
                             "arm_id": arm_id,
@@ -953,6 +959,7 @@ def freeze_sweep(
                         round_index=int(response["round_index"]),
                         response_sequence=sequence,
                         attempt_index=int(response.get("attempt_index") or 0),
+                        call_type=call_type,
                         raw_response=raw_response,
                         raw_response_sha256=hashlib.sha256(raw_response.encode("utf-8")).hexdigest(),
                         parse_error=(str(parse_error) if parse_error is not None else None),
@@ -962,6 +969,8 @@ def freeze_sweep(
                         source_artifact_sha256=artifact_sha,
                     )
                     if parse_error is not None:
+                        continue
+                    if call_type == "feedback":
                         continue
                     parsed = _json_payload(raw_response or "{}")
                     raw_candidates = parsed.get("candidates")

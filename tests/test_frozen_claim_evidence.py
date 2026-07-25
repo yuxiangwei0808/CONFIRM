@@ -248,6 +248,52 @@ def test_freeze_disposition_prioritizes_retained_used_response():
     assert sum(duplicates.values()) == 1
 
 
+def test_freeze_records_self_refine_feedback_without_parsing_candidates(tmp_path):
+    sweep = tmp_path / "sweep"
+    output = tmp_path / "audit"
+    _write_sweep(sweep)
+    artifact_path = (
+        sweep
+        / "matrix/rounds_1/candidates_1/iterative_candidate_replay.json"
+    )
+    artifact = json.loads(artifact_path.read_text(encoding="utf-8"))
+    artifact["states"][0]["llm_candidate_responses"].insert(
+        0,
+        {
+            "call_type": "feedback",
+            "round_index": 1,
+            "parent_claim_id": "parent",
+            "attempt_index": 0,
+            "raw_response": json.dumps(
+                {
+                    "overall_assessment": "Refine the outcome.",
+                    "candidate_feedback": [],
+                    "revision_priorities": ["Preserve the contrast."],
+                }
+            ),
+            "candidate_count": 0,
+            "parse_error": None,
+        },
+    )
+    artifact_path.write_text(json.dumps(artifact, indent=2), encoding="utf-8")
+
+    summary = frozen.freeze_sweep(
+        sweep,
+        output,
+        enforce_reference_counts=False,
+    )
+
+    assert summary["llm_response_count"] == 2
+    assert summary["observed_counts"]["generated_candidate_count"] == 1
+    responses = frozen.read_jsonl(output / "frozen_llm_responses.jsonl")
+    assert [row["call_type"] for row in responses] == [
+        "feedback",
+        "candidate_generation",
+    ]
+    assert responses[0]["parsed_candidate_count"] == 0
+    assert responses[0]["used_for_execution"] is False
+
+
 def test_freeze_uses_atomic_parent_checkpoints_instead_of_monolithic_states(tmp_path):
     sweep = tmp_path / "sweep"
     output = tmp_path / "audit"

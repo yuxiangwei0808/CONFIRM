@@ -798,17 +798,25 @@ def draft_contract_with_trace(
     *,
     schema_retries: int,
     preflight_context: CandidatePreflightContext | None = None,
+    system_prompt: str | None = None,
 ) -> tuple[ClaimContract, list[dict[str, Any]], list[dict[str, Any]]]:
-    """Draft one ClaimContract with prompt/response trace and validation retries."""
+    """Draft one ClaimContract with prompt/response trace and validation retries.
 
+    ``system_prompt`` overrides the default domain-prior system prompt. It is used
+    by the claim-generation integration study to drive drafting with another
+    agent's persona while keeping the same contract schema, catalog, preflight,
+    and source-preservation checks.
+    """
+
+    active_system = system_prompt or DOMAIN_PRIOR_SYSTEM_PROMPT
     prompts: list[dict[str, Any]] = []
     responses: list[dict[str, Any]] = []
     last_error: str | None = None
     context = preflight_context if preflight_context is not None else _preflight_context_from_catalog(catalog)
     for attempt in range(schema_retries + 1):
         prompt = _contract_prompt_for_question(question, catalog, last_error)
-        prompts.append({"claim_id": question.claim_id, "attempt": attempt, "system": DOMAIN_PRIOR_SYSTEM_PROMPT, "user": prompt})
-        raw = _complete_structured(llm, DOMAIN_PRIOR_SYSTEM_PROMPT, prompt, ClaimContract)
+        prompts.append({"claim_id": question.claim_id, "attempt": attempt, "system": active_system, "user": prompt})
+        raw = _complete_structured(llm, active_system, prompt, ClaimContract)
         responses.append({"claim_id": question.claim_id, "attempt": attempt, "raw_response": raw})
         try:
             parsed_payload = _canonicalize_contract_payload(question, _parse_contract_text(raw), catalog)

@@ -12,6 +12,7 @@ PARALLEL_BACKEND="${PARALLEL_BACKEND:-process}"
 PROGRESS="${PROGRESS:-on}"
 DATA_ROOTS="${DATA_ROOTS:-data/prepared_data/evidence_partitions/benchmark_ready/cohorts}"
 LIMIT="${LIMIT:-}"
+MINIMUM_EVIDENCE_TIER="${MINIMUM_EVIDENCE_TIER:-confirmed}"
 
 export PYTHONPATH="$ROOT/src:${PYTHONPATH:-}"
 export PYTHONUNBUFFERED=1
@@ -27,6 +28,7 @@ cmd=(
   --out-dir "$OUT"
   --max-workers "$MAX_WORKERS"
   --parallel-backend "$PARALLEL_BACKEND"
+  --minimum-evidence-tier "$MINIMUM_EVIDENCE_TIER"
   "${data_root_args[@]}"
 )
 

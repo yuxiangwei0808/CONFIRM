@@ -15,8 +15,8 @@ from typing import Any
 from bench.progress import iter_progress
 from confirm.contract import ClaimContract
 from confirm.evidence_partitions import is_excluded_evidence_cohort
-from confirm.execution import evaluate_contract
-from confirm.verdict import Verdict
+from confirm.execution import evaluate_contract, resolve_execution_root
+from confirm.verdict import MinimumEvidenceTier, Verdict
 
 DEFAULT_DATA_ROOTS = (
     Path("data/prepared_data/evidence_partitions/benchmark_ready/cohorts"),
@@ -53,16 +53,9 @@ def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     return rows
 
 
-def _execution_root(contract: ClaimContract, data_roots: list[Path]) -> Path:
-    needed = [contract.discovery_cohort, *contract.replication_cohorts]
-    for root in data_roots:
-        if all((root / f"{cohort}.parquet").exists() for cohort in needed):
-            return root
-    raise FileNotFoundError(f"No data root contains all contract cohorts: {needed}")
-
-
 def _gate_row(source_row: dict[str, Any], contract: ClaimContract, verdict: Verdict, results: dict[str, Any], cohort_paths: list[Path]) -> dict[str, Any]:
     gate_results = _json_safe(results)
+    support_decision = gate_results["support_decision"]
     return {
         "claim_id": source_row.get("claim_id") or contract.claim_id,
         "target_family": source_row.get("target_family"),
@@ -82,6 +75,10 @@ def _gate_row(source_row: dict[str, Any], contract: ClaimContract, verdict: Verd
         "gate_verdict": verdict.to_dict(),
         "final_label": verdict.label,
         "abstained": verdict.abstained,
+        "minimum_evidence_tier": support_decision["minimum_evidence_tier"],
+        "achieved_evidence_tier": support_decision["achieved_evidence_tier"],
+        "reported_supported": support_decision["supported"],
+        "support_decision": support_decision,
         "rationale": verdict.rationale,
         "contract": contract.model_dump(mode="json"),
         "drafted_contract": contract.model_dump(mode="json"),
@@ -105,7 +102,11 @@ def _error_row(source_row: dict[str, Any], exc: Exception) -> dict[str, Any]:
     }
 
 
-def _evaluate_one(source_row: dict[str, Any], data_roots: list[str]) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+def _evaluate_one(
+    source_row: dict[str, Any],
+    data_roots: list[str],
+    minimum_evidence_tier: MinimumEvidenceTier = "confirmed",
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
     try:
         payload = source_row.get("drafted_contract")
         if not isinstance(payload, dict):
@@ -119,22 +120,28 @@ def _evaluate_one(source_row: dict[str, Any], data_roots: list[str]) -> tuple[di
         if excluded_cohorts:
             raise ValueError(f"Stage 2 cannot evaluate excluded evidence cohorts: {excluded_cohorts}")
         roots = [Path(item) for item in data_roots]
-        root = _execution_root(contract, roots)
+        root = resolve_execution_root(contract, roots)
         verdict, results, cohort_paths = evaluate_contract(
             contract,
             root,
             ref_effect=contract.gates.power.ref_effect,
+            minimum_evidence_tier=minimum_evidence_tier,
         )
         return _gate_row(source_row, contract, verdict, results, cohort_paths), None
     except Exception as exc:
         return None, _error_row(source_row, exc)
 
 
-def _run_serial(rows: list[dict[str, Any]], data_roots: list[str], progress: bool) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+def _run_serial(
+    rows: list[dict[str, Any]],
+    data_roots: list[str],
+    minimum_evidence_tier: MinimumEvidenceTier,
+    progress: bool,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     claims: list[dict[str, Any]] = []
     errors: list[dict[str, Any]] = []
     for row in iter_progress(rows, total=len(rows), desc="gate evaluation", enabled=progress, unit="claim"):
-        claim, error = _evaluate_one(row, data_roots)
+        claim, error = _evaluate_one(row, data_roots, minimum_evidence_tier)
         if claim is not None:
             claims.append(claim)
         if error is not None:
@@ -148,13 +155,22 @@ def _run_parallel(
     *,
     max_workers: int,
     backend: str,
+    minimum_evidence_tier: MinimumEvidenceTier,
     progress: bool,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     executor_cls = ProcessPoolExecutor if backend == "process" else ThreadPoolExecutor
     claims: list[dict[str, Any]] = []
     errors: list[dict[str, Any]] = []
     with executor_cls(max_workers=max_workers) as executor:
-        futures = {executor.submit(_evaluate_one, row, data_roots): i for i, row in enumerate(rows)}
+        futures = {
+            executor.submit(
+                _evaluate_one,
+                row,
+                data_roots,
+                minimum_evidence_tier,
+            ): i
+            for i, row in enumerate(rows)
+        }
         ordered: dict[int, tuple[dict[str, Any] | None, dict[str, Any] | None]] = {}
         for future in iter_progress(as_completed(futures), total=len(futures), desc="gate evaluation", enabled=progress, unit="claim"):
             ordered[futures[future]] = future.result()
@@ -169,12 +185,15 @@ def _run_parallel(
 
 def _summary(claims: list[dict[str, Any]], errors: list[dict[str, Any]]) -> dict[str, Any]:
     labels = Counter(str(row.get("final_label")) for row in claims)
+    evidence_tiers = Counter(str(row.get("achieved_evidence_tier")) for row in claims)
     source_modes = Counter(str(row.get("source_mode")) for row in claims)
     target_families = Counter(str(row.get("target_family")) for row in claims)
     return {
         "n_claims": len(claims),
         "n_errors": len(errors),
         "final_label_counts": dict(labels),
+        "achieved_evidence_tier_counts": dict(evidence_tiers),
+        "reported_supported_count": sum(bool(row.get("reported_supported")) for row in claims),
         "source_mode_counts": dict(source_modes),
         "target_family_counts": dict(target_families),
     }
@@ -188,6 +207,9 @@ def _write_audit_csv(path: Path, claims: list[dict[str, Any]], errors: list[dict
         "model_spec",
         "final_label",
         "gate_verdict_label",
+        "minimum_evidence_tier",
+        "achieved_evidence_tier",
+        "reported_supported",
         "draft_success",
         "gate_success",
         "error_stage",
@@ -203,7 +225,19 @@ def _write_audit_csv(path: Path, claims: list[dict[str, Any]], errors: list[dict
 
 
 def _write_claims_csv(path: Path, claims: list[dict[str, Any]]) -> None:
-    fieldnames = ["claim_id", "target_family", "source_mode", "model_spec", "question", "final_label", "label_class", "label_basis"]
+    fieldnames = [
+        "claim_id",
+        "target_family",
+        "source_mode",
+        "model_spec",
+        "question",
+        "final_label",
+        "minimum_evidence_tier",
+        "achieved_evidence_tier",
+        "reported_supported",
+        "label_class",
+        "label_basis",
+    ]
     with path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
@@ -217,15 +251,26 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     rows = _read_jsonl(Path(args.contracts))
     if args.limit is not None:
         rows = rows[: args.limit]
+    minimum_evidence_tier = getattr(
+        args,
+        "minimum_evidence_tier",
+        "confirmed",
+    )
     data_roots = [str(Path(item)) for item in (args.data_root or [str(path) for path in DEFAULT_DATA_ROOTS])]
     if args.max_workers <= 1:
-        claims, errors = _run_serial(rows, data_roots, not args.no_progress)
+        claims, errors = _run_serial(
+            rows,
+            data_roots,
+            minimum_evidence_tier,
+            not args.no_progress,
+        )
     else:
         claims, errors = _run_parallel(
             rows,
             data_roots,
             max_workers=args.max_workers,
             backend=args.parallel_backend,
+            minimum_evidence_tier=minimum_evidence_tier,
             progress=not args.no_progress,
         )
 
@@ -238,6 +283,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "data_root": data_roots,
             "max_workers": args.max_workers,
             "parallel_backend": args.parallel_backend,
+            "minimum_evidence_tier": minimum_evidence_tier,
         },
         **_summary(claims, errors),
         "claims": claims,
@@ -260,6 +306,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--data-root", action="append", default=None)
     parser.add_argument("--max-workers", type=int, default=1)
     parser.add_argument("--parallel-backend", choices=["process", "thread"], default="process")
+    parser.add_argument(
+        "--minimum-evidence-tier",
+        choices=["discovery", "replicated", "confirmed"],
+        default="confirmed",
+    )
     parser.add_argument("--no-progress", action="store_true")
     parser.add_argument("--limit", type=int, default=None)
     return parser

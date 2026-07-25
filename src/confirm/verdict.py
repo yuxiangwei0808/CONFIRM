@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from typing import Any
+from typing import Any, Literal, Mapping
 
 from confirm.analysis import directionally_consistent, effective_multiplicity_family_size, fdr_bh_q_values, multiplicity_threshold
 from confirm.contract import ClaimContract
@@ -11,6 +11,82 @@ from confirm.results import BrainwideReplicationResult, EffectResult, Multiverse
 
 UNVERIFIABLE_SEARCH_PROVENANCE = "unverifiable_search_provenance"
 CONFOUND_INCOMPLETE = "confound_incomplete"
+
+MinimumEvidenceTier = Literal["discovery", "replicated", "confirmed"]
+AchievedEvidenceTier = Literal[
+    "unsupported",
+    "discovery_supported",
+    "replicated_supported",
+    "confirmed",
+]
+
+EVIDENCE_TIER_REQUIRED_GATES: dict[MinimumEvidenceTier, tuple[str, ...]] = {
+    "discovery": (
+        "search_provenance",
+        "confound",
+        "confound_completeness",
+        "multiplicity",
+    ),
+    "replicated": (
+        "search_provenance",
+        "confound",
+        "confound_completeness",
+        "multiplicity",
+        "replication",
+    ),
+    "confirmed": (
+        "search_provenance",
+        "confound",
+        "confound_completeness",
+        "multiplicity",
+        "power",
+        "multiverse",
+        "replication",
+    ),
+}
+
+
+@dataclass(frozen=True)
+class SupportDecision:
+    """Reporting decision at a caller-selected minimum evidence tier."""
+
+    minimum_evidence_tier: MinimumEvidenceTier
+    achieved_evidence_tier: AchievedEvidenceTier
+    supported: bool
+    required_gates: tuple[str, ...]
+    failed_required_gates: tuple[str, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+def classify_support(
+    gates: Mapping[str, Any],
+    minimum_evidence_tier: MinimumEvidenceTier = "confirmed",
+) -> SupportDecision:
+    """Classify an existing CONFIRM gate vector without changing gate results."""
+
+    if minimum_evidence_tier not in EVIDENCE_TIER_REQUIRED_GATES:
+        raise ValueError(f"Unknown minimum evidence tier: {minimum_evidence_tier}")
+
+    achieved: AchievedEvidenceTier = "unsupported"
+    for tier, achieved_label in (
+        ("discovery", "discovery_supported"),
+        ("replicated", "replicated_supported"),
+        ("confirmed", "confirmed"),
+    ):
+        if all(gates.get(gate) is True for gate in EVIDENCE_TIER_REQUIRED_GATES[tier]):
+            achieved = achieved_label
+
+    required = EVIDENCE_TIER_REQUIRED_GATES[minimum_evidence_tier]
+    failed = tuple(gate for gate in required if gates.get(gate) is not True)
+    return SupportDecision(
+        minimum_evidence_tier=minimum_evidence_tier,
+        achieved_evidence_tier=achieved,
+        supported=not failed,
+        required_gates=required,
+        failed_required_gates=failed,
+    )
 
 
 @dataclass(frozen=True)

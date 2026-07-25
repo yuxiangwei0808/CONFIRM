@@ -40,6 +40,20 @@ GATE_LABELS = {
     "multiverse": "Stability",
     "replication": "Replication",
 }
+REPORTING_POLICIES = (
+    ("execution_only", "Execution only", ()),
+    (
+        "multiplicity_corrected",
+        "Multiplicity-corrected discovery",
+        ("search_provenance", "multiplicity"),
+    ),
+    (
+        "multiplicity_replication",
+        "Multiplicity + replication",
+        ("search_provenance", "multiplicity", "replication"),
+    ),
+    ("full_confirm", "Full CONFIRM", GATE_ORDER),
+)
 
 
 def _read_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -263,6 +277,39 @@ def analyze_records(
     return failure_rows, leave_one_out_rows, ladder_rows
 
 
+def analyze_reporting_policies(
+    records: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    for record in records:
+        groups[(record["stratum"], str(record["reference_disposition"]))].append(record)
+
+    rows: list[dict[str, Any]] = []
+    for policy_index, (policy, label, required_gates) in enumerate(
+        REPORTING_POLICIES,
+        start=1,
+    ):
+        for (stratum, disposition), group in sorted(groups.items()):
+            pass_count = sum(
+                all(record["gates"][gate] for gate in required_gates)
+                for record in group
+            )
+            rows.append(
+                {
+                    "policy_index": policy_index,
+                    "policy": policy,
+                    "policy_label": label,
+                    "required_gates": json.dumps(required_gates),
+                    "stratum": stratum,
+                    "reference_disposition": disposition,
+                    "claim_count": len(group),
+                    "pass_count": pass_count,
+                    "pass_rate": pass_count / len(group),
+                }
+            )
+    return rows
+
+
 def _plot(
     rows: Iterable[dict[str, Any]],
     path_pdf: Path,
@@ -282,31 +329,84 @@ def _plot(
             combined[(row["stratum"], row["removed_gate"])] += int(
                 row["added_confirmation_count"]
             )
-    present = [stratum for stratum in selected if any(key[0] == stratum for key in combined)]
+    # A stratum whose counts are zero under every gate removal carries no signal,
+    # so it is dropped rather than drawn as an empty heatmap row.
+    present = [
+        stratum
+        for stratum in selected
+        if any(combined.get((stratum, gate), 0) for gate in GATE_ORDER)
+    ]
     values = np.asarray(
         [[combined[(stratum, gate)] for gate in GATE_ORDER] for stratum in present],
         dtype=float,
     )
-    fig, axis = plt.subplots(figsize=(10.2, 4.5))
-    image = axis.imshow(values, cmap="Reds", aspect="auto", vmin=0)
-    for row_index in range(values.shape[0]):
-        for column_index in range(values.shape[1]):
-            axis.text(
-                column_index,
-                row_index,
-                f"{int(values[row_index, column_index])}",
-                ha="center",
-                va="center",
-                fontsize=8,
-            )
-    axis.set_xticks(range(len(GATE_ORDER)), [GATE_LABELS[gate] for gate in GATE_ORDER])
-    axis.set_yticks(
-        range(len(present)),
-        [value.replace("_", " ") for value in present],
+    plt.rcParams.update(
+        {
+            "font.family": "sans-serif",
+            "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans"],
+            "pdf.fonttype": 42,
+            "svg.fonttype": "none",
+            "font.size": 7.5,
+            "axes.linewidth": 0.8,
+        }
     )
-    axis.set_title("Additional confirmations when one gate is removed")
-    axis.set_xlabel("Removed gate")
-    fig.colorbar(image, ax=axis, label="Additional confirmations")
+    # Removing a gate is a magnitude question, so grouped bars read faster than a
+    # colour grid whose cells are mostly zero.
+    stratum_labels = {
+        "scientific_literature": "Scientific literature",
+        "external_literature_NACC": "External literature (NACC)",
+        "external_literature_ds000030": "External literature (CNP)",
+        "external_constructed_NACC": "External controls (NACC)",
+        "external_constructed_ds000030": "External controls (CNP)",
+        "synthetic_constructed": "Synthetic controls",
+    }
+    stratum_colors = {
+        "scientific_literature": "#133C66",
+        "external_literature_NACC": "#69737D",
+        "external_literature_ds000030": "#9A8064",
+        "external_constructed_NACC": "#B07AA1",
+        "external_constructed_ds000030": "#4B8BBE",
+        "synthetic_constructed": "#C1666B",
+    }
+    fig, axis = plt.subplots(figsize=(6.6, 2.85))
+    gate_positions = np.arange(len(GATE_ORDER))
+    span = 0.78
+    height = span / len(present)
+    for index, stratum in enumerate(present):
+        offsets = gate_positions - span / 2 + height * (index + 0.5)
+        counts = [combined[(stratum, gate)] for gate in GATE_ORDER]
+        axis.barh(
+            offsets,
+            counts,
+            height=height * 0.86,
+            color=stratum_colors.get(stratum, "#69737D"),
+            label=stratum_labels.get(stratum, stratum.replace("_", " ")),
+            edgecolor="white",
+            linewidth=0.5,
+            zorder=3,
+        )
+        for offset, count in zip(offsets, counts):
+            if count:
+                axis.text(
+                    count + 0.7,
+                    offset,
+                    f"{int(count)}",
+                    va="center",
+                    ha="left",
+                    fontsize=7,
+                    zorder=4,
+                )
+    axis.set_yticks(gate_positions, [GATE_LABELS[gate] for gate in GATE_ORDER], fontsize=7)
+    axis.invert_yaxis()
+    axis.set_xlim(0, float(values.max()) * 1.13)
+    axis.grid(axis="x", color="#E9E9E9", linewidth=0.55, zorder=0)
+    axis.spines["right"].set_visible(False)
+    axis.spines["top"].set_visible(False)
+    axis.legend(fontsize=7, loc="upper right", frameon=False)
+    axis.set_title("Additional confirmations when one gate is removed", fontsize=8.5)
+    axis.set_xlabel("Additional confirmations", fontsize=7.5)
+    axis.set_ylabel("Removed gate", fontsize=7.5)
+    axis.tick_params(labelsize=7, length=0)
     fig.tight_layout()
     fig.savefig(path_pdf, bbox_inches="tight")
     fig.savefig(path_png, dpi=220, bbox_inches="tight")
@@ -323,14 +423,17 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         resamples=args.bootstrap_resamples,
         seed=args.seed,
     )
+    policy_rows = analyze_reporting_policies(records)
     failure_path = out_dir / "gate_failure_summary.csv"
     leave_path = out_dir / "gate_leave_one_out.csv"
     ladder_path = out_dir / "gate_ladder.csv"
+    policy_path = out_dir / "reporting_policy_comparison.csv"
     figure_pdf = out_dir / "fig_gate_attribution.pdf"
     figure_png = out_dir / "fig_gate_attribution.png"
     write_csv_atomic(failure_path, failure_rows)
     write_csv_atomic(leave_path, leave_one_out_rows)
     write_csv_atomic(ladder_path, ladder_rows)
+    write_csv_atomic(policy_path, policy_rows)
     _plot(leave_one_out_rows, figure_pdf, figure_png)
     summary = {
         "version": "neuroclaimbench-v2.1-gate-attribution-v1",
@@ -356,7 +459,15 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         package_dir / "references.jsonl",
         package_dir / "outcomes.jsonl",
     ]
-    outputs = [failure_path, leave_path, ladder_path, figure_pdf, figure_png, summary_path]
+    outputs = [
+        failure_path,
+        leave_path,
+        ladder_path,
+        policy_path,
+        figure_pdf,
+        figure_png,
+        summary_path,
+    ]
     manifest = {
         "version": summary["version"],
         "inputs": [{"path": str(path), "sha256": sha256_file(path)} for path in inputs],

@@ -633,38 +633,90 @@ def _plot_budget(rows: list[dict[str, Any]], out_dir: Path) -> list[Path]:
     import matplotlib.pyplot as plt
 
     scientific = [row for row in rows if row["analysis_scope"] == "scientific_sweep"]
-    metrics = (
-        ("supported_parent_count", "Supported parents"),
-        ("current_data_evaluated_candidates", "Source-evaluated candidates"),
-        ("llm_calls", "LLM calls (including retries)"),
-        ("unique_candidates_per_100_llm_calls", "Unique candidates / 100 calls"),
-        ("supported_parents_per_100_llm_calls", "Supported parents / 100 calls"),
-    )
     rounds = (1, 3, 5, 10)
     candidates = (2, 5, 10)
-    fig, axes = plt.subplots(2, 3, figsize=(13, 8), constrained_layout=True)
-    for axis, (field, title) in zip(axes.flat, metrics):
-        values = np.array(
-            [[next(row[field] for row in scientific if row["max_rounds"] == r and row["max_candidates"] == c) for c in candidates] for r in rounds],
-            dtype=float,
+    # Budget is a cost-yield question, so plotting yield against spend shows the
+    # scaling and the efficiency turn directly, which a grid of colour cells hides.
+    colors = {1: "#A8C6E5", 3: "#6FA3CE", 5: "#3C74A8", 10: "#133C66"}
+    plt.rcParams.update(
+        {
+            "font.family": "sans-serif",
+            "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans"],
+            "pdf.fonttype": 42,
+            "svg.fonttype": "none",
+            "font.size": 7.5,
+            "axes.linewidth": 0.8,
+            "axes.spines.right": False,
+            "axes.spines.top": False,
+            "legend.frameon": False,
+        }
+    )
+
+    def _arm(max_rounds: int, max_candidates: int) -> dict[str, Any]:
+        return next(
+            row
+            for row in scientific
+            if int(row["max_rounds"]) == max_rounds
+            and int(row["max_candidates"]) == max_candidates
         )
-        image = axis.imshow(values, aspect="auto", cmap="viridis")
-        axis.set_title(title)
-        axis.set_xticks(range(len(candidates)), labels=candidates)
-        axis.set_yticks(range(len(rounds)), labels=rounds)
-        axis.set_xlabel("Max candidates per round")
-        axis.set_ylabel("Max rounds")
-        for row_index in range(values.shape[0]):
-            for column_index in range(values.shape[1]):
-                value = values[row_index, column_index]
-                label = f"{value:.2f}" if not float(value).is_integer() else f"{int(value):,}"
-                axis.text(column_index, row_index, label, ha="center", va="center", color="white" if value > np.nanmean(values) else "black", fontsize=8)
-        fig.colorbar(image, ax=axis, shrink=0.8)
-    axes.flat[-1].axis("off")
+
+    # One structured response can carry every candidate for a round, so call volume
+    # tracks rounds and is nearly flat in candidates. Rounds therefore carry the
+    # cost, and the legend states it once per line.
+    call_cost = {
+        max_rounds: sum(float(_arm(max_rounds, k)["llm_calls"]) for k in candidates)
+        / len(candidates)
+        for max_rounds in rounds
+    }
+
+    fig, axes = plt.subplots(1, 2, figsize=(7.0, 2.75))
+    panels = (
+        (
+            axes[0],
+            "supported_parent_count",
+            "Source-supported parents (of 215)",
+            "a  Yield rises on both axes",
+        ),
+        (
+            axes[1],
+            "supported_parents_per_100_llm_calls",
+            "Supported parents per 100 calls",
+            "b  Efficiency falls with rounds",
+        ),
+    )
+    for axis, field, ylabel, title in panels:
+        for max_rounds in rounds:
+            arms = [_arm(max_rounds, k) for k in candidates]
+            axis.plot(
+                candidates,
+                [float(row[field]) for row in arms],
+                marker="o",
+                markersize=3.8,
+                markeredgecolor="white",
+                markeredgewidth=0.5,
+                linewidth=1.1,
+                color=colors[max_rounds],
+                label=(
+                    f"{max_rounds} round"
+                    + ("s" if max_rounds > 1 else "")
+                    + f" ($\\approx${call_cost[max_rounds]:,.0f} calls)"
+                ),
+                zorder=3,
+            )
+        axis.set_xlabel("Candidates per round", fontsize=7)
+        axis.set_ylabel(ylabel, fontsize=7)
+        axis.set_title(title, loc="left", fontsize=8, fontweight="bold", pad=5)
+        axis.set_xticks(candidates, [str(value) for value in candidates])
+        axis.set_xlim(1.2, 10.8)
+        axis.grid(color="#E9E9E9", linewidth=0.55, zorder=0)
+        axis.tick_params(labelsize=6.5)
+
+    axes[0].legend(fontsize=6.3, loc="upper left", handlelength=1.4, labelspacing=0.28)
+    fig.tight_layout()
     png = out_dir / "fig_budget_heatmaps.png"
     pdf = out_dir / "fig_budget_heatmaps.pdf"
-    fig.savefig(png, dpi=220)
-    fig.savefig(pdf)
+    fig.savefig(png, dpi=220, bbox_inches="tight")
+    fig.savefig(pdf, bbox_inches="tight")
     plt.close(fig)
     return [png, pdf]
 

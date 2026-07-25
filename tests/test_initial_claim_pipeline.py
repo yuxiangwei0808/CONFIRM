@@ -11,7 +11,7 @@ import pytest
 from confirm.candidate_preflight import CandidatePreflightContext
 from confirm.agent import _contract_prompt, _execute_contract
 from confirm.contract import ClaimContract
-from confirm.verdict import Verdict
+from confirm.verdict import Verdict, classify_support
 
 from bench import run_drafted_contract_gates as gates
 from bench import run_initial_claim_drafting as drafting
@@ -974,11 +974,45 @@ def test_gate_runner_writes_feedback_compatible_rows(monkeypatch, tmp_path: Path
     }
     source.write_text(json.dumps(row) + "\n", encoding="utf-8")
 
-    monkeypatch.setattr(gates, "_execution_root", lambda contract, roots: tmp_path)
+    monkeypatch.setattr(
+        gates,
+        "resolve_execution_root",
+        lambda contract, roots: tmp_path,
+    )
 
-    def fake_execute(contract: ClaimContract, root: Path, ref_effect=None):
-        verdict = Verdict(label="confirmed", abstained=False, rationale="ok", gates={"primary": True})
-        return verdict, {"contract": contract.model_dump(mode="json"), "primary": {"p": 0.01}}, [tmp_path / "ADNI_DISC.parquet"]
+    def fake_execute(
+        contract: ClaimContract,
+        root: Path,
+        ref_effect=None,
+        minimum_evidence_tier="confirmed",
+    ):
+        gate_state = {
+            "search_provenance": True,
+            "confound": True,
+            "confound_completeness": True,
+            "multiplicity": True,
+            "power": True,
+            "multiverse": True,
+            "replication": True,
+        }
+        verdict = Verdict(
+            label="confirmed",
+            abstained=False,
+            rationale="ok",
+            gates=gate_state,
+        )
+        return (
+            verdict,
+            {
+                "contract": contract.model_dump(mode="json"),
+                "primary": {"p": 0.01},
+                "support_decision": classify_support(
+                    gate_state,
+                    minimum_evidence_tier,
+                ),
+            },
+            [tmp_path / "ADNI_DISC.parquet"],
+        )
 
     monkeypatch.setattr(gates, "evaluate_contract", fake_execute)
 
@@ -989,6 +1023,7 @@ def test_gate_runner_writes_feedback_compatible_rows(monkeypatch, tmp_path: Path
         data_root=[str(tmp_path)],
         max_workers=1,
         parallel_backend="thread",
+        minimum_evidence_tier="confirmed",
         no_progress=True,
         limit=None,
     )

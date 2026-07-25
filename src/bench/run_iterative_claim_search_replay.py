@@ -34,6 +34,12 @@ from confirm.evidence_partitions import (
 )
 from confirm.llm import get_llm, make_llm
 from confirm.provenance import claim_search_implementation_hashes, mapping_sha256
+from confirm.self_refine import (
+    SELF_REFINE_FEEDBACK_SYSTEM_PROMPT,
+    SELF_REFINE_REFINEMENT_SYSTEM_PROMPT,
+    SelfRefineCandidateGenerator,
+    SelfRefineFeedback,
+)
 
 DEFAULT_DATA_ROOTS = (
     "data/prepared_data/evidence_partitions/benchmark_ready/cohorts",
@@ -192,8 +198,21 @@ def _run_provenance(
     manifest_path: Path | None,
     manifest: EvidencePartitionManifest | None,
     llm_model_spec: str,
+    candidate_strategy: str,
 ) -> dict[str, Any]:
-    schema = LLMCandidateGenerationResponse.model_json_schema()
+    if candidate_strategy == "self_refine":
+        schema: dict[str, Any] = {
+            "feedback": SelfRefineFeedback.model_json_schema(),
+            "refinement": LLMCandidateGenerationResponse.model_json_schema(),
+        }
+        prompt_text = (
+            SELF_REFINE_FEEDBACK_SYSTEM_PROMPT
+            + "\n"
+            + SELF_REFINE_REFINEMENT_SYSTEM_PROMPT
+        )
+    else:
+        schema = LLMCandidateGenerationResponse.model_json_schema()
+        prompt_text = CLAIM_CANDIDATE_SYSTEM_PROMPT
     repository_root = Path(__file__).resolve().parents[2]
     implementation_paths = [
         Path(__file__).resolve(),
@@ -229,7 +248,8 @@ def _run_provenance(
         "git": _git_state(),
         "python": sys.version,
         "llm_model": llm_model_spec,
-        "prompt_sha256": hashlib.sha256(CLAIM_CANDIDATE_SYSTEM_PROMPT.encode("utf-8")).hexdigest(),
+        "candidate_strategy": candidate_strategy,
+        "prompt_sha256": hashlib.sha256(prompt_text.encode("utf-8")).hexdigest(),
         "schema_sha256": _sha256_json(schema),
         "implementation_hashes": implementation_hashes,
         "search_implementation_hashes": search_implementation_hashes,
@@ -549,6 +569,43 @@ def _replay_specific_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _llm_usage_summary(states: list[ClaimSearchState]) -> dict[str, Any]:
+    records = [
+        record
+        for state in states
+        for record in state.llm_candidate_responses
+        if isinstance(record, dict)
+    ]
+    usage_records = []
+    for record in records:
+        metadata = record.get("call_metadata")
+        usage = metadata.get("usage") if isinstance(metadata, dict) else None
+        if isinstance(usage, dict) and usage:
+            usage_records.append(usage)
+    cost_records = [usage for usage in usage_records if usage.get("cost") is not None]
+    return {
+        "llm_call_count": len(records),
+        "llm_calls_with_usage_count": len(usage_records),
+        "llm_prompt_tokens": sum(
+            int(usage.get("prompt_tokens") or 0) for usage in usage_records
+        ),
+        "llm_completion_tokens": sum(
+            int(usage.get("completion_tokens") or 0) for usage in usage_records
+        ),
+        "llm_total_tokens": sum(
+            int(usage.get("total_tokens") or 0) for usage in usage_records
+        ),
+        "llm_reported_cost": (
+            sum(float(usage["cost"]) for usage in cost_records)
+            if len(cost_records) == len(records)
+            else None
+        ),
+        "llm_usage_complete": len(usage_records) == len(records),
+        "llm_calls_with_cost_count": len(cost_records),
+        "llm_cost_complete": len(cost_records) == len(records),
+    }
+
+
 def _run_single_claim(
     *,
     index: int,
@@ -561,6 +618,7 @@ def _run_single_claim(
     llm: Any,
     preflight_context: CandidatePreflightContext | None,
     evidence_manifest: EvidencePartitionManifest | None,
+    candidate_strategy: str,
 ) -> dict[str, Any]:
     claim_id = str(row.get("claim_id"))
     try:
@@ -569,12 +627,21 @@ def _run_single_claim(
             raise ValueError("missing executable contract or gate verdict")
         results = row.get("gate_results") if isinstance(row.get("gate_results"), dict) else None
         evaluator = _candidate_evaluator(data_roots) if candidate_evaluation == "on" else None
+        candidate_generator = (
+            SelfRefineCandidateGenerator(
+                llm,
+                preflight_context=preflight_context,
+            )
+            if candidate_strategy == "self_refine"
+            else None
+        )
         state = run_claim_search(
             contract,
             row["gate_verdict"],
             results,
             config=config,
-            llm=llm,
+            candidate_generator=candidate_generator,
+            llm=llm if candidate_generator is None else None,
             evaluator=evaluator,
             preflight_context=preflight_context,
         )
@@ -633,6 +700,7 @@ def _run_single_claim_worker(payload: dict[str, Any]) -> dict[str, Any]:
         llm=llm,
         preflight_context=preflight_context,
         evidence_manifest=evidence_manifest,
+        candidate_strategy=str(payload.get("candidate_strategy") or "standard"),
     )
 
 
@@ -647,6 +715,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     )
     data_roots = _configured_roots(getattr(args, "data_root", None), DEFAULT_DATA_ROOTS)
     candidate_evaluation = str(getattr(args, "candidate_evaluation", "on"))
+    candidate_strategy = str(getattr(args, "candidate_strategy", "standard"))
     show_progress = not bool(getattr(args, "no_progress", False))
     evidence_manifest = load_evidence_manifest(getattr(args, "evidence_manifest", None))
     evidence_manifest_path = Path(args.evidence_manifest) if getattr(args, "evidence_manifest", None) else None
@@ -669,8 +738,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         evidence_manifest_path,
         evidence_manifest,
         llm_model_spec,
+        candidate_strategy,
     )
     initial_rows = [row for row in _iter_initial_rows(payload) if _needs_search(row)]
+    if getattr(args, "limit", None) is not None:
+        initial_rows = initial_rows[: max(0, int(args.limit))]
     claim_ids = [str(row.get("claim_id") or "") for row in initial_rows]
     duplicate_claim_ids = sorted(
         claim_id for claim_id in set(claim_ids) if claim_ids.count(claim_id) > 1
@@ -702,6 +774,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "partition_hashes_sha256": _sha256_json(provenance["partition_hashes"]),
         "data_roots": [str(root.resolve()) for root in data_roots],
         "candidate_evaluation": candidate_evaluation,
+        "candidate_strategy": candidate_strategy,
     }
     provenance["resume_identity"] = resume_identity
     provenance["resume_identity_sha256"] = _sha256_json(resume_identity)
@@ -837,7 +910,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             len(rendered_prompts)
             + int(provenance["superseded_transient_prompt_record_count"])
         )
-        summary = {**summarize_claim_search(states), **_replay_specific_summary(rows)}
+        summary = {
+            **summarize_claim_search(states),
+            **_replay_specific_summary(rows),
+            **_llm_usage_summary(states),
+        }
         summary.update(
             {
                 "searchable_claim_count": len(initial_rows),
@@ -860,6 +937,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "parallel_backend": active_parallel_backend,
             "config": config.model_dump(mode="json"),
             "candidate_evaluation": candidate_evaluation,
+            "candidate_strategy": candidate_strategy,
             "data_roots": [str(root) for root in data_roots],
             "evidence_manifest": str(args.evidence_manifest) if getattr(args, "evidence_manifest", None) else None,
             "provenance": provenance,
@@ -973,6 +1051,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         f"input={source} out_dir={out_dir} llm={llm_model_spec} "
         f"searchable_claims={len(initial_rows)} max_rounds={config.max_rounds} "
         f"max_candidates={config.max_candidates_per_round} candidate_evaluation={candidate_evaluation} "
+        f"candidate_strategy={candidate_strategy} "
         f"max_workers={max_workers} parallel_backend={parallel_backend}"
     )
 
@@ -1019,6 +1098,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                     llm=llm,
                     preflight_context=preflight_context,
                     evidence_manifest=evidence_manifest,
+                    candidate_strategy=candidate_strategy,
                 )
             )
     else:
@@ -1033,6 +1113,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 "candidate_evaluation": candidate_evaluation,
                 "llm_spec": args.llm,
                 "evidence_manifest": str(args.evidence_manifest) if getattr(args, "evidence_manifest", None) else None,
+                "candidate_strategy": candidate_strategy,
             }
             for index, row in enumerate(initial_rows, start=1)
             if index not in states_by_index
@@ -1108,6 +1189,12 @@ def build_parser() -> argparse.ArgumentParser:
         default="structured_diagnosis",
     )
     parser.add_argument(
+        "--candidate-strategy",
+        choices=["standard", "self_refine"],
+        default="standard",
+        help="Candidate generator; self_refine adds a separate critique call before each round's refinement.",
+    )
+    parser.add_argument(
         "--checkpoint-every",
         type=int,
         default=10,
@@ -1124,6 +1211,12 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument("--expected-parent-count", type=int, default=None)
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Optional deterministic prefix limit for smoke tests.",
+    )
     parser.add_argument("--max-workers", type=int, default=1, help="Number of worker processes for claim-level replay parallelism.")
     parser.add_argument("--parallel-backend", choices=["process", "thread"], default="process")
     parser.add_argument("--no-progress", action="store_true", help="Disable progress bars/log progress updates.")

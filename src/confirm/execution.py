@@ -16,7 +16,13 @@ from confirm.power import power_check
 from confirm.replication import replicate, replicate_brainwide
 from confirm.results import EffectResult, RegionTable
 from confirm.schema import validate_canonical
-from confirm.verdict import Verdict, decide, decide_brainwide
+from confirm.verdict import (
+    MinimumEvidenceTier,
+    Verdict,
+    classify_support,
+    decide,
+    decide_brainwide,
+)
 
 
 def cohort_path(data_dir: Path, cohort: str) -> Path:
@@ -26,6 +32,19 @@ def cohort_path(data_dir: Path, cohort: str) -> Path:
     if not path.exists():
         raise FileNotFoundError(f"Canonical cohort parquet not found: {path}")
     return path
+
+
+def resolve_execution_root(
+    contract: ClaimContract,
+    data_roots: list[Path],
+) -> Path:
+    """Return the first data root containing every cohort in a contract."""
+
+    needed = [contract.discovery_cohort, *contract.replication_cohorts]
+    for root in data_roots:
+        if all((root / f"{cohort}.parquet").exists() for cohort in needed):
+            return root
+    raise FileNotFoundError(f"No data root contains all contract cohorts: {needed}")
 
 
 def load_canonical(path: Path) -> pd.DataFrame:
@@ -123,6 +142,7 @@ def evaluate_contract(
     contract: ClaimContract,
     data_root: Path,
     ref_effect: float | None = None,
+    minimum_evidence_tier: MinimumEvidenceTier = "confirmed",
 ) -> tuple[Verdict, dict[str, Any], list[Path]]:
     """Evaluate one frozen contract against exact discovery/replication cohorts."""
 
@@ -147,6 +167,13 @@ def evaluate_contract(
         )
     return (
         verdict,
-        {"contract": contract.model_dump(), **results},
+        {
+            "contract": contract.model_dump(),
+            **results,
+            "support_decision": classify_support(
+                verdict.gates,
+                minimum_evidence_tier,
+            ),
+        },
         [discovery_path, *replication_paths],
     )

@@ -24,6 +24,46 @@ questions, contracts, diagnoses, and candidate proposals; deterministic code
 validates schema, evidence compatibility, anti-hacking constraints, and gate
 outcomes.
 
+## Claim-Evaluation And Feedback Baselines
+
+The comparison layer is separate from benchmark construction and does not
+modify NeuroClaimBench v2.1 or feedback sweep v7.
+
+Claim-evaluation baseline launcher:
+
+```bash
+PHASE=protocol scripts/launch_claim_evaluation_baselines.sh
+PHASE=significance scripts/launch_claim_evaluation_baselines.sh
+PHASE=llm_judge MODEL=openai:gpt-5.5 MAX_WORKERS=8 \
+  scripts/launch_claim_evaluation_baselines.sh
+PHASE=finalize scripts/launch_claim_evaluation_baselines.sh
+PHASE=analyze scripts/launch_claim_evaluation_baselines.sh
+```
+
+The conventional baseline requires unadjusted significance in discovery and
+every replication cohort with matching direction. The direct LLM judge sees
+an anonymized frozen contract and numerical evidence but not CONFIRM gate
+decisions or benchmark references. Benchmark references are joined only in
+`PHASE=analyze`, after both baseline decision files are frozen.
+
+Self-Refine feedback-control launcher:
+
+```bash
+TRACK=all scripts/launch_claim_search_self_refine.sh
+scripts/launch_feedback_baseline_analysis.sh
+```
+
+Self-Refine uses one critique call and one refinement call per active round.
+Its critique receives contracts, immutable constraints, executable source-data
+metadata, and only a binary unsupported status. Candidate outputs use the
+frozen v7 structured proposal schema and the same deterministic validation,
+execution, deduplication, and final multiplicity policy as the existing
+failure-specific and failure-blind arms. Exact provider token metadata is
+recorded for this new arm. Monetary cost is reported only when the provider
+returns it; the code does not infer a price from a mutable pricing table. The
+reused v7 arms predate usage instrumentation, so their exact call counts are
+reported but token and cost totals are marked unavailable.
+
 ## Stage 0: Literature Grounding
 
 Launcher:
@@ -133,6 +173,20 @@ It writes:
 - `claim_gate_audit.csv`;
 - `claims.csv`;
 - `summary.json`.
+
+The optional reporting threshold does not rerun or weaken any gate:
+
+```bash
+MINIMUM_EVIDENCE_TIER=discovery scripts/launch_confirm_gate_evaluation.sh
+MINIMUM_EVIDENCE_TIER=replicated scripts/launch_confirm_gate_evaluation.sh
+MINIMUM_EVIDENCE_TIER=confirmed scripts/launch_confirm_gate_evaluation.sh
+```
+
+`confirmed` is the default and reproduces the original strict verdict. The
+other choices add a separate `support_decision`: `discovery` requires valid
+search provenance, measured-confound checks, and multiplicity; `replicated`
+also requires replication. `final_label` and `gate_verdict_label` always retain
+the strict CONFIRM result used by failure diagnosis and feedback search.
 
 Current full Stage 2 result:
 
@@ -374,9 +428,10 @@ development runs. Audit artifacts therefore set
 `evidence_freshness=previously_queried`; they are retrospective benchmark
 evidence, not pristine prospective confirmation.
 
-The completed v7 structured-versus-generic control uses the exact completed sweep
-source and structured `R3/C5` artifact. The launcher runs only the missing
-generic-retry arm:
+The completed v7 failure-specific-versus-failure-blind control uses the exact
+completed sweep source and structured `R3/C5` artifact. The launcher runs only
+the missing failure-blind arm (stored under the legacy path name
+`generic_retry`):
 
 ```bash
 OUT=review-stage/claim-search-gpt55-control-r3-c5-v7 \
@@ -384,8 +439,8 @@ SWEEP=review-stage/claim-search-gpt55-sweep-v7 \
 MAX_WORKERS=24 scripts/launch_claim_search_control.sh
 ```
 
-The control withholds gate-specific localization and evidence from
-`generic_retry`; both arms retain the same source, catalog, model, budget,
+The control withholds gate-specific localization and evidence from the
+failure-blind retry; both arms retain the same source, catalog, model, budget,
 validator, and multiplicity policy. `control_summary.json` and
 `control_parent_pairs.csv` verify those invariants and report paired descriptive
 differences. One realization is not a causal estimate of diagnosis benefit.
@@ -395,8 +450,8 @@ search-relevant implementation files and separately reports the complete hashes;
 `confirm.frozen_evidence` is analysis-only and does not force a search rerun.
 The completed control has 215 matched parents and zero execution errors or
 excluded-evidence queries. Structured diagnosis uses 653 calls and supports 70
-candidates across 24 parents; generic retry's completed trace uses 693 calls and
-supports 49 candidates across 20 parents. Generic retry also records 72
+candidates across 24 parents; failure-blind retry's completed trace uses 693
+calls and supports 49 candidates across 20 parents. Failure-blind retry also records 72
 superseded transport-failed attempts, for 765 total API attempts. Paired support
 cells are 17 both, seven structured-only, three generic-only, and 188 neither.
 The legacy structured artifact lacks the newer explicit search-only fingerprint

@@ -14,3 +14,4 @@ review-stage/_archive_*/
 review-stage/*
 !review-stage/README.md
 viz/
+external/
