@@ -715,7 +715,7 @@ def _plot_budget(rows: list[dict[str, Any]], out_dir: Path) -> list[Path]:
     fig.tight_layout()
     png = out_dir / "fig_budget_heatmaps.png"
     pdf = out_dir / "fig_budget_heatmaps.pdf"
-    fig.savefig(png, dpi=220, bbox_inches="tight")
+    fig.savefig(png, dpi=300, bbox_inches="tight")
     fig.savefig(pdf, bbox_inches="tight")
     plt.close(fig)
     return [png, pdf]
@@ -723,36 +723,225 @@ def _plot_budget(rows: list[dict[str, Any]], out_dir: Path) -> list[Path]:
 
 def _plot_funnel(rows: list[dict[str, Any]], reference_arm: str, out_dir: Path) -> list[Path]:
     configure_matplotlib(out_dir)
+    import matplotlib as mpl
     import matplotlib.pyplot as plt
 
-    selected = sorted((row for row in rows if row["arm_id"] == reference_arm), key=lambda row: row["stage_order"])
-    fig, axis = plt.subplots(figsize=(9, 5), constrained_layout=True)
-    positions = np.arange(len(selected))
-    values = [row["count"] for row in selected]
-    axis.barh(positions, values, color="#2A6F97")
-    stage_labels = {
-        "llm_calls": "LLM calls",
-        "parsed_proposals": "Parsed proposals",
-        "used_response_proposals": "Used-response proposals",
-        "unique_retained": "Unique retained",
-        "policy_valid": "Policy valid",
-        "source_executed": "Source executed",
-        "provisional_pass": "Provisional pass",
-        "final_multiplicity_adjusted_support": "Final multiplicity-adjusted support",
+    mpl.rcParams.update(
+        {
+            "font.family": "sans-serif",
+            "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans", "sans-serif"],
+            "font.size": 7,
+            "axes.linewidth": 0.8,
+            "axes.spines.right": False,
+            "axes.spines.top": False,
+            "legend.frameon": False,
+            "pdf.fonttype": 42,
+            "svg.fonttype": "none",
+        }
+    )
+
+    stage_order = (
+        "llm_calls",
+        "parsed_proposals",
+        "used_response_proposals",
+        "unique_retained",
+        "policy_valid",
+        "source_executed",
+        "provisional_pass",
+        "final_multiplicity_adjusted_support",
+    )
+    selected = {
+        str(row["stage"]): int(row["count"])
+        for row in rows
+        if row["arm_id"] == reference_arm
     }
-    axis.set_yticks(positions, labels=[stage_labels.get(row["stage"], row["stage"].replace("_", " ")) for row in selected])
-    axis.invert_yaxis()
-    axis.set_xlabel("Count")
     reference_label = reference_arm.upper().replace("_C", "/K")
-    axis.set_title(f"Search funnel: {reference_label}")
-    for position, value in zip(positions, values):
-        axis.text(value, position, f" {value:,}", va="center", fontsize=8)
+    missing = [stage for stage in stage_order if stage not in selected]
+    if missing:
+        raise ValueError(f"Reference-arm funnel is missing stages: {missing}")
+    if any(selected[stage] < 0 for stage in stage_order):
+        raise ValueError("Reference-arm funnel counts must be non-negative.")
+
+    generation_stages = stage_order[:6]
+    generation_labels = (
+        "LLM calls",
+        "Parsed proposals",
+        "Used-response proposals",
+        "Unique retained",
+        "Policy valid",
+        "Source executed",
+    )
+    generation_values = [selected[stage] for stage in generation_stages]
+    generation_colors = (
+        "#767676",
+        "#B4C0E4",
+        "#B4C0E4",
+        "#B4C0E4",
+        "#7884B4",
+        "#7884B4",
+    )
+
+    provisional = selected["provisional_pass"]
+    final = selected["final_multiplicity_adjusted_support"]
+    executed = selected["source_executed"]
+    retracted = provisional - final
+    if retracted < 0:
+        raise ValueError("Final support cannot exceed provisional support.")
+    provisional_rate = provisional / executed if executed else math.nan
+    final_retention = final / provisional if provisional else math.nan
+
+    fig, (axis_generation, axis_support) = plt.subplots(
+        1,
+        2,
+        figsize=(7.2, 2.65),
+        gridspec_kw={"width_ratios": [2.2, 1.0]},
+        constrained_layout=True,
+    )
+
+    generation_positions = np.arange(len(generation_stages))
+    axis_generation.barh(
+        generation_positions,
+        generation_values,
+        height=0.62,
+        color=generation_colors,
+        edgecolor="none",
+        zorder=2,
+    )
+    axis_generation.set_yticks(generation_positions, labels=generation_labels)
+    axis_generation.invert_yaxis()
+    axis_generation.set_xlim(0, max(generation_values) * 1.13)
+    axis_generation.set_xlabel("Count")
+    axis_generation.set_title(
+        "a  Generation and execution",
+        loc="left",
+        fontsize=8.5,
+        fontweight="bold",
+        pad=23,
+    )
+    axis_generation.text(
+        0.0,
+        1.02,
+        f"{reference_label}; one response can contain multiple proposals",
+        transform=axis_generation.transAxes,
+        ha="left",
+        va="bottom",
+        fontsize=6.5,
+        color="#4D4D4D",
+    )
+    axis_generation.tick_params(axis="y", length=0)
+    for position, value in zip(generation_positions, generation_values):
+        axis_generation.text(
+            value + max(generation_values) * 0.015,
+            position,
+            f"{value:,}",
+            va="center",
+            fontsize=7,
+            color="#272727",
+        )
+
+    support_positions = np.arange(2)
+    axis_support.barh(
+        [support_positions[0]],
+        [provisional],
+        height=0.62,
+        color="#B4C0E4",
+        edgecolor="none",
+        zorder=2,
+    )
+    axis_support.barh(
+        [support_positions[1]],
+        [final],
+        height=0.62,
+        color="#0F4D92",
+        edgecolor="none",
+        zorder=2,
+    )
+    if retracted:
+        axis_support.barh(
+            [support_positions[1]],
+            [retracted],
+            left=[final],
+            height=0.62,
+            color="#F6CFCB",
+            edgecolor="#B64342",
+            hatch="////",
+            linewidth=0.45,
+            zorder=2,
+        )
+    axis_support.set_yticks(support_positions, labels=("Provisional pass", "Final support"))
+    axis_support.invert_yaxis()
+    axis_support.set_xlim(0, max(100, math.ceil(provisional / 10) * 10))
+    axis_support.set_xlabel("Count")
+    axis_support.set_title(
+        "b  Support adjudication",
+        loc="left",
+        fontsize=8.5,
+        fontweight="bold",
+        pad=23,
+    )
+    axis_support.text(
+        0.0,
+        1.02,
+        (
+            f"{provisional_rate:.1%} pass provisionally; "
+            f"{final_retention:.1%} remain after final adjustment"
+        ),
+        transform=axis_support.transAxes,
+        ha="left",
+        va="bottom",
+        fontsize=6.5,
+        color="#4D4D4D",
+    )
+    axis_support.tick_params(axis="y", length=0)
+    axis_support.text(
+        provisional / 2,
+        support_positions[0],
+        f"{provisional:,}",
+        ha="center",
+        va="center",
+        fontsize=7,
+        fontweight="bold",
+        color="#272727",
+    )
+    axis_support.text(
+        final / 2,
+        support_positions[1],
+        f"{final:,} retained",
+        ha="center",
+        va="center",
+        fontsize=7,
+        fontweight="bold",
+        color="white",
+    )
+    if retracted:
+        axis_support.text(
+            final + retracted / 2,
+            support_positions[1],
+            f"{retracted:,}",
+            ha="center",
+            va="center",
+            fontsize=6.5,
+            fontweight="bold",
+            color="#8A2D2B",
+        )
+        axis_support.text(
+            final + retracted / 2,
+            support_positions[1] - 0.45,
+            "retracted",
+            ha="center",
+            va="center",
+            fontsize=6.2,
+            color="#8A2D2B",
+        )
+
     png = out_dir / "fig_search_funnel.png"
     pdf = out_dir / "fig_search_funnel.pdf"
-    fig.savefig(png, dpi=220)
-    fig.savefig(pdf)
+    svg = out_dir / "fig_search_funnel.svg"
+    fig.savefig(svg, bbox_inches="tight", pad_inches=0.03)
+    fig.savefig(pdf, bbox_inches="tight", pad_inches=0.03)
+    fig.savefig(png, dpi=300, bbox_inches="tight", pad_inches=0.03)
     plt.close(fig)
-    return [png, pdf]
+    return [svg, pdf, png]
 
 
 def _plot_stability(arm_ids: list[str], matrix: np.ndarray, out_dir: Path) -> list[Path]:
@@ -770,7 +959,7 @@ def _plot_stability(arm_ids: list[str], matrix: np.ndarray, out_dir: Path) -> li
     fig.colorbar(image, ax=axis, label="Jaccard")
     png = out_dir / "fig_lineage_stability.png"
     pdf = out_dir / "fig_lineage_stability.pdf"
-    fig.savefig(png, dpi=220)
+    fig.savefig(png, dpi=300)
     fig.savefig(pdf)
     plt.close(fig)
     return [png, pdf]
