@@ -19,6 +19,14 @@ Updated: 2026-07-23
 | Publishable benchmark release | `benchmark/neuroclaimbench-v2.1/` | `SHA256SUMS` |
 | Paper claim audit | `review-stage/paper-claim-audit-v21/` | `PAPER_CLAIM_AUDIT.md` |
 
+## Archived, not active evidence
+
+| Directory | Replacement |
+|---|---|
+| `review-stage/_archive_20260730_inactive_probes/multillm-probe-v2/` | None; restore only for a renewed model-comparison study. |
+| `review-stage/_archive_20260730_superseded_runs/claim-search-gpt55-control-r3-c5-v6-fixed/` | `claim-search-gpt55-control-r3-c5-v7/` |
+| `review-stage/_archive_20260730_superseded_runs/simplification-audit-20260723/` | v2.1 compact release and audit |
+
 These directories are immutable inputs or completed descriptive analyses for
 the next feedback-loop run. Their primary hashes are recorded in
 `RESULTS_SHA256SUMS`.

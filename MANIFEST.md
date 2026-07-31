@@ -1,6 +1,12 @@
 # Research Output Manifest
 
-Updated: 2026-07-23
+Updated: 2026-07-30
+
+This is the active-project map for the shared lab workspace. Every directory
+belongs to one of four classes: **active** (used by the current code or
+paper), **archived** (retained provenance, not current evidence), **generated**
+(recreated locally and ignored), or **external baseline** (independent
+comparison checkout).
 
 ## Active Documents
 
@@ -13,6 +19,9 @@ Updated: 2026-07-23
 | `EXTERNAL_BENCHMARK_RESULTS.md` | External-evidence coverage and limitations. |
 | `review-stage/README.md` | Generated result-directory index. |
 | `src/bench/README.md` | Active benchmark runner index. |
+| `README.md` | Lab entry point, setup, and navigation. |
+| `docs/LAB_HANDOFF.md` | Local layout, archive, configuration, and baseline policy. |
+| `docs/ARCHIVE_INDEX.md` | Archived-material index and restoration procedure. |
 
 Integrity reports are stored with the run they audit; there is no root-level
 audit that ambiguously applies to every run.
@@ -37,8 +46,24 @@ audit that ambiguously applies to every run.
 | `review-stage/neuroclaimbench-v2.1/` | Current alignment, adjudication, reference, evaluation, analysis, and release artifacts. |
 | `benchmark/neuroclaimbench-v2.1/` | Lean checksummed publishable benchmark release. |
 
-Superseded results are recoverable under the ignored local directory
-`review-stage/_archive_20260719_pre_v7/`. They are not active evidence.
+Superseded results are recoverable under ignored local directories matching
+`review-stage/_archive_*/`. They are not active evidence; see
+`docs/ARCHIVE_INDEX.md` for their replacements.
+
+## Active source and data layout
+
+| Path | Class | Purpose |
+|---|---|---|
+| `src/confirm/`, `tests/`, `scripts/`, `nbs/`, `nbs_data/` | active | CONFIRM implementation, validation, launchers, analysis, and preparation. |
+| `configs/evidence_partitions.yml` | active | Portable prepared-cohort evidence layout. |
+| `configs/external_datasets.example.yml` | active template | Copy to the ignored local configuration before external preparation. |
+| `data/` | generated/local active | Restricted raw data, prepared cohorts, caches, and benchmark source packages. |
+| `review-stage/` | generated/local active | Frozen experiment outputs listed above. |
+| `benchmark/neuroclaimbench-v2.1/` | active | Lean checksummed benchmark metadata. |
+| `external/NeuroClaw/`, `external/veritas/` | external baseline | Pinned comparison checkouts; not part of the default test suite. |
+| `paper/` | active submodule | Manuscript source, active tables, and figures. |
+| `docs/archive/`, `review-stage/_archive_*/` | archived | Recoverable historical material, excluded from active pipelines. |
+| `.matplotlib/`, `build/`, `viz/` | generated | Caches or generated render output; not versioned. |
 
 ## Active Launchers
 
@@ -65,5 +90,5 @@ review-stage/confirm-gates-all-gpt55/combined_benchmark_results.json
 
 Generated `review-stage/` outputs are ignored by git except for its index file.
 External preparation remains isolated under `scripts/data_processing/`, with
-dataset policy in `configs/external_datasets.yml` and evidence roles in
-`configs/evidence_partitions.yml`.
+dataset policy in the ignored `configs/external_datasets.local.yml` (created
+from the committed example) and evidence roles in `configs/evidence_partitions.yml`.

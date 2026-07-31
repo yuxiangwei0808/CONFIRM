@@ -1,18 +1,3 @@
-numpy
-pandas
-scipy
-statsmodels
-scikit-learn
-nibabel
-nilearn
-neuroHarmonize
-neuroCombat
-pyyaml
-pydantic>=2
-pyarrow
-h5py
-pytest
-python-dotenv
-openai
-anthropic
-google-genai
+# The package metadata in pyproject.toml is authoritative.
+# This compatibility file installs the package together with its test tools.
+-e .[dev]

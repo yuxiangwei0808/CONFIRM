@@ -4,14 +4,15 @@ external_init() {
   REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
   SSH_HOST="${SSH_HOST:-${ARCDEV_HOST:-arcdev}}"
   ARCDEV_HOST="$SSH_HOST"
-  REMOTE_ROOT="${REMOTE_ROOT:-/data/users1/ywei/confirm_external_prep}"
-  REMOTE_PYTHON="${REMOTE_PYTHON:-/home/users/ywei13/.conda/envs/playground/bin/python}"
+  : "${REMOTE_ROOT:?Set REMOTE_ROOT to the writable lab run directory}"
+  : "${REMOTE_PYTHON:?Set REMOTE_PYTHON to the Python executable on the remote host}"
+  EXTERNAL_DATASET_CONFIG="${EXTERNAL_DATASET_CONFIG:-configs/external_datasets.local.yml}"
   RUN_ID="${RUN_ID:-external-$(date +%Y%m%dT%H%M%S)}"
   REMOTE_RUN_DIR="$REMOTE_ROOT/runs/$RUN_ID"
   REMOTE_CODE_DIR="$REMOTE_RUN_DIR/code"
   FOLLOW="${FOLLOW:-1}"
   DEPLOY="${DEPLOY:-1}"
-  export REPO_ROOT SSH_HOST ARCDEV_HOST REMOTE_ROOT REMOTE_PYTHON RUN_ID REMOTE_RUN_DIR REMOTE_CODE_DIR FOLLOW DEPLOY
+  export REPO_ROOT SSH_HOST ARCDEV_HOST REMOTE_ROOT REMOTE_PYTHON EXTERNAL_DATASET_CONFIG RUN_ID REMOTE_RUN_DIR REMOTE_CODE_DIR FOLLOW DEPLOY
 }
 
 external_deploy() {
@@ -38,6 +39,7 @@ external_start() {
     REMOTE_RUN_DIR="$REMOTE_RUN_DIR" \
     REMOTE_CODE_DIR="$REMOTE_CODE_DIR" \
     REMOTE_PYTHON="$REMOTE_PYTHON" \
+    EXTERNAL_DATASET_CONFIG="$EXTERNAL_DATASET_CONFIG" \
     DATASETS="${DATASETS:-all}" \
     MAX_WORKERS="${MAX_WORKERS:-8}" \
     FOLLOW="$FOLLOW" \

@@ -152,7 +152,7 @@ def _aparc_text(offset: float, thickness: float) -> str:
 
 
 def test_external_registry_is_pydantic_valid_and_has_declared_quarantines():
-    registry = load_registry(ROOT / "configs/external_datasets.yml")
+    registry = load_registry(ROOT / "configs/external_datasets.example.yml")
 
     by_id = {dataset.dataset_id: dataset for dataset in registry.datasets}
     assert by_id["Olin_ASD_SZ"].quarantine
@@ -539,10 +539,10 @@ def test_descriptor_import_requires_explicit_equal_length_index_before_metadata_
             "sex": ["F", "M"],
         }
     ).to_csv(metadata, index=False)
-    dataset = load_registry(ROOT / "configs/external_datasets.yml").selected(["EHBS"])[0].model_copy(
+    dataset = load_registry(ROOT / "configs/external_datasets.example.yml").selected(["EHBS"])[0].model_copy(
         update={
             "metadata": MetadataSpec(adapter="ehbs", paths=[str(metadata)]),
-            "fmri": load_registry(ROOT / "configs/external_datasets.yml")
+            "fmri": load_registry(ROOT / "configs/external_datasets.example.yml")
             .selected(["EHBS"])[0]
             .fmri.model_copy(
                 update={

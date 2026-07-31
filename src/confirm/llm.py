@@ -722,10 +722,31 @@ def _openrouter_strict_json_schema(response_model: type[Any]) -> dict[str, Any]:
     return schema
 
 
+# Anthropic routes reject range and length constraints in structured-output
+# schemas. Dropping them only relaxes the provider-side schema; the response is
+# still validated against the Pydantic model on return, so an out-of-range value
+# surfaces as a drafting failure rather than passing silently.
+_OPENROUTER_UNSUPPORTED_SCHEMA_KEYS = (
+    "minItems",
+    "maxItems",
+    "uniqueItems",
+    "minimum",
+    "maximum",
+    "exclusiveMinimum",
+    "exclusiveMaximum",
+    "multipleOf",
+    "minLength",
+    "maxLength",
+    "pattern",
+    "minProperties",
+    "maxProperties",
+)
+
+
 def _remove_openrouter_unsupported_schema_fields(node: Any) -> None:
     if isinstance(node, dict):
-        node.pop("minItems", None)
-        node.pop("maxItems", None)
+        for key in _OPENROUTER_UNSUPPORTED_SCHEMA_KEYS:
+            node.pop(key, None)
         for value in node.values():
             _remove_openrouter_unsupported_schema_fields(value)
     elif isinstance(node, list):

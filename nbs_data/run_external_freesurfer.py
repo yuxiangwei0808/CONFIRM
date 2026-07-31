@@ -411,10 +411,10 @@ def _progress_message(index: int, total: int, result: dict[str, Any]) -> str:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", default="configs/external_datasets.yml")
+    parser.add_argument("--config", default="configs/external_datasets.local.yml")
     parser.add_argument("--datasets", required=True, help="Comma-separated dataset IDs or 'all'.")
     parser.add_argument("--out-root", required=True)
-    parser.add_argument("--subjects-root", default="/data/users1/ywei/confirm_external_prep/subjects")
+    parser.add_argument("--subjects-root", default="data/prepared_data/external_candidates/subjects")
     parser.add_argument("--engine", choices=["fastsurfer", "recon-all"], default="fastsurfer")
     parser.add_argument("--freesurfer-home", default=None)
     parser.add_argument("--expected-freesurfer-version", default="7.4.1")

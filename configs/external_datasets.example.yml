@@ -1,0 +1,83 @@
+# Copy to external_datasets.local.yml and replace all <...> placeholders.
+# The local file is ignored by Git because dataset locations vary by machine.
+version: 1
+remote_output_root: <REMOTE_ROOT>/confirm_external_prep
+
+datasets:
+  - dataset_id: EHBS
+    target_families: [normative_fmri, ad_aging]
+    quarantine: false
+    metadata:
+      adapter: ehbs
+      paths: [<DATA_ROOT>/EHBS/fmri/metadata_with_text_medical.csv]
+      required_columns: [subject_id, age, sex]
+    structural:
+      root: <DATA_ROOT>/EHBS/t1/t1w
+      pattern: "**/T1w.nii"
+      layout: ehbs_single
+    fmri:
+      backend: descriptor_csv
+      descriptor_path: <DATA_ROOT>/EHBS/fmri/descriptors/fc_self_descriptors.csv
+      descriptor_index_path: <DATA_ROOT>/EHBS/fmri/metadata.csv
+      descriptor_subject_column: subject
+      descriptor_session_column: session
+      metadata_path: <DATA_ROOT>/EHBS/fmri/metadata_with_text_medical.csv
+
+  - dataset_id: BLSA
+    target_families: [ad_aging]
+    quarantine: false
+    metadata:
+      adapter: blsa
+      paths: [<DATA_ROOT>/BLSA/demographics.xlsx]
+      required_columns: [session, Age, sex]
+    structural:
+      root: <DATA_ROOT>/BLSA/smri/data
+      pattern: "**/anat/anat.nii"
+      layout: blsa_dated_visit
+
+  - dataset_id: Olin_ASD_SZ
+    target_families: [asd, psychosis]
+    quarantine: true
+    quarantine_reasons: [authoritative_phenotype_unavailable, feature_parity_blocked]
+    metadata:
+      adapter: none
+      paths: []
+      required_columns: [subject_id, age, sex, dx]
+    structural:
+      root: <DATA_ROOT>/Olin_ASD_SZ
+      pattern: "**/T1.nii"
+      layout: olin_acquisition
+
+  - dataset_id: Shile_Nanjing
+    target_families: [psychosis]
+    quarantine: true
+    quarantine_reasons: [authoritative_phenotype_unavailable]
+    metadata:
+      adapter: none
+      paths: []
+      required_columns: [subject_id, age, sex, dx]
+    structural:
+      root: <DATA_ROOT>/Shile_Nanjing
+      pattern: "**/ses_01/anat/T1.nii"
+      layout: shile_bids
+      existing_subjects_dir: <REMOTE_ROOT>/confirm_fastsurfer
+
+  - dataset_id: PK_MPRC
+    target_families: [psychosis]
+    quarantine: false
+    metadata:
+      adapter: pk_mprc
+      paths: [<DATA_ROOT>/PK_MPRC/demographics.xlsx]
+      required_columns: [zid, dx(0=crl,1=scz), Age, sex (0=F,1=M)]
+    structural:
+      root: <DATA_ROOT>/PK_MPRC/sMRI
+      pattern: "**/anat.nii"
+      layout: pk_mprc
+    fmri:
+      backend: gift_timecourses
+      ica_dir: <RESULTS_ROOT>/ICA/PK
+      ica_prefix: PK
+      subject_order_path: <RESULTS_ROOT>/ICA/PK/PKSubject.mat
+      subject_id_regex: "/Scanner[0-9]+_([^/]+)/"
+      session_label: ses-01
+      component_count: 100

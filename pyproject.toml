@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "confirm"
 version = "0.1.0"
 description = "CONFIRM: CPU-only statistical claim governance for neuroimaging derivatives."
-readme = "IMPLEMENTATION_NOTES.md"
+readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
   "numpy",
@@ -17,6 +17,7 @@ dependencies = [
   "nibabel",
   "nilearn",
   "neuroHarmonize",
+  "neuroCombat",
   "pyyaml",
   "pydantic>=2",
   "pyarrow",
@@ -28,6 +29,9 @@ dependencies = [
   "google-genai",
 ]
 
+[project.optional-dependencies]
+dev = ["pytest"]
+
 [project.scripts]
 confirm = "confirm.cli:main"
 
@@ -36,3 +40,6 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
 SSH_HOST="${SSH_HOST:-${ARCDEV_HOST:-arcdev}}"
-REMOTE_ROOT="${REMOTE_ROOT:-/data/users1/ywei/confirm_external_prep}"
+: "${REMOTE_ROOT:?Set REMOTE_ROOT to the remote preparation directory}"
 RUN_ID="${RUN_ID:?RUN_ID is required}"
 REMOTE_RUN_DIR="$REMOTE_ROOT/runs/$RUN_ID"
 LOCAL_RUN_DIR="${LOCAL_RUN_DIR:-data/prepared_data/external_candidates/$RUN_ID}"
@@ -32,7 +32,7 @@ if [[ "$PROMOTE" == "1" ]]; then
       --out-root data/prepared_data/evidence_partitions \
       --check-overlap
     "$PYTHON" -m nbs_data.prepare_external_evidence coverage \
-      --config configs/external_datasets.yml \
+      --config "${EXTERNAL_DATASET_CONFIG:-configs/external_datasets.local.yml}" \
       --datasets all \
       --out-root "$LOCAL_RUN_DIR" \
       --evidence-manifest data/prepared_data/evidence_partitions/manifest.json \

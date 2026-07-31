@@ -37,9 +37,9 @@ AGENT_LABEL = "NeuroClaw-adapted"
 
 #: Scored strata retained. External-transfer strata are deliberately excluded.
 METRICS: tuple[tuple[str, str, str, str], ...] = (
-    ("recovery", "internal_scientific", "confirm", "Literature recovery"),
-    ("unsafe_support", "internal_scientific", "abstain", "Unsafe literature support"),
-    ("synthetic_support", "synthetic_control", "abstain", "Synthetic false confirmations"),
+    ("recovery", "internal_scientific", "confirm", "Recovery (literature)"),
+    ("unsafe_support", "internal_scientific", "abstain", "False support (literature)"),
+    ("synthetic_support", "synthetic_control", "abstain", "False confirmations on controls"),
 )
 
 ARM_COLORS = {

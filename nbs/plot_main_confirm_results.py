@@ -15,10 +15,14 @@ import numpy as np
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
-plt.rcParams["font.family"] = "sans-serif"
-plt.rcParams["font.sans-serif"] = ["Arial", "DejaVu Sans", "Liberation Sans"]
-plt.rcParams["svg.fonttype"] = "none"
-plt.rcParams["pdf.fonttype"] = 42
+plt.rcParams.update(
+    {
+        "font.family": "sans-serif",
+        "font.sans-serif": ["Arial", "DejaVu Sans", "Liberation Sans"],
+        "svg.fonttype": "none",
+        "pdf.fonttype": 42,
+    }
+)
 
 
 TIER_LABELS = {
@@ -198,7 +202,10 @@ def _baseline_metric(
         stratum=stratum,
         reference_disposition=disposition,
     )
-    return _metric(row["supported_count"], row["available_count"])
+    # Denominator is every eligible case, not just those a method could score.
+    # An unscoreable case counts as unsupported, so all methods share one
+    # denominator (see _common_scalar_metrics).
+    return _metric(row["supported_count"], row["eligible_count"])
 
 
 def _tier_metric(
@@ -219,11 +226,13 @@ def _common_scalar_metrics(
     for row in rows:
         if row["method"] in methods:
             by_task.setdefault(row["task_id"], {})[row["method"]] = row
+    # Every method must have scored the task. A method that cannot evaluate a
+    # case counts as not supporting it, the same fail-closed convention CONFIRM
+    # applies to missing gate information, so all methods share one denominator.
     common = {
         task_id: method_rows
         for task_id, method_rows in by_task.items()
         if methods == set(method_rows)
-        and all(row["available"].lower() == "true" for row in method_rows.values())
     }
     result: dict[str, dict[str, dict[str, Any]]] = {}
     for method in SCALAR_METHOD_ORDER:
@@ -471,7 +480,7 @@ def _plot_policy_comparison(
             plt.Rectangle((0, 0), 1, 1, color=RECOVERY_COLOR),
             plt.Rectangle((0, 0), 1, 1, color=UNSAFE_COLOR),
         ],
-        labels=("Positive references recovered", "Abstention references supported"),
+        labels=("Recovery (positive references)", "False support (literature)"),
         loc="lower left",
         bbox_to_anchor=(0.0, 1.18),
         ncol=2,
@@ -506,7 +515,7 @@ def _plot_policy_comparison(
     axes[2].set_xticks((0, 15, 30))
     axes[2].set_xlabel("Controls supported (%)", fontsize=6.7)
     axes[2].set_title(
-        "Synthetic negative controls\n(lower is better)",
+        "False confirmations on controls\n(lower is better)",
         loc="left",
         fontsize=7.5,
         fontweight="bold",
@@ -660,19 +669,21 @@ def _write_feedback_table(
         "failure_specific": "CONFIRM diagnosis",
     }
     lines = [
-        r"\begin{table*}[t]",
+        r"\begin{table}[t]",
         r"\centering",
         r"\caption{\textbf{Follow-up search under a matched three-round,",
         r"five-candidate budget.} All methods use GPT-5.5 and the same",
-        r"contracts, validator, and multiplicity policy. Source support is",
-        r"same-data exploratory support after final multiplicity adjustment.",
-        r"Holdout results are retrospective.}",
+        r"contracts, validator, and multiplicity policy. Candidates are the",
+        r"contracts evaluated on source data; supported candidates are",
+        r"same-data exploratory passes after final multiplicity adjustment.",
+        r"Parents counts abstained parents with at least one supported",
+        r"candidate. Holdout results are retrospective.}",
         r"\label{tab:feedback_control_main}",
-        r"\small",
-        r"\setlength{\tabcolsep}{7pt}",
+        r"\scriptsize",
+        r"\setlength{\tabcolsep}{4pt}",
         r"\begin{tabular}{@{}lrrrrr@{}}",
         r"\toprule",
-        r"Method & LLM calls & Evaluated & Source-supported & Supported parents & Holdout support \\",
+        r"Method & Calls & Cand. & Supported & Parents & Holdout \\",
         r"\midrule",
     ]
     for method in order:
@@ -702,7 +713,7 @@ def _write_feedback_table(
         [
             r"\bottomrule",
             r"\end{tabular}",
-            r"\end{table*}",
+            r"\end{table}",
             "",
         ]
     )
@@ -781,8 +792,8 @@ def _common_task_ids(
     for task_id, method_rows in by_task.items():
         if methods != set(method_rows):
             continue
-        if not all(row["available"].lower() == "true" for row in method_rows.values()):
-            continue
+        # Unavailable counts as unsupported (see _common_scalar_metrics), so the
+        # task stays in the shared denominator.
         example = method_rows["confirm"]
         output.setdefault(
             (example["stratum"], example["reference_disposition"]),
@@ -840,16 +851,16 @@ def _write_common_scalar_table(
         r"\centering",
         r"\caption{\textbf{Claim-evaluation methods on common scalar",
         r"coverage.} All methods score the same scientific claims and synthetic",
-        r"controls. Recovery is better when higher; unsafe and synthetic support",
+        r"controls. Recovery is better when higher; false and synthetic support",
         r"are better when lower. CONFIRM is the only family that reaches zero",
-        r"synthetic false support, and no adapted neuroimaging system is",
+        r"false support on the constructed controls, and no adapted system is",
         r"Pareto-superior to it.}",
         r"\label{tab:claim_evaluation_common_scalar}",
         r"\small",
         r"\setlength{\tabcolsep}{7pt}",
         r"\begin{tabular}{@{}lrrr@{}}",
         r"\toprule",
-        r"Method & Recovery & Unsafe support & Synthetic support \\",
+        r"Method & Recovery & False support & Synthetic support \\",
         r"\midrule",
         r"\multicolumn{4}{@{}l}{\textit{Adapted neuroimaging systems}}\\",
     ]
@@ -896,7 +907,7 @@ def _write_external_tier_table(
         r"\setlength{\tabcolsep}{7pt}",
         r"\begin{tabular}{@{}llrrr@{}}",
         r"\toprule",
-        r"External set & Policy & Positive recovery & Unsafe support & Controls \\",
+        r"External set & Policy & Positive recovery & False support & Controls \\",
         r"\midrule",
     ]
     for dataset_label, literature_stratum, control_stratum in (
@@ -1023,7 +1034,7 @@ def _plot_frontier(
     data: dict[str, dict[str, dict[str, Any]]],
     output_prefix: Path,
 ) -> list[dict[str, object]]:
-    """Recovery vs safety frontier: CONFIRM is non-dominated at low false support."""
+    """Recovery vs. false support: CONFIRM is non-dominated at low false support."""
 
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
     plt.rcParams.update(
@@ -1079,15 +1090,15 @@ def _plot_frontier(
             zorder=3,
         )
     scatter.set_xlabel(
-        f"Synthetic false confirmations (of {synthetic_total})", fontsize=6.7
+        f"False confirmations on controls (of {synthetic_total})", fontsize=6.7
     )
-    scatter.set_ylabel(f"Scientific claims recovered (of {recovery_total})", fontsize=6.7)
+    scatter.set_ylabel(f"Recovery (of {recovery_total} positive refs)", fontsize=6.7)
     scatter.set_xlim(-3, 62)
     scatter.set_ylim(13, 22)
     scatter.grid(color="#E9E9E9", linewidth=0.55, zorder=0)
     scatter.tick_params(labelsize=6.2)
     scatter.set_title(
-        "a  Recovery vs. synthetic false support",
+        "a  Recovery vs. false support on controls",
         loc="left",
         fontsize=7.5,
         fontweight="bold",
@@ -1132,8 +1143,8 @@ def _plot_frontier(
     bars.tick_params(labelsize=6.2, length=0)
     bars.legend(
         handles=[
-            Patch(facecolor=RECOVERY_COLOR, label="Scientific claims recovered"),
-            Patch(facecolor=UNSAFE_COLOR, label="Unsafe literature support"),
+            Patch(facecolor=RECOVERY_COLOR, label="Recovery (positive references)"),
+            Patch(facecolor=UNSAFE_COLOR, label="False support (literature)"),
         ],
         fontsize=6.2,
         loc="lower left",
@@ -1193,12 +1204,17 @@ def _plot_frontier(
             )
 
     figure.tight_layout()
-    figure.savefig(output_prefix.with_suffix(".svg"), bbox_inches="tight")
-    figure.savefig(output_prefix.with_suffix(".pdf"), bbox_inches="tight")
+    figure.savefig(
+        output_prefix.with_suffix(".svg"), bbox_inches="tight", pad_inches=0.02
+    )
+    figure.savefig(
+        output_prefix.with_suffix(".pdf"), bbox_inches="tight", pad_inches=0.02
+    )
     figure.savefig(
         output_prefix.with_suffix(".png"),
         dpi=600,
         bbox_inches="tight",
+        pad_inches=0.02,
         facecolor="white",
     )
     plt.close(figure)
@@ -1269,7 +1285,12 @@ def main() -> int:
     )
     parser.add_argument(
         "--ablation-table",
-        default="paper/figures/tab_confirm_gate_ablation.tex",
+        default="paper/figures/_archive_20260730_inactive_results/tab_confirm_gate_ablation.tex",
+        help="Archived supplementary gate-ablation table; not an active paper input.",
+    )
+    parser.add_argument(
+        "--ablation-source",
+        default="paper/figures/_archive_20260730_inactive_results/tab_confirm_gate_ablation_source.csv",
     )
     parser.add_argument(
         "--feedback-table",
@@ -1277,15 +1298,15 @@ def main() -> int:
     )
     parser.add_argument(
         "--tier-modality-table",
-        default="paper/figures/tab_confirm_tiers_modality.tex",
+        default="paper/figures/_archive_20260730_inactive_results/tab_confirm_tiers_modality.tex",
     )
     parser.add_argument(
         "--common-scalar-table",
-        default="paper/figures/tab_claim_evaluation_common_scalar.tex",
+        default="paper/figures/_archive_20260730_inactive_results/tab_claim_evaluation_common_scalar.tex",
     )
     parser.add_argument(
         "--external-tier-table",
-        default="paper/figures/tab_confirm_tiers_external.tex",
+        default="paper/figures/_archive_20260730_inactive_results/tab_confirm_tiers_external.tex",
     )
     parser.add_argument(
         "--systems-coverage",
@@ -1331,7 +1352,7 @@ def main() -> int:
     ablation_rows = _ablation_rows(leave_one_out_rows)
     _write_rows(
         ablation_rows,
-        output_prefix.with_name("tab_confirm_gate_ablation_source.csv"),
+        Path(args.ablation_source),
     )
     _write_ablation_table(ablation_rows, Path(args.ablation_table))
     _write_feedback_table(
@@ -1353,7 +1374,7 @@ def main() -> int:
         tier_summary_rows,
         Path(args.external_tier_table),
     )
-    print(f"Wrote {output_prefix}.svg/.pdf/.png and paper tables")
+    print(f"Wrote {output_prefix}.svg/.pdf/.png, active paper tables, and archived supplementary tables")
     return 0
 
 

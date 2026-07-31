@@ -25,7 +25,12 @@ It does not contain experiment launchers or LLM clients.
 | `analyze_feedback_method_baselines.py` | Compare failure-specific diagnosis, failure-blind retry, and Self-Refine at the matched R3/C5 scientific budget, with separately labeled safety runs. |
 | `freeze_feedback_baseline_manifest.py` | Freeze source, prompt, schema, and artifact identities for the feedback-method evidence audit. |
 | `plot_main_confirm_results.py` | Generate the paper's baseline and evidence-tier figure, feedback table, and supplementary comparison tables from frozen CSV summaries. |
+| `analyze_reference_bar_sensitivity.py` | Derive the active reference-bar sensitivity summary from frozen benchmark decisions. |
+| `plot_reference_bar_frontier.py` | Render the active reference-bar sensitivity figure from its summary. |
 
 The claim-search paper analyses write only to
 `review-stage/claim-search-gpt55-paper-analysis-v1/`. They never modify sweep,
 checkpoint, evidence, or paper artifacts.
+
+Inactive multi-LLM and power-reference probes are retained under
+`_archive_20260730_inactive_probes/`; they are not current paper inputs.

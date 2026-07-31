@@ -1,0 +1,4 @@
+[submodule "paper"]
+	path = paper
+	url = https://github.com/yuxiangwei0808/CONFIRM-Statistical-Claim-Governance-for-Trustworthy-Agentic-Neuroimaging-Discovery.git
+	branch = main

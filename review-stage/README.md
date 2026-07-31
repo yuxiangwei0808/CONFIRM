@@ -25,6 +25,9 @@ Updated: 2026-07-23
 | `_archive_20260719_pre_v7/` | Ignored, recoverable superseded/debug outputs; never active evidence. |
 | `_archive_20260723_claim_search_v7_original/` | Checksummed compressed original v7 arm artifacts. |
 | `_archive_20260723_neuroclaimbench_release_v1/` | Superseded release-schema-1 package and audit payload. |
+| `_archive_20260730_inactive_probes/multillm-probe-v2/` | Archived multi-LLM drafting probe; not a current paper input. |
+| `_archive_20260730_superseded_runs/claim-search-gpt55-control-r3-c5-v6-fixed/` | Superseded by the v7 matched control. |
+| `_archive_20260730_superseded_runs/simplification-audit-20260723/` | Superseded by the v2.1 compact audit. |
 
 Stage 3, Stage 4, and paper-analysis outputs use the v7/v3/v1 paths documented
 in `../IMPLEMENTATION_NOTES.md`. Generated result directories are ignored by git; use

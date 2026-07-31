@@ -2,11 +2,11 @@
 set -euo pipefail
 
 STAGE="${1:?usage: run_external_data_remote.sh audit|fmri|freesurfer}"
-REMOTE_ROOT="${REMOTE_ROOT:-/data/users1/ywei/confirm_external_prep}"
+: "${REMOTE_ROOT:?Set REMOTE_ROOT to the writable lab run directory}"
 RUN_ID="${RUN_ID:?RUN_ID is required}"
 REMOTE_RUN_DIR="${REMOTE_RUN_DIR:-$REMOTE_ROOT/runs/$RUN_ID}"
 REMOTE_CODE_DIR="${REMOTE_CODE_DIR:-$REMOTE_RUN_DIR/code}"
-REMOTE_PYTHON="${REMOTE_PYTHON:-/home/users/ywei13/.conda/envs/playground/bin/python}"
+: "${REMOTE_PYTHON:?Set REMOTE_PYTHON to the Python executable on the remote host}"
 DATASETS="${DATASETS:-all}"
 FOLLOW="${FOLLOW:-1}"
 LOG="$REMOTE_RUN_DIR/logs/${STAGE}.log"
@@ -42,7 +42,10 @@ cd "$REMOTE_CODE_DIR"
 export PYTHONPATH="$REMOTE_CODE_DIR/src:$REMOTE_CODE_DIR${PYTHONPATH:+:$PYTHONPATH}"
 export PYTHONUNBUFFERED=1
 
-CONFIG="$REMOTE_CODE_DIR/configs/external_datasets.yml"
+CONFIG="${EXTERNAL_DATASET_CONFIG:-$REMOTE_CODE_DIR/configs/external_datasets.local.yml}"
+if [[ "$CONFIG" != /* ]]; then
+  CONFIG="$REMOTE_CODE_DIR/$CONFIG"
+fi
 SUBJECTS_ROOT="$REMOTE_ROOT/subjects"
 
 load_freesurfer_module() {

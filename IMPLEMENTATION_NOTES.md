@@ -634,7 +634,9 @@ data/prepared_data/evidence_partitions/audits/stage2_external_contract_coverage.
 
 The zero current external coverage for normative fMRI, ADHD, ASD, and psychosis
 fMRI is a data-preparation state, not a confirmation result. Candidate external
-datasets are defined in `configs/external_datasets.yml`:
+datasets are defined in the ignored local file
+`configs/external_datasets.local.yml`, initialized from
+`configs/external_datasets.example.yml`:
 
 | Dataset | Prepared modality | Status/use |
 |---|---|---|
@@ -654,8 +656,9 @@ promoted automatically.
 ## External Preparation On Arcdev
 
 The shell-only launchers deploy versioned code under
-`/data/users1/ywei/confirm_external_prep/runs/$RUN_ID`, start work with `nohup`,
-print the remote PID/log, and follow progress by default:
+`$REMOTE_ROOT/runs/$RUN_ID`, start work with `nohup`, print the remote PID/log,
+and follow progress by default. Set `REMOTE_ROOT` and `REMOTE_PYTHON` for the
+target lab environment before launching:
 
 Set `SSH_HOST` to any host or alias from `~/.ssh/config`. It defaults to
 `arcdev`; the older `ARCDEV_HOST` variable remains a backward-compatible
@@ -665,7 +668,8 @@ The detached worker starts through a login Bash shell so site-specific Lmod
 paths match a direct SSH login.
 
 ```bash
-SSH_HOST=arcdev RUN_ID=external-audit-20260710 DATASETS=all \
+SSH_HOST=arcdev REMOTE_ROOT=/shared/confirm_external_prep \
+REMOTE_PYTHON=/shared/envs/confirm/bin/python RUN_ID=external-audit-20260710 DATASETS=all \
 scripts/data_processing/audit_external_datasets_arcdev.sh
 
 RUN_ID=external-fmri-20260710 \

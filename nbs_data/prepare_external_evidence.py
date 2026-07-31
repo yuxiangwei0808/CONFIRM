@@ -29,8 +29,8 @@ from nbs_data.external_metadata import load_metadata
 from nbs_data.freesurfer.external_stats import CompletionReceipt, canonical_features, completion_check
 
 
-DEFAULT_CONFIG = "configs/external_datasets.yml"
-DEFAULT_OUT_ROOT = "/data/users1/ywei/confirm_external_prep/runs/manual"
+DEFAULT_CONFIG = "configs/external_datasets.local.yml"
+DEFAULT_OUT_ROOT = "data/prepared_data/external_candidates/manual"
 
 
 def run_audit(args: argparse.Namespace) -> dict[str, Any]:
@@ -403,7 +403,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--config", default=DEFAULT_CONFIG)
     parser.add_argument("--datasets", default="all", help="Comma-separated dataset IDs or 'all'.")
     parser.add_argument("--out-root", default=DEFAULT_OUT_ROOT)
-    parser.add_argument("--subjects-root", default="/data/users1/ywei/confirm_external_prep/subjects")
+    parser.add_argument("--subjects-root", default="data/prepared_data/external_candidates/subjects")
     parser.add_argument("--max-workers", type=int, default=1)
     parser.add_argument(
         "--stage2-results",

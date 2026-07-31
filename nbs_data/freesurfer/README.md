@@ -1,6 +1,6 @@
 # External Structural MRI Preparation
 
-The active structural pipeline is driven by `configs/external_datasets.yml` and
+The active structural pipeline is driven by `configs/external_datasets.local.yml` and
 the arcdev launcher
 `scripts/data_processing/launch_external_freesurfer_arcdev.sh`.
 

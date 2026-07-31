@@ -10,6 +10,10 @@ runs/
 *.egg-info/
 .pytest_cache/
 .aris/
+.agents/
+.claude/
+.matplotlib/
+configs/external_datasets.local.yml
 review-stage/_archive_*/
 review-stage/*
 !review-stage/README.md
