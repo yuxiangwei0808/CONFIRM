@@ -209,6 +209,7 @@ figure {
 .figure-link {
   display: block;
   border-radius: 2px;
+  cursor: zoom-in;
 }
 .figure-link img {
   width: 100%;
@@ -642,6 +643,110 @@ footer {
     color: var(--muted);
     font-weight: 400;
     margin-bottom: 4px;
+  }
+}
+.viewer-open {
+  overflow: hidden;
+}
+#figure-viewer {
+  width: min(1280px, calc(100% - 40px));
+  max-width: none;
+  height: min(880px, 90dvh);
+  max-height: 94dvh;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+}
+#figure-viewer[open] {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+}
+#figure-viewer::backdrop {
+  background: rgb(15 26 36 / 76%);
+}
+.viewer-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.viewer-heading h2 {
+  font-size: 19px;
+  margin: 0;
+  text-wrap: initial;
+}
+#figure-viewer button {
+  min-height: 44px;
+  min-width: 44px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
+  padding: 8px 12px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+#figure-viewer button:hover {
+  background: var(--tint);
+}
+#figure-viewer button:focus-visible {
+  outline: 3px solid #367daf;
+  outline-offset: 2px;
+}
+#figure-viewer button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+#figure-close {
+  flex-shrink: 0;
+}
+.viewer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+}
+#figure-scale {
+  width: 58px;
+  text-align: center;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+#figure-viewport {
+  overflow: auto;
+  padding: 16px;
+  overscroll-behavior: contain;
+  background: #fff;
+  border-block: 1px solid var(--line);
+}
+#figure-image {
+  max-width: none;
+  height: auto;
+  margin-inline: auto;
+}
+#figure-viewer-help {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0;
+  padding: 12px 20px;
+}
+@media (max-width: 700px) {
+  #figure-viewer {
+    width: calc(100% - 16px);
+    height: 92dvh;
+  }
+  .viewer-heading {
+    padding: 12px;
+    gap: 12px;
+  }
+  .viewer-heading h2 {
+    font-size: 16px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

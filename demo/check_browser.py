@@ -33,6 +33,18 @@ with sync_playwright() as p:
         figure.scroll_into_view_if_needed()
         figure.evaluate("img => img.decode()")
         assert figure.get_attribute('alt')
+    for link in page.locator('a.figure-link').all():
+        link.click()
+        assert page.locator('#figure-viewer').is_visible()
+        page.locator('#figure-image').evaluate('img => img.decode()')
+        assert page.locator('#figure-image').get_attribute('alt')
+        original_width = page.locator('#figure-image').bounding_box()['width']
+        page.locator('#figure-larger').click()
+        assert page.locator('#figure-image').bounding_box()['width'] > original_width
+        page.locator('#figure-fit').click()
+        page.keyboard.press('Escape')
+        assert not page.locator('#figure-viewer').is_visible()
+        assert link.evaluate('e => e === document.activeElement')
     results = context.request.get(urljoin(root_url, 'paper-data/results.json')).json()
     rows = page.locator('#followup-results tbody tr').all()
     for row, record in zip(rows, results['followup'], strict=True):
@@ -43,6 +55,16 @@ with sync_playwright() as p:
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), ('project', width)
         if args.screenshots and width in (1440, 390):
             page.screenshot(path=str(args.screenshots / f'project-{width}.png'), full_page=True)
+        if width == 390:
+            page.locator('a.figure-link').first.click()
+            assert page.locator('#figure-image').bounding_box()['width'] >= 900
+            page.locator('#figure-viewport').evaluate('e => { e.scrollLeft = 250; }')
+            assert page.locator('#figure-viewport').evaluate('e => e.scrollLeft') > 0
+            if args.screenshots:
+                page.locator('#figure-viewer').screenshot(path=str(args.screenshots / 'figure-viewer-mobile.png'))
+            page.locator('#figure-fit').click()
+            assert page.locator('#figure-viewport').evaluate('e => e.scrollWidth <= e.clientWidth')
+            page.locator('#figure-close').click()
     page.set_viewport_size({"width": 1440, "height": 1000})
     page.locator('a.button[href="guide/"]').first.click()
     page.wait_for_url(guide_url)

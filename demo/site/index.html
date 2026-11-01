@@ -115,7 +115,7 @@
             must keep the original scientific question and requirements for
             support. Code checks each plan before running it.
             <a href="figures/overview.svg" target="_blank" rel="noopener"
-              >View full-size figure ↗</a
+              >Enlarge figure ⤢</a
             >
           </figcaption>
         </figure>
@@ -200,7 +200,7 @@
             Error bars show 95% confidence intervals. This comparison uses 31
             literature-supported claims and 150 controls from the benchmark.
             <a href="figures/frontier.svg" target="_blank" rel="noopener"
-              >View full-size figure ↗</a
+              >Enlarge figure ⤢</a
             >
             <a href="paper-data/frontier.csv" download>Download data</a>
           </figcaption>
@@ -238,7 +238,7 @@
             (substitute). The panels show support for claims backed by prior
             studies, claims not backed by those studies, and designed controls.
             <a href="figures/retrofit.svg" target="_blank" rel="noopener"
-              >View full-size figure ↗</a
+              >Enlarge figure ⤢</a
             >
             <a href="paper-data/retrofit.csv" download>Download data</a>
           </figcaption>
@@ -376,7 +376,7 @@
                 href="figures/worked-example.svg"
                 target="_blank"
                 rel="noopener"
-                >View full-size figure ↗</a
+                >Enlarge figure ⤢</a
               >
             </figcaption>
           </figure>
@@ -436,6 +436,37 @@
         >
       </aside>
     </main>
+    <dialog
+      id="figure-viewer"
+      aria-labelledby="figure-viewer-title"
+      aria-describedby="figure-viewer-help"
+    >
+      <div class="viewer-heading">
+        <h2 id="figure-viewer-title">Paper figure</h2>
+        <button id="figure-close" type="button" autofocus>
+          Close <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="viewer-toolbar" aria-label="Figure size">
+        <button id="figure-smaller" type="button" aria-label="Zoom out">
+          −
+        </button>
+        <output id="figure-scale" aria-live="polite">100%</output>
+        <button id="figure-larger" type="button" aria-label="Zoom in">+</button>
+        <button id="figure-fit" type="button">Fit to view</button>
+      </div>
+      <div
+        id="figure-viewport"
+        tabindex="0"
+        role="region"
+        aria-label="Enlarged figure; scroll to see more"
+      >
+        <img id="figure-image" alt="" />
+      </div>
+      <p id="figure-viewer-help">
+        Use + and − to change size. Scroll to explore the enlarged figure.
+      </p>
+    </dialog>
     <footer class="wrap">
       <a class="brand" href="./">CONFIRM</a>
       <div>

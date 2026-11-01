@@ -7,6 +7,9 @@ follow-up results, and NeuroClaimBench. The interactive walkthrough is at
 The site uses plain HTML, CSS, JavaScript, and checked-in data. It needs no model
 credentials, server application, or cohort downloads. The homepage is readable
 without JavaScript. Asset paths work both at the domain root and under `/CONFIRM/`.
+Readers can open each paper figure in an in-page viewer with zoom and scrolling.
+On phones, figures open enlarged for readable labels. Without JavaScript, figure
+links open the SVG directly.
 
 ## Preview
 
