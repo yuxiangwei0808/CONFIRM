@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      CONFIRM: Governing Scientific Reporting for Trustworthy Agentic
+      Neuroimaging
+    </title>
+    <meta
+      name="description"
+      content="CONFIRM is an agentic framework for checking neuroimaging findings. A language-model agent plans analyses, and code checks whether the evidence meets the requirements for reporting support."
+    />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="project.css" />
+    <script src="project.js" defer></script>
+  </head>
+  <body>
+    <a class="skip" href="#overview">Skip to the overview</a>
+    <header class="site-header wrap">
+      <a class="brand" href="./" aria-label="CONFIRM project page"
+        ><img src="icon.svg" width="28" height="28" alt="" />CONFIRM</a
+      >
+      <nav aria-label="Main navigation">
+        <a href="#results">Results</a>
+        <a href="#benchmark">Benchmark</a>
+        <a href="guide/">Visual guide <span aria-hidden="true">↗</span></a>
+      </nav>
+    </header>
+    <main>
+      <section class="hero wrap" aria-labelledby="paper-title">
+        <h1 id="paper-title">
+          <span class="title-name">CONFIRM:</span> Governing Scientific
+          Reporting<br class="desktop-break" />
+          for Trustworthy Agentic Neuroimaging
+        </h1>
+        <p class="authors">
+          <span>Yuxiang Wei<sup>1,2</sup></span>
+          <span>Lijing Zhu<sup>3</sup></span>
+          <span>Qizhen Lan<sup>4</sup></span>
+          <span>Yanteng Zhang<sup>1,5</sup></span>
+          <span>Vince D. Calhoun<sup>1,2,5,6</sup></span>
+        </p>
+        <div class="affiliations">
+          <p>
+            <span><sup>1</sup> TReNDS Center</span
+            ><span><sup>2</sup> Georgia Institute of Technology</span
+            ><span><sup>3</sup> University of Houston–Clear Lake</span>
+          </p>
+          <p>
+            <sup>4</sup> McWilliams School of Biomedical Informatics, The
+            University of Texas Health Science Center at Houston
+          </p>
+          <p>
+            <span><sup>5</sup> Georgia State University</span
+            ><span><sup>6</sup> Emory University</span>
+          </p>
+        </div>
+        <p class="hero-summary">
+          An agentic framework for checking neuroimaging findings. A
+          language-model agent plans the analyses, and code checks the evidence
+          before a claim receives support.
+        </p>
+        <div class="resource-links">
+          <a
+            class="button primary"
+            href="https://github.com/yuxiangwei0808/CONFIRM"
+            >Code <span aria-hidden="true">↗</span></a
+          >
+          <a
+            class="button"
+            href="https://huggingface.co/datasets/stanjsx/NeuroClaimBench"
+            >Dataset <span aria-hidden="true">↗</span></a
+          >
+          <a class="button" href="guide/"
+            >Interactive guide <span aria-hidden="true">→</span></a
+          >
+        </div>
+      </section>
+
+      <section
+        id="overview"
+        class="section wrap"
+        aria-labelledby="overview-title"
+      >
+        <div class="section-intro">
+          <p class="eyebrow">The framework</p>
+          <h2 id="overview-title">How CONFIRM checks a claim</h2>
+          <p>
+            Before looking at results, the agent specifies what to test, which
+            data to use, and what the evidence must show. CONFIRM fixes this
+            plan, runs the analysis, and applies five checks. A claim is labeled
+            supported when it passes every check required by the chosen
+            reporting standard.
+          </p>
+        </div>
+        <figure>
+          <a
+            class="figure-link"
+            href="figures/overview.svg"
+            target="_blank"
+            rel="noopener"
+            aria-label="Open the CONFIRM framework figure at full size"
+            ><img
+              src="figures/overview.svg"
+              width="460"
+              height="185.5"
+              alt="CONFIRM runs from a question or audits an existing agent's claim. It checks search history, confounds, power, analytic stability, and replication, then uses failed checks to guide validated follow-up plans."
+          /></a>
+          <figcaption>
+            CONFIRM can run an analysis from a question or audit an existing
+            agent's claim and analysis record. If a required check fails,
+            CONFIRM withholds support and tells the agent what failed. Revisions
+            must keep the original scientific question and requirements for
+            support. Code checks each plan before running it.
+            <a href="figures/overview.svg" target="_blank" rel="noopener"
+              >Enlarge figure ⤢</a
+            >
+          </figcaption>
+        </figure>
+        <div class="standards">
+          <div>
+            <h3>Screen</h3>
+            <p>
+              Accounts for the tests tried and checks for measured confounds:
+              factors such as scanning site that could explain the apparent
+              association.
+            </p>
+          </div>
+          <div>
+            <h3>Replicate</h3>
+            <p>
+              Also requires the finding to appear again in an independent
+              sample. This is the replication check.
+            </p>
+          </div>
+          <div>
+            <h3>Full</h3>
+            <p>
+              Also checks whether the sample can detect a pre-specified effect
+              size (statistical power) and whether the result persists across
+              planned analysis choices (stability).
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="results"
+        class="section wrap"
+        aria-labelledby="results-title"
+      >
+        <div class="section-intro">
+          <p class="eyebrow">Main results</p>
+          <h2 id="results-title">Reducing false support</h2>
+          <p>
+            We test methods on claims supported by prior studies and on designed
+            controls: test cases with problems such as scanning-site differences
+            or random group labels. Accepting a control counts as false support.
+          </p>
+          <p>
+            In the comparison of claims about individual brain measures,
+            CONFIRM-Full supports 15 of 31 claims supported by prior studies and
+            none of the 150 controls. The four comparison methods accept between
+            34 and 57 controls.
+          </p>
+        </div>
+        <div class="result-strip" aria-label="CONFIRM-Full results">
+          <div>
+            <p class="result-number"><strong>0</strong><span>/ 150</span></p>
+            <p>Controls incorrectly accepted</p>
+          </div>
+          <div>
+            <p class="result-number"><strong>15</strong><span>/ 31</span></p>
+            <p>Claims from prior studies supported</p>
+          </div>
+          <p class="result-scope">
+            CONFIRM-Full<br /><span>Individual brain measures</span>
+          </p>
+        </div>
+        <figure>
+          <a
+            class="figure-link"
+            href="figures/frontier.svg"
+            target="_blank"
+            rel="noopener"
+            aria-label="Open the main comparison figure at full size"
+            ><img
+              src="figures/frontier.svg"
+              width="499.294373"
+              height="230.570129"
+              loading="lazy"
+              alt="Comparison of claim recovery and false support. Screen recovers 19 of 31 literature-supported claims and supports 5 of 150 controls; Replicate recovers 15 and supports 1 control; Full recovers 15 and supports no controls."
+          /></a>
+          <figcaption>
+            Left: each point shows how many claims a method recovers from prior
+            studies and how many controls it accepts. Upper-left positions are
+            better. Right: accepted controls, grouped by the problem they test.
+            Error bars show 95% confidence intervals. This comparison uses 31
+            literature-supported claims and 150 controls from the benchmark.
+            <a href="figures/frontier.svg" target="_blank" rel="noopener"
+              >Enlarge figure ⤢</a
+            >
+            <a href="paper-data/frontier.csv" download>Download data</a>
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="section wrap" aria-labelledby="retrofit-title">
+        <div class="section-intro">
+          <p class="eyebrow">Auditing an existing agent</p>
+          <h2 id="retrofit-title">Checking another agent's claims</h2>
+          <p>
+            We apply CONFIRM to claims accepted by the adapted NeuroClaw agent.
+            Requiring those claims to pass CONFIRM-Full reduces accepted
+            controls from 34 to 0. All 15 claims supported by prior studies that
+            the agent accepted still pass.
+          </p>
+        </div>
+        <figure class="compact-figure">
+          <a
+            class="figure-link"
+            href="figures/retrofit.svg"
+            target="_blank"
+            rel="noopener"
+            aria-label="Open the existing-agent comparison at full size"
+            ><img
+              src="figures/retrofit.svg"
+              width="493.383118"
+              height="180.794632"
+              loading="lazy"
+              alt="Adding CONFIRM to NeuroClaw preserves recovery at 15 of 31 claims and reduces supported controls from 34 to 1 under Screen and to 0 under Full. Literature false support remains 2 of 15."
+          /></a>
+          <figcaption>
+            Solid bars labeled "+ CONFIRM" require both systems to accept the
+            claim (veto). Striped bars use CONFIRM's decision alone
+            (substitute). The panels show support for claims backed by prior
+            studies, claims not backed by those studies, and designed controls.
+            <a href="figures/retrofit.svg" target="_blank" rel="noopener"
+              >Enlarge figure ⤢</a
+            >
+            <a href="paper-data/retrofit.csv" download>Download data</a>
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="section wrap" aria-labelledby="followup-title">
+        <div class="section-intro">
+          <p class="eyebrow">Agent follow-up</p>
+          <h2 id="followup-title">
+            More supported revisions with fewer model calls
+          </h2>
+          <p>
+            We compare three ways to help an agent revise an analysis: tell it
+            only that the analysis failed (failure-blind retry), ask it to
+            critique its own analysis (Self-Refine), or give it CONFIRM's failed
+            checks (CONFIRM diagnosis).
+          </p>
+          <p>
+            In the representative run below, each method starts from the same
+            215 withheld claims. For each claim, the agent has three rounds and
+            can propose up to five revised plans per round. All methods use the
+            same rules for checking plans and accounting for repeated tests.
+          </p>
+        </div>
+        <div
+          class="table-scroll"
+          role="region"
+          aria-label="Follow-up results"
+          tabindex="0"
+        >
+          <table
+            role="table"
+            id="followup-results"
+            aria-describedby="followup-note"
+          >
+            <caption>
+              Follow-up results from the paper
+            </caption>
+            <thead role="rowgroup">
+              <tr role="row">
+                <th role="columnheader" scope="col">Feedback method</th>
+                <th role="columnheader" scope="col">Model calls</th>
+                <th role="columnheader" scope="col">
+                  Revised plans<br />tested
+                </th>
+                <th role="columnheader" scope="col">
+                  Pass during<br />revision (count)
+                </th>
+                <th role="columnheader" scope="col">
+                  Pass on<br />held-out data (%)
+                </th>
+              </tr>
+            </thead>
+            <tbody role="rowgroup">
+              <tr role="row">
+                <th role="rowheader" scope="row">Failure-blind retry</th>
+                <td role="cell" data-label="Model calls">765</td>
+                <td role="cell" data-label="Revised plans tested">3,073</td>
+                <td role="cell" data-label="Pass during revision (count)">
+                  49
+                </td>
+                <td role="cell" data-label="Pass on held-out data (%)">7%</td>
+              </tr>
+              <tr role="row">
+                <th role="rowheader" scope="row">Self-Refine</th>
+                <td role="cell" data-label="Model calls">1,301</td>
+                <td role="cell" data-label="Revised plans tested">2,161</td>
+                <td role="cell" data-label="Pass during revision (count)">
+                  54
+                </td>
+                <td role="cell" data-label="Pass on held-out data (%)">9%</td>
+              </tr>
+              <tr role="row" class="our-method">
+                <th role="rowheader" scope="row">CONFIRM diagnosis</th>
+                <td role="cell" data-label="Model calls">653</td>
+                <td role="cell" data-label="Revised plans tested">2,971</td>
+                <td role="cell" data-label="Pass during revision (count)">
+                  70
+                </td>
+                <td role="cell" data-label="Pass on held-out data (%)">17%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="followup-note" class="result-notes">
+          <p>
+            <strong>During revision:</strong> the agent uses the existing data
+            to develop and test revised plans. The count shows how many pass all
+            checks on these data. This support is exploratory because the data
+            have already informed the revisions.
+          </p>
+          <p>
+            <strong>Held-out data:</strong> after a revised plan is fixed, it is
+            tested on data kept out of the revision process. The percentage
+            shows how many of the revisions tested there pass all checks.
+            Percentages are rounded as in the paper.
+          </p>
+        </div>
+
+        <div class="worked-example">
+          <h3>Example: revising a claim about age and brain structure</h3>
+          <p>
+            An analysis of the OASIS3 dataset linked older age to larger brain
+            ventricles. It omitted the version of FreeSurfer used to process the
+            scans. Because software version was associated with participant age,
+            software differences could explain part of the apparent age effect.
+            CONFIRM identified this omission and withheld support.
+          </p>
+          <p>
+            The agent proposed three revisions. Two accounted for software
+            version and passed all checks on held-out data. One introduced an
+            age cutoff outside the permitted subgroups, so CONFIRM rejected it
+            before running it. The original claim remains withheld.
+          </p>
+          <figure class="compact-figure">
+            <a
+              class="figure-link"
+              href="figures/worked-example.svg"
+              target="_blank"
+              rel="noopener"
+              aria-label="Open the OASIS3 worked example at full size"
+              ><img
+                src="figures/worked-example.svg"
+                width="399.06"
+                height="144.252"
+                loading="lazy"
+                alt="A withheld OASIS3 claim leads to three revised plans. Validation blocks an unapproved age cutoff; the two other plans pass checks on search data and are supported on unseen holdout data. The original claim remains withheld."
+            /></a>
+            <figcaption>
+              The two accepted revisions add software version to the analysis.
+              One tests ventricular volume; the other tests a pattern across six
+              brain regions. Both pass on data kept out of the revision process.
+              <a
+                href="figures/worked-example.svg"
+                target="_blank"
+                rel="noopener"
+                >Enlarge figure ⤢</a
+              >
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section
+        id="benchmark"
+        class="section wrap benchmark"
+        aria-labelledby="benchmark-title"
+      >
+        <div>
+          <p class="eyebrow">NeuroClaimBench</p>
+          <h2 id="benchmark-title">
+            489 tasks for evaluating scientific claims
+          </h2>
+          <p>
+            NeuroClaimBench combines scientific questions, designed controls,
+            and tests on additional study datasets. The release contains the
+            questions, analysis plans, expected support labels, and reported
+            results. Individual participants' data remain with the original
+            study providers.
+          </p>
+          <a
+            class="text-link"
+            href="https://huggingface.co/datasets/stanjsx/NeuroClaimBench"
+            >Explore the dataset on Hugging Face
+            <span aria-hidden="true">↗</span></a
+          >
+        </div>
+        <dl class="benchmark-counts">
+          <div>
+            <dt>Scientific tasks</dt>
+            <dd>279</dd>
+          </div>
+          <div>
+            <dt>Designed controls</dt>
+            <dd>150</dd>
+          </div>
+          <div>
+            <dt>Tasks on additional study datasets</dt>
+            <dd>60</dd>
+          </div>
+        </dl>
+      </section>
+
+      <aside class="guide-invitation wrap" aria-labelledby="guide-title">
+        <div>
+          <h2 id="guide-title">Follow a claim through the checks</h2>
+          <p>
+            The visual guide includes three reproducible examples and a recorded
+            agent follow-up.
+          </p>
+        </div>
+        <a class="button primary" href="guide/"
+          >Open the guide <span aria-hidden="true">→</span></a
+        >
+      </aside>
+    </main>
+    <dialog
+      id="figure-viewer"
+      aria-labelledby="figure-viewer-title"
+      aria-describedby="figure-viewer-help"
+    >
+      <div class="viewer-heading">
+        <h2 id="figure-viewer-title">Paper figure</h2>
+        <button id="figure-close" type="button" autofocus>
+          Close <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="viewer-toolbar" aria-label="Figure size">
+        <button id="figure-smaller" type="button" aria-label="Zoom out">
+          −
+        </button>
+        <output id="figure-scale" aria-live="polite">100%</output>
+        <button id="figure-larger" type="button" aria-label="Zoom in">+</button>
+        <button id="figure-fit" type="button">Fit to view</button>
+      </div>
+      <div
+        id="figure-viewport"
+        tabindex="0"
+        role="region"
+        aria-label="Enlarged figure; scroll to see more"
+      >
+        <img id="figure-image" alt="" />
+      </div>
+      <p id="figure-viewer-help">
+        Use + and − to change size. Scroll to explore the enlarged figure.
+      </p>
+    </dialog>
+    <footer class="wrap">
+      <a class="brand" href="./">CONFIRM</a>
+      <div>
+        <a href="https://github.com/yuxiangwei0808/CONFIRM">Code</a
+        ><a href="https://huggingface.co/datasets/stanjsx/NeuroClaimBench"
+          >Dataset</a
+        ><a href="guide/">Visual guide</a>
+      </div>
+    </footer>
+  </body>
+</html>

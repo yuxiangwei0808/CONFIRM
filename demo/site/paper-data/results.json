@@ -1,0 +1,73 @@
+{
+  "standards": {
+    "screen": {
+      "literature": {
+        "supported": 19,
+        "total": 31
+      },
+      "controls": {
+        "supported": 5,
+        "total": 150
+      }
+    },
+    "replicate": {
+      "literature": {
+        "supported": 15,
+        "total": 31
+      },
+      "controls": {
+        "supported": 1,
+        "total": 150
+      }
+    },
+    "full": {
+      "literature": {
+        "supported": 15,
+        "total": 31
+      },
+      "controls": {
+        "supported": 0,
+        "total": 150
+      }
+    }
+  },
+  "followup": [
+    {
+      "method": "Failure-blind retry",
+      "llm_calls": 765,
+      "candidates_evaluated": 3073,
+      "supported_on_search": 49,
+      "parent_percent": 9,
+      "holdout_percent": 7
+    },
+    {
+      "method": "Self-Refine",
+      "llm_calls": 1301,
+      "candidates_evaluated": 2161,
+      "supported_on_search": 54,
+      "parent_percent": 11,
+      "holdout_percent": 9
+    },
+    {
+      "method": "CONFIRM diagnosis",
+      "llm_calls": 653,
+      "candidates_evaluated": 2971,
+      "supported_on_search": 70,
+      "parent_percent": 11,
+      "holdout_percent": 17
+    }
+  ],
+  "followup_design": {
+    "parent_claims": 215,
+    "rounds": 3,
+    "candidates_per_round": 5
+  },
+  "benchmark": {
+    "executable_tasks": 489,
+    "scientific": 279,
+    "controls": 150,
+    "external_transfer": 60
+  },
+  "scope": "The main scalar comparison uses 31 literature-supported claims and 150 designed controls. These are subsets of the 489 executable benchmark tasks.",
+  "holdout_definition": "Percentage of candidates evaluated on holdout data that receive support there; rounded as in the paper's representative run."
+}

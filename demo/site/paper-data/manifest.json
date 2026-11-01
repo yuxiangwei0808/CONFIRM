@@ -1,0 +1,54 @@
+{
+  "figures": [
+    {
+      "id": "overview",
+      "source": "figures/CONFIRM_Figure1_overleaf.pdf",
+      "file": "figures/overview.svg",
+      "source_sha256": "5a1243329eed1b8a90558ce70358e4669f803c9f79d3ac86a2a1e3f7fe57da99",
+      "sha256": "4cc550b52510bfcafb7135134dd5fdd016c771eb5531c917f516310487dec307",
+      "conversion": "PyMuPDF 1.26.5; text_as_path=True"
+    },
+    {
+      "id": "frontier",
+      "source": "figures/fig_confirm_frontier.pdf",
+      "file": "figures/frontier.svg",
+      "source_sha256": "010c489f010071ccedd2dcc8c1850ebf5de350e8ceb0e87ff56e8f9f626f00da",
+      "sha256": "be20c98898401eedbdcbdef0aed74d31828a3991d6b9a494523c63afc799cd26",
+      "conversion": "PyMuPDF 1.26.5; text_as_path=True"
+    },
+    {
+      "id": "retrofit",
+      "source": "figures/fig_retrofit_composition.pdf",
+      "file": "figures/retrofit.svg",
+      "source_sha256": "3970fe245ff21641aa7a55e68c5f9ffd45342f7cef1856a5de4a74fe7399776d",
+      "sha256": "0eb7ab41f71f40a469a4e22c56f50d277899842bbca652f26b17b01b45fcfb41",
+      "conversion": "PyMuPDF 1.26.5; text_as_path=True"
+    },
+    {
+      "id": "worked-example",
+      "source": "figures/fig_worked_example.pdf",
+      "file": "figures/worked-example.svg",
+      "source_sha256": "9552a8fe989297608dfd1b8dbb2772457c94f4dedbdce1563d26c0adbc8cdfef",
+      "sha256": "776d0d73516d919288dcd8c664d194db919b97436fd63c34422202ecedfc4df3",
+      "conversion": "PyMuPDF 1.26.5; text_as_path=True"
+    }
+  ],
+  "sources": [
+    {
+      "source": "figures/fig_confirm_frontier_source.csv",
+      "file": "paper-data/frontier.csv",
+      "source_sha256": "912445aa64441ac351ab9139c86e06777c18c14ebfdd378f9a2e811b0dfc3df5",
+      "sha256": "94a18a828bd454b235110b1f1d2d9f422be9fa8cc61f6de84fa30bf4313727dc"
+    },
+    {
+      "source": "figures/fig_retrofit_composition_source.csv",
+      "file": "paper-data/retrofit.csv",
+      "source_sha256": "f8ad63f7e060e6c23649766c355e27772c558cc5200a002a56f4c7d39c957fe6",
+      "sha256": "4a48112d650c0768835b9f23a0921329afd8939ebab32172acf432ceed14bfd3"
+    },
+    {
+      "source": "figures/tab_feedback_control_main.tex",
+      "sha256": "761e868300eb67d4fc56c79ccc095b1caa9f4fe5e4eb9ecf14430dbeba377d69"
+    }
+  ]
+}

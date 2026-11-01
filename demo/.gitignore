@@ -1,0 +1,3 @@
+# The guide publishes generated synthetic and aggregate records.
+!site/guide/data/
+!site/guide/data/**
