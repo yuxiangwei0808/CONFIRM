@@ -9,7 +9,7 @@
     </title>
     <meta
       name="description"
-      content="CONFIRM is an agentic framework that checks neuroimaging findings before they are reported and uses failed checks to guide follow-up analyses."
+      content="CONFIRM is an agentic framework for checking neuroimaging findings. A language-model agent plans analyses, and code checks whether the evidence meets the requirements for reporting support."
     />
     <meta name="theme-color" content="#ffffff" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
@@ -58,8 +58,9 @@
           </p>
         </div>
         <p class="hero-summary">
-          An agentic framework that checks neuroimaging findings before they are
-          reported—and uses failed checks to guide the next analysis.
+          An agentic framework for checking neuroimaging findings. A
+          language-model agent plans the analyses, and code checks the evidence
+          before a claim receives support.
         </p>
         <div class="resource-links">
           <a
@@ -85,13 +86,13 @@
       >
         <div class="section-intro">
           <p class="eyebrow">The framework</p>
-          <h2 id="overview-title">From an analysis to a supported claim</h2>
+          <h2 id="overview-title">How CONFIRM checks a claim</h2>
           <p>
-            An agent can find a statistically significant association that
-            depends on a confound, a broad search, or one analysis choice.
-            CONFIRM makes the requirements for reporting support explicit. The
-            agent proposes analyses; deterministic code computes the results and
-            checks those requirements.
+            Before looking at results, the agent specifies what to test, which
+            data to use, and what the evidence must show. CONFIRM fixes this
+            plan, runs the analysis, and applies five checks. A claim is labeled
+            supported when it passes every check required by the chosen
+            reporting standard.
           </p>
         </div>
         <figure>
@@ -109,8 +110,10 @@
           /></a>
           <figcaption>
             CONFIRM can run an analysis from a question or audit an existing
-            agent’s claim and analysis record. Failed checks guide new
-            proposals; each proposal is validated before execution.
+            agent's claim and analysis record. If a required check fails,
+            CONFIRM withholds support and tells the agent what failed. Revisions
+            must keep the original scientific question and requirements for
+            support. Code checks each plan before running it.
             <a href="figures/overview.svg" target="_blank" rel="noopener"
               >View full-size figure ↗</a
             >
@@ -120,19 +123,24 @@
           <div>
             <h3>Screen</h3>
             <p>
-              Checks the search history, correction for multiple tests, and
-              measured confounds.
+              Accounts for the tests tried and checks for measured confounds:
+              factors such as scanning site that could explain the apparent
+              association.
             </p>
           </div>
           <div>
             <h3>Replicate</h3>
-            <p>Adds replication in an independent cohort.</p>
+            <p>
+              Also requires the finding to appear again in an independent
+              sample. This is the replication check.
+            </p>
           </div>
           <div>
             <h3>Full</h3>
             <p>
-              Also requires adequate statistical power and stability across
-              analysis choices.
+              Also checks whether the sample can detect a pre-specified effect
+              size (statistical power) and whether the result persists across
+              planned analysis choices (stability).
             </p>
           </div>
         </div>
@@ -145,22 +153,27 @@
       >
         <div class="section-intro">
           <p class="eyebrow">Main results</p>
-          <h2 id="results-title">Fewer controls receive false support</h2>
+          <h2 id="results-title">Reducing false support</h2>
           <p>
-            In the main comparison of claims about individual brain measures,
-            CONFIRM-Full supports none of the 150 designed controls and recovers
-            15 of 31 literature-supported claims. The four baselines support
-            34–57 of these controls.
+            We test methods on claims supported by prior studies and on designed
+            controls: test cases with problems such as scanning-site differences
+            or random group labels. Accepting a control counts as false support.
+          </p>
+          <p>
+            In the comparison of claims about individual brain measures,
+            CONFIRM-Full supports 15 of 31 claims supported by prior studies and
+            none of the 150 controls. The four comparison methods accept between
+            34 and 57 controls.
           </p>
         </div>
         <div class="result-strip" aria-label="CONFIRM-Full results">
           <div>
             <p class="result-number"><strong>0</strong><span>/ 150</span></p>
-            <p>Designed controls supported</p>
+            <p>Controls incorrectly accepted</p>
           </div>
           <div>
             <p class="result-number"><strong>15</strong><span>/ 31</span></p>
-            <p>Literature-supported claims recovered</p>
+            <p>Claims from prior studies supported</p>
           </div>
           <p class="result-scope">
             CONFIRM-Full<br /><span>Individual brain measures</span>
@@ -181,9 +194,11 @@
               alt="Comparison of claim recovery and false support. Screen recovers 19 of 31 literature-supported claims and supports 5 of 150 controls; Replicate recovers 15 and supports 1 control; Full recovers 15 and supports no controls."
           /></a>
           <figcaption>
-            Recovery on 31 literature-supported claims and false support on 150
-            designed controls. Error bars show
-            95% confidence intervals. These are subsets of the full benchmark.
+            Left: each point shows how many claims a method recovers from prior
+            studies and how many controls it accepts. Upper-left positions are
+            better. Right: accepted controls, grouped by the problem they test.
+            Error bars show 95% confidence intervals. This comparison uses 31
+            literature-supported claims and 150 controls from the benchmark.
             <a href="figures/frontier.svg" target="_blank" rel="noopener"
               >View full-size figure ↗</a
             >
@@ -195,12 +210,12 @@
       <section class="section wrap" aria-labelledby="retrofit-title">
         <div class="section-intro">
           <p class="eyebrow">Auditing an existing agent</p>
-          <h2 id="retrofit-title">Keep the agent. Check its claims.</h2>
+          <h2 id="retrofit-title">Checking another agent's claims</h2>
           <p>
-            Adding CONFIRM-Full to the adapted NeuroClaw agent reduces supported
-            controls from 34 to 0, while retaining all 15 literature-supported
-            claims the agent accepted. A claim receives support only when both
-            the agent and CONFIRM accept it.
+            We apply CONFIRM to claims accepted by the adapted NeuroClaw agent.
+            Requiring those claims to pass CONFIRM-Full reduces accepted
+            controls from 34 to 0. All 15 claims supported by prior studies that
+            the agent accepted still pass.
           </p>
         </div>
         <figure class="compact-figure">
@@ -218,9 +233,10 @@
               alt="Adding CONFIRM to NeuroClaw preserves recovery at 15 of 31 claims and reduces supported controls from 34 to 1 under Screen and to 0 under Full. Literature false support remains 2 of 15."
           /></a>
           <figcaption>
-            Solid bars require both the agent and CONFIRM to accept a claim.
-            Hatched bars use CONFIRM’s decision alone. The three panels show
-            recovery, literature false support, and control false support.
+            Solid bars labeled "+ CONFIRM" require both systems to accept the
+            claim (veto). Striped bars use CONFIRM's decision alone
+            (substitute). The panels show support for claims backed by prior
+            studies, claims not backed by those studies, and designed controls.
             <a href="figures/retrofit.svg" target="_blank" rel="noopener"
               >View full-size figure ↗</a
             >
@@ -232,78 +248,111 @@
       <section class="section wrap" aria-labelledby="followup-title">
         <div class="section-intro">
           <p class="eyebrow">Agent follow-up</p>
-          <h2 id="followup-title">Failed checks guide better revisions</h2>
+          <h2 id="followup-title">
+            More supported revisions with fewer model calls
+          </h2>
           <p>
-            CONFIRM tells the agent which requirements failed. In a
-            representative run, this feedback produces more supported revisions
-            with fewer model calls. All three methods revise the same 215
-            withheld claims for three rounds, with up to five candidates per
-            round, using the same validator and correction for multiple tests.
+            We compare three ways to help an agent revise an analysis: tell it
+            only that the analysis failed (failure-blind retry), ask it to
+            critique its own analysis (Self-Refine), or give it CONFIRM's failed
+            checks (CONFIRM diagnosis).
+          </p>
+          <p>
+            In the representative run below, each method starts from the same
+            215 withheld claims. For each claim, the agent has three rounds and
+            can propose up to five revised plans per round. All methods use the
+            same rules for checking plans and accounting for repeated tests.
           </p>
         </div>
-        <p class="scroll-hint" aria-hidden="true">
-          Scroll across to see all results →
-        </p>
         <div
           class="table-scroll"
           role="region"
-          aria-label="Follow-up results; scroll horizontally on small screens"
+          aria-label="Follow-up results"
           tabindex="0"
         >
-          <table id="followup-results" aria-describedby="followup-note">
+          <table
+            role="table"
+            id="followup-results"
+            aria-describedby="followup-note"
+          >
             <caption>
               Follow-up results from the paper
             </caption>
-            <thead>
-              <tr>
-                <th scope="col">Feedback method</th>
-                <th scope="col">Model calls</th>
-                <th scope="col">Candidates<br />evaluated</th>
-                <th scope="col">Supported<br />on search data</th>
-                <th scope="col">Support<br />on holdout data</th>
+            <thead role="rowgroup">
+              <tr role="row">
+                <th role="columnheader" scope="col">Feedback method</th>
+                <th role="columnheader" scope="col">Model calls</th>
+                <th role="columnheader" scope="col">
+                  Revised plans<br />tested
+                </th>
+                <th role="columnheader" scope="col">
+                  Pass during<br />revision (count)
+                </th>
+                <th role="columnheader" scope="col">
+                  Pass on<br />held-out data (%)
+                </th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <th scope="row">Failure-blind retry</th>
-                <td>765</td>
-                <td>3,073</td>
-                <td>49</td>
-                <td>7%</td>
+            <tbody role="rowgroup">
+              <tr role="row">
+                <th role="rowheader" scope="row">Failure-blind retry</th>
+                <td role="cell" data-label="Model calls">765</td>
+                <td role="cell" data-label="Revised plans tested">3,073</td>
+                <td role="cell" data-label="Pass during revision (count)">
+                  49
+                </td>
+                <td role="cell" data-label="Pass on held-out data (%)">7%</td>
               </tr>
-              <tr>
-                <th scope="row">Self-Refine</th>
-                <td>1,301</td>
-                <td>2,161</td>
-                <td>54</td>
-                <td>9%</td>
+              <tr role="row">
+                <th role="rowheader" scope="row">Self-Refine</th>
+                <td role="cell" data-label="Model calls">1,301</td>
+                <td role="cell" data-label="Revised plans tested">2,161</td>
+                <td role="cell" data-label="Pass during revision (count)">
+                  54
+                </td>
+                <td role="cell" data-label="Pass on held-out data (%)">9%</td>
               </tr>
-              <tr class="our-method">
-                <th scope="row">CONFIRM diagnosis</th>
-                <td>653</td>
-                <td>2,971</td>
-                <td>70</td>
-                <td>17%</td>
+              <tr role="row" class="our-method">
+                <th role="rowheader" scope="row">CONFIRM diagnosis</th>
+                <td role="cell" data-label="Model calls">653</td>
+                <td role="cell" data-label="Revised plans tested">2,971</td>
+                <td role="cell" data-label="Pass during revision (count)">
+                  70
+                </td>
+                <td role="cell" data-label="Pass on held-out data (%)">17%</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <p id="followup-note" class="note">
-          “Supported on search data” counts candidates that pass all checks on
-          the data used during revision; these findings remain exploratory.
-          Holdout support is the percentage of candidates tested on unseen data
-          that receive support there, rounded as in the paper.
-        </p>
+        <div id="followup-note" class="result-notes">
+          <p>
+            <strong>During revision:</strong> the agent uses the existing data
+            to develop and test revised plans. The count shows how many pass all
+            checks on these data. This support is exploratory because the data
+            have already informed the revisions.
+          </p>
+          <p>
+            <strong>Held-out data:</strong> after a revised plan is fixed, it is
+            tested on data kept out of the revision process. The percentage
+            shows how many of the revisions tested there pass all checks.
+            Percentages are rounded as in the paper.
+          </p>
+        </div>
 
         <div class="worked-example">
-          <h3>A worked example: age and ventricular volume</h3>
+          <h3>Example: revising a claim about age and brain structure</h3>
           <p>
-            In OASIS3, the original analysis omitted the FreeSurfer software
-            version, which was associated with age. CONFIRM withheld support and
-            identified the missing adjustment. The agent proposed three
-            revisions: two added this adjustment and passed evaluation on unseen
-            holdout data; one introduced an unapproved age cutoff and was
-            rejected before execution. The original claim remains withheld.
+            An analysis of the OASIS3 dataset linked older age to larger brain
+            ventricles. It omitted the version of FreeSurfer used to process the
+            scans. Because software version was associated with participant age,
+            software differences could explain part of the apparent age effect.
+            CONFIRM identified this omission and withheld support.
+          </p>
+          <p>
+            The agent proposed three revisions. Two accounted for software
+            version and passed all checks on held-out data. One introduced an
+            age cutoff outside the permitted subgroups, so CONFIRM rejected it
+            before running it. The original claim remains withheld.
           </p>
           <figure class="compact-figure">
             <a
@@ -320,9 +369,9 @@
                 alt="A withheld OASIS3 claim leads to three revised plans. Validation blocks an unapproved age cutoff; the two other plans pass checks on search data and are supported on unseen holdout data. The original claim remains withheld."
             /></a>
             <figcaption>
-              The paper’s OASIS3 example follows an omitted confound through
-              diagnosis, plan validation, search-data checks, and holdout
-              evaluation.
+              The two accepted revisions add software version to the analysis.
+              One tests ventricular volume; the other tests a pattern across six
+              brain regions. Both pass on data kept out of the revision process.
               <a
                 href="figures/worked-example.svg"
                 target="_blank"
@@ -341,13 +390,15 @@
       >
         <div>
           <p class="eyebrow">NeuroClaimBench</p>
-          <h2 id="benchmark-title">489 executable tasks</h2>
+          <h2 id="benchmark-title">
+            489 tasks for evaluating scientific claims
+          </h2>
           <p>
-            The benchmark combines scientific questions, designed controls, and
-            tasks that test transfer to external cohorts. The release contains
-            task definitions, analysis plans, reference labels, and reported
-            outcomes. Participant-level cohort data remain with their original
-            providers.
+            NeuroClaimBench combines scientific questions, designed controls,
+            and tests on additional study datasets. The release contains the
+            questions, analysis plans, expected support labels, and reported
+            results. Individual participants' data remain with the original
+            study providers.
           </p>
           <a
             class="text-link"
@@ -366,7 +417,7 @@
             <dd>150</dd>
           </div>
           <div>
-            <dt>External transfer tasks</dt>
+            <dt>Tasks on additional study datasets</dt>
             <dd>60</dd>
           </div>
         </dl>

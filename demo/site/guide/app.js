@@ -39,7 +39,7 @@ function updateURL() {
 }
 
 function picker() {
-  return `<div class="standard-picker"><div class="standards-label">Compare reporting standards</div><div class="standards" role="group" aria-label="Reporting standard">${standards.map((s) => `<button type="button" data-standard="${s}" aria-pressed="${state.standard === s}">${names[s]}</button>`).join("")}</div></div>`;
+  return `<div class="standard-picker"><div class="standards-label">Choose the required checks</div><div class="standards" role="group" aria-label="Reporting standard">${standards.map((s) => `<button type="button" data-standard="${s}" aria-pressed="${state.standard === s}">${names[s]}</button>`).join("")}</div></div>`;
 }
 
 function scatter(example, cohort, label) {
@@ -79,77 +79,77 @@ function gates(example) {
   const family = g.multiplicity_effective_family_size;
   return [
     {
-      name: "Search history & multiplicity",
+      name: "Search history and repeated tests",
       pass: g.search_provenance && g.multiplicity,
       required: true,
       explanation:
-        "The plan records how the hypothesis was selected. The significance threshold accounts for the declared search family.",
-      observed: `Family size: ${family} · p ${pValue(r.primary.p)} · threshold: ${(c.gates.multiplicity.alpha / family).toFixed(3)}`,
+        "The plan records how the question was chosen and how many tests were tried. CONFIRM adjusts the significance cutoff for that count.",
+      observed: `Tests counted: ${family} · p ${pValue(r.primary.p)} · cutoff: ${(c.gates.multiplicity.alpha / family).toFixed(3)}`,
     },
     {
       name: "Measured confounds",
       pass: g.confound && g.confound_completeness,
       required: true,
       explanation: g.confound_completeness
-        ? "The model includes the required adjustment variables. The audit finds no measured confound that is associated with the predictor and omitted from the plan."
-        : "Site is associated with age and omitted from the plan. This check fails even though the apparent association is significant.",
-      observed: `Adjustment variables: ${c.covariates.join(", ")}${g.confound_completeness ? "" : " · omitted: site"}`,
+        ? "A confound is a factor that could explain the apparent association. The check found no measured factor associated with age that was left out of the plan."
+        : "Participants differ in age across scanning sites, and the plan leaves out site. The site difference could explain the apparent link with age.",
+      observed: `Accounted for: ${c.covariates.map((name) => (name === "eTIV" ? "head size" : name)).join(", ")}${g.confound_completeness ? "" : " · omitted: site"}`,
     },
     {
       name: "Statistical power",
       pass: g.power,
       required: state.standard === "full",
       explanation:
-        "The power calculation asks whether the planned sample can detect a reference effect chosen before analysis. This synthetic example uses a reference effect of 0.5.",
+        "Power is the probability of detecting an effect of a specified size with the planned sample. These examples use an effect size of 0.5, chosen before analysis.",
       observed: `Estimated power: ${(r.power.achieved_power * 100).toFixed(1)}% · required: ${(c.gates.power.min_power * 100).toFixed(0)}%`,
     },
     {
-      name: "Analytic stability",
+      name: "Stability across analysis choices",
       pass: g.multiverse,
       required: state.standard === "full",
       explanation:
-        "The analysis is repeated across specified choices of adjustment, outlier handling, and model. A consistent result must appear in enough of these alternatives.",
-      observed: `Consistent analyses: ${(r.multiverse.fraction_consistent * 100).toFixed(1)}% · required: ${(c.gates.multiverse.min_fraction_consistent * 100).toFixed(0)}%`,
+        "CONFIRM repeats the analysis with planned changes to the adjustment variables, handling of extreme values, and statistical model. At least 60% of these alternatives must give a consistent result.",
+      observed: `Analyses with a consistent result: ${(r.multiverse.fraction_consistent * 100).toFixed(1)}% · required: ${(c.gates.multiverse.min_fraction_consistent * 100).toFixed(0)}%`,
     },
     {
       name: "Independent replication",
       pass: g.replication,
       required: state.standard !== "screen",
       explanation: g.replication
-        ? "The association has the expected direction and passes the significance threshold in the independent replication cohort."
-        : "The association is absent in the independent replication sample. The discovery result alone does not satisfy this requirement.",
+        ? "The association has the expected direction and passes the significance cutoff in a second, independent sample."
+        : "The association does not pass the significance test in the second, independent sample.",
       observed: `Replication p ${pValue(r.replication.cohort_results[0].effect.p)} · required: same direction and p < ${c.gates.replication.alpha}`,
     },
   ];
 }
 
 function question(example) {
-  return `<div class="two-col"><div class="question-copy"><p class="stage-kicker">Start with a scientific question</p><h3>${esc(example.question)}</h3><p>We compare two independent samples. The analysis plan fixes the measurement, adjustment variables, expected direction, and checks before the result is evaluated.</p><div class="sample-line"><div><b>600</b><span>Discovery observations</span></div><div><b>600</b><span>Replication observations</span></div></div><details class="ground-truth"><summary>How this example was constructed</summary><p>${esc(example.setup)}</p></details></div><div class="question-plot">${scatter(example, "DEMO_DISC", "A first look at discovery")}<p class="plot-description">A visible pattern is the starting point. Next, inspect the plan used to test it.</p></div></div>`;
+  return `<div class="two-col"><div class="question-copy"><p class="stage-kicker">Start with a scientific question</p><h3>${esc(example.question)}</h3><p>The first sample is used for the initial analysis (discovery). A second, independent sample tests whether the finding repeats (replication). The plan fixes the analysis choices before either result is evaluated.</p><div class="sample-line"><div><b>600</b><span>In the first sample</span></div><div><b>600</b><span>In the second sample</span></div></div><details class="ground-truth"><summary>How this example was constructed</summary><p>${esc(example.setup)}</p></details></div><div class="question-plot">${scatter(example, "DEMO_DISC", "First sample (discovery)")}<p class="plot-description">The colors identify scanning sites. The plan specifies how to test the association with age.</p></div></div>`;
 }
 
 function plan(example) {
   const c = example.contract;
-  return `<div class="stage-header"><div><p class="stage-kicker">Specify before testing</p><h3>The analysis choices are fixed.</h3><p>This example starts from a prepared plan. In an agent run, the model drafts a plan for approval before execution.</p></div></div><div class="two-col"><div class="plan-block"><h4>What will be tested</h4><div class="plan-row"><span class="plan-label">Predictor</span><span>Age</span></div><div class="plan-row"><span class="plan-label">Measurement</span><span>Synthetic imaging measurement</span></div><div class="plan-row"><span class="plan-label">Direction</span><span>${c.estimand.direction === "negative" ? "Decreases" : "Increases"} with age</span></div><div class="plan-row"><span class="plan-label">Adjust for</span><span class="chips">${c.covariates.map((x) => `<span class="chip">${x === "eTIV" ? "Head size" : esc(x[0].toUpperCase() + x.slice(1))}</span>`).join("")}</span></div><div class="plan-row"><span class="plan-label">Samples</span><span>Independent discovery and replication cohorts</span></div></div><div class="plan-block"><h4>What the checks require</h4><div class="plan-row"><span class="plan-label">Significance</span><span>p &lt; 0.05, adjusted for the search family</span></div><div class="plan-row"><span class="plan-label">Power</span><span>At least 80% for a reference effect of 0.5</span></div><div class="plan-row"><span class="plan-label">Stability</span><span>At least 60% consistent alternative analyses</span></div><div class="plan-row"><span class="plan-label">Replication</span><span>Same direction and p &lt; 0.05 in new data</span></div><div class="plan-row"><span class="plan-label">Search family</span><span>1 pre-specified hypothesis</span></div></div></div><div class="plan-foot"><span class="hash">Plan SHA-256: ${example.contract_sha256.slice(0, 24)}…</span><a href="data/${example.id}-plan.json" download class="text-link">Download the full plan ↓</a></div>`;
+  return `<div class="stage-header"><div><p class="stage-kicker">Before the analysis</p><h3>The plan fixes what will be tested.</h3><p>These examples use prepared plans. In an agent run, the model writes the plan and code checks its required fields and format before analysis begins.</p></div></div><div class="two-col"><div class="plan-block"><h4>What will be tested</h4><div class="plan-row"><span class="plan-label">Predictor</span><span>Age</span></div><div class="plan-row"><span class="plan-label">Measurement</span><span>Synthetic imaging measurement</span></div><div class="plan-row"><span class="plan-label">Direction</span><span>${c.estimand.direction === "negative" ? "Decreases" : "Increases"} with age</span></div><div class="plan-row"><span class="plan-label">Adjust for</span><span class="chips">${c.covariates.map((x) => `<span class="chip">${x === "eTIV" ? "Head size" : esc(x[0].toUpperCase() + x.slice(1))}</span>`).join("")}</span></div><div class="plan-row"><span class="plan-label">Samples</span><span>Independent first and second samples</span></div></div><div class="plan-block"><h4>What the checks require</h4><div class="plan-row"><span class="plan-label">Significance</span><span>p &lt; 0.05, adjusted for the number of tests</span></div><div class="plan-row"><span class="plan-label">Power</span><span>At least 80% for a reference effect of 0.5</span></div><div class="plan-row"><span class="plan-label">Stability</span><span>A consistent result in at least 60% of the planned alternatives</span></div><div class="plan-row"><span class="plan-label">Replication</span><span>Same direction and p &lt; 0.05 in new data</span></div><div class="plan-row"><span class="plan-label">Tests planned</span><span>1 pre-specified hypothesis</span></div></div></div><div class="plan-foot"><span>The downloaded plan records these choices.</span><a href="data/${example.id}-plan.json" download class="text-link">Download the full plan ↓</a></div>`;
 }
 
 function results(example) {
   const a = example.results.primary,
     b = example.results.replication.cohort_results[0].effect;
-  return `<div class="stage-header"><div><p class="stage-kicker">Computed by the analysis code</p><h3>Does the finding appear in new data?</h3><p>Both plots use the same scales. Dots show raw measurements; the effect estimates below account for the variables in the plan.</p></div></div><div class="two-col results-grid">${scatter(example, "DEMO_DISC", "Discovery")}${scatter(example, "DEMO_REP", "Replication")}</div><div class="metrics">${[
+  return `<div class="stage-header"><div><p class="stage-kicker">Analysis results</p><h3>Does the finding appear in new data?</h3><p>Both plots use the same scales. Dots show raw measurements; the effect estimates below account for the variables in the plan.</p></div></div><div class="two-col results-grid">${scatter(example, "DEMO_DISC", "Discovery")}${scatter(example, "DEMO_REP", "Replication")}</div><div class="metrics">${[
     ["Discovery", a],
     ["Replication", b],
   ]
     .map(
       ([label, e]) =>
-        `<div><div class="metric-line"><span>${label} effect</span><b>${number(e.beta)}</b><span>p ${esc(pValue(e.p))}</span></div><p class="ci-note">95% CI [${number(e.ci_low)}, ${number(e.ci_high)}]</p></div>`,
+        `<div><div class="metric-line"><span>${label} effect</span><b>${number(e.beta)}</b><span>p ${esc(pValue(e.p))}</span></div><p class="ci-note">95% confidence interval [${number(e.ci_low)}, ${number(e.ci_high)}]</p></div>`,
     )
     .join(
       "",
-    )}</div><p class="plot-description">Effects are measurement units per year of age, fitted using all 600 observations per cohort. A confidence interval describes uncertainty around the estimated effect.</p>`;
+    )}</div><p class="plot-description">The effect is the estimated change in the measurement for each year of age, using all 600 observations per sample. The confidence interval shows its uncertainty. The p-value is compared with the significance cutoff in the plan.</p>`;
 }
 
 function checks(example) {
-  return `<div class="stage-header"><div><p class="stage-kicker">Five evidence checks</p><h3>Open a check to see the evidence.</h3><p>The reporting standard selects which checks are required.</p></div>${picker()}</div><div class="gate-list">${gates(
+  return `<div class="stage-header"><div><p class="stage-kicker">Five evidence checks</p><h3>Open a check to see the evidence.</h3><p>Screen requires the search and confound checks. Replicate adds the test in a new sample. Full requires all five.</p></div>${picker()}</div><div class="gate-list">${gates(
     example,
   )
     .map(
@@ -158,7 +158,7 @@ function checks(example) {
     )
     .join(
       "",
-    )}</div><p class="optional-note">All five checks are computed. A failed check withholds the claim when that check is required by the selected standard.</p>`;
+    )}</div><p class="optional-note">CONFIRM computes all five checks. It withholds support if any check required by the chosen standard fails.</p>`;
 }
 
 function decision(example) {
@@ -166,12 +166,12 @@ function decision(example) {
     failed = gates(example).filter((g) => g.required && !g.pass);
   const why = supported
     ? state.standard === "screen" && !example.support.full
-      ? "The discovery requirements pass. Screen does not require replication; this claim is withheld under Replicate and Full."
+      ? "The initial analysis passes the checks required by Screen. Replicate and Full withhold support because the finding does not pass the test in the second sample."
       : "All checks required by this reporting standard pass."
     : example.id === "site_confounded"
-      ? "The plan omits site, a measured confound associated with age. The apparent association does not pass the confound check."
-      : "The association does not repeat in the independent cohort. Replication is required by this reporting standard.";
-  return `<div class="stage-header"><div><p class="stage-kicker">A decision tied to the evidence</p><h3>What can this analysis report?</h3></div>${picker()}</div><div class="decision-layout"><div class="decision-card ${supported ? "" : "withheld"}"><span class="decision-symbol" aria-hidden="true">${supported ? "✓" : "−"}</span><h3>${supported ? "Supported" : "Withheld"}</h3><p>${why}</p><span class="decision-scope">${names[state.standard]} reporting standard${supported && state.standard === "full" ? " · Confirmed" : ""}</span></div><div><p class="quiet">Same computed results, different requirements</p><table class="comparison"><thead><tr><th scope="col">Standard</th><th scope="col">Reporting decision</th></tr></thead><tbody>${standards.map((s) => `<tr class="${s === state.standard ? "active" : ""}"><td>${names[s]}</td><td>${decisionBadge(example.support[s])}</td></tr>`).join("")}</tbody></table><p class="decision-note">${failed.length ? `Required check that failed: ${failed.map((g) => g.name.toLowerCase()).join(", ")}.` : "Support means the selected requirements passed."} Choose the standard before running a new analysis.</p><p class="decision-note">${esc(example.lesson)}</p></div></div>`;
+      ? "The plan leaves out scanning site, which is associated with age. It fails the check for measured confounds."
+      : "The finding does not pass the replication test in the second sample, which this reporting standard requires.";
+  return `<div class="stage-header"><div><p class="stage-kicker">Reporting decision</p><h3>Does this claim meet the requirements?</h3></div>${picker()}</div><div class="decision-layout"><div class="decision-card ${supported ? "" : "withheld"}"><span class="decision-symbol" aria-hidden="true">${supported ? "✓" : "−"}</span><h3>${supported ? "Supported" : "Withheld"}</h3><p>${why}</p><span class="decision-scope">${names[state.standard]} reporting standard${supported && state.standard === "full" ? " · Confirmed" : ""}</span></div><div><p class="quiet">Decisions under each reporting standard</p><table class="comparison"><thead><tr><th scope="col">Standard</th><th scope="col">Reporting decision</th></tr></thead><tbody>${standards.map((s) => `<tr class="${s === state.standard ? "active" : ""}"><td>${names[s]}</td><td>${decisionBadge(example.support[s])}</td></tr>`).join("")}</tbody></table><p class="decision-note">${failed.length ? `Required check that failed: ${failed.map((g) => g.name.toLowerCase()).join(", ")}.` : "Support means the selected requirements passed."} Choose the standard before looking at the results of a new analysis.</p><p class="decision-note">${esc(example.lesson)}</p></div></div>`;
 }
 
 function render() {
@@ -212,16 +212,16 @@ function renderReplay() {
     .join("");
   $("#replay-count").textContent = `0${state.replay + 1} / 04`;
   $("#replay-actor").textContent = [
-    "CONFIRM · Failure diagnosis",
+    "CONFIRM · Identify the failed check",
     "Agent · Recorded proposals",
-    "CONFIRM · Plan validation",
-    "CONFIRM · Computed results",
+    "CONFIRM · Check the proposed changes",
+    "CONFIRM · Test the revised plans",
   ][state.replay];
   const panels = [
-    `<h3>The groups differ by site.</h3><p>The original plan compares a functional-connectivity measurement between two constructed groups, adjusting for age and sex. Site is associated with group membership but is missing from the plan.</p><div class="replay-callout"><strong>Failed check: measured confounds</strong><br>The claim is withheld. The agent receives this diagnosis and the original analysis plan.</div>`,
-    `<h3>Two proposals address the diagnosis.</h3><div class="proposal"><span>01</span><div><h4>Add the missing site adjustment</h4><p>Keep the original group comparison and connectivity measurement. Add site to the adjustment variables.</p><div class="chips"><span class="chip">Age</span><span class="chip">Sex</span><span class="chip">+ Site</span></div></div></div><div class="proposal"><span>02</span><div><h4>Explore a related connectivity pattern</h4><p>Test ${c[1].region_count} related connectivity measurements with the same group comparison, adding site adjustment.</p></div></div>`,
-    `<h3>Both plans pass validation.</h3><p>The code checks the proposed changes before execution. A valid plan still needs statistical support.</p><ul class="validation-list"><li>Group comparison and original cohorts retained</li><li>Existing adjustment variables retained; site added</li><li>Gate thresholds preserved</li><li>Related outcomes and executable designs checked</li></ul><p>The second proposal changes both the outcome scope and adjustment variables. This combined change is recorded in its validation warning.</p>`,
-    `<h3>Neither follow-up receives support.</h3><div class="proposal"><span>01</span><div><h4>Site-adjusted original measurement</h4><p>Discovery p ${esc(pValue(c[0].primary.p))}. Adjusting for site removes the apparent group difference.</p>${decisionBadge(c[0].supported)}</div></div><div class="proposal"><span>02</span><div><h4>Related connectivity pattern</h4><p>${c[1].significant_regions} of ${c[1].region_count} measurements pass the recorded regional significance check.</p>${decisionBadge(c[1].supported)}</div></div><p class="replay-callout">The final correction family contains ${followup.final_family_size} hypotheses, including the original test. The original claim remains withheld.</p>`,
+    `<h3>The plan leaves out scanning site.</h3><p>The original analysis compares how activity in two brain networks varies together (functional connectivity) between two constructed groups. It accounts for age and sex. The groups also differ by scanning site, which the plan leaves out.</p><div class="replay-callout"><strong>Failed check: measured confounds</strong><br>CONFIRM withholds support and tells the agent that the analysis left out site.</div>`,
+    `<h3>The agent proposes two revised plans.</h3><div class="proposal"><span>01</span><div><h4>Account for scanning site</h4><p>Repeat the original group comparison while also accounting for scanning site.</p><div class="chips"><span class="chip">Age</span><span class="chip">Sex</span><span class="chip">+ Site</span></div></div></div><div class="proposal"><span>02</span><div><h4>Test related connectivity measurements</h4><p>Compare the same groups across ${c[1].region_count} related connectivity measurements, accounting for site in each test.</p></div></div>`,
+    `<h3>Both revised plans are allowed to run.</h3><p>CONFIRM checks the proposed changes. Both plans:</p><ul class="validation-list"><li>Keep the same group comparison and datasets</li><li>Keep age and sex in the analysis and add site</li><li>Keep the same pass criteria for every check</li><li>Use permitted measurements and an analysis the code can run</li></ul><p>The second plan adds site adjustment and tests a set of related measurements. CONFIRM records both changes. The next step tests whether the results pass the evidence checks.</p>`,
+    `<h3>Neither revised analysis receives support.</h3><div class="proposal"><span>01</span><div><h4>Original measurement, accounting for site</h4><p>After accounting for site, p ${esc(pValue(c[0].primary.p))} in the first sample. The group difference is no longer statistically significant.</p>${decisionBadge(c[0].supported)}</div></div><div class="proposal"><span>02</span><div><h4>Related connectivity measurements</h4><p>${c[1].significant_regions} of ${c[1].region_count} measurements pass their significance check.</p>${decisionBadge(c[1].supported)}</div></div><p class="replay-callout">The final correction accounts for all ${followup.final_family_size} tests, including the original analysis. The original claim remains withheld.</p>`,
   ];
   $("#replay-content").innerHTML = panels[state.replay];
   $("#replay-prev").disabled = state.replay === 0;

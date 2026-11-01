@@ -8,7 +8,7 @@
       content="An interactive guide to CONFIRM: follow a neuroimaging claim through its analysis plan, evidence checks, reporting decision, and agent follow-up."
     />
     <meta name="theme-color" content="#f7f7f2" />
-    <title>CONFIRM — A visual guide</title>
+    <title>CONFIRM: A visual guide</title>
     <link rel="icon" href="../icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="style.css" />
     <script type="module" src="app.js"></script>
@@ -31,18 +31,17 @@
     <main>
       <section class="hero wrap">
         <div>
-          <p class="eyebrow">An agentic framework for scientific reporting</p>
+          <p class="eyebrow">CONFIRM in practice</p>
           <h1>When is a finding<br /><em>ready to report?</em></h1>
           <p class="hero-copy">
-            Follow a claim from an analysis plan to a reporting decision. See
-            what the evidence supports, what the checks catch, and how an agent
-            follows up.
+            Follow an analysis through the checks. Supported means the required
+            checks pass. Withheld means at least one requirement is unmet.
           </p>
           <a class="button primary" href="#explore"
             >Explore a claim <span aria-hidden="true">↓</span></a
           >
           <p class="quiet hero-note">
-            Three reproducible examples. One recorded agent run.
+            Three simulated examples and one recorded agent run.
           </p>
         </div>
         <div
@@ -85,13 +84,11 @@
         <div class="section-heading">
           <div>
             <p class="eyebrow">01 / Follow a claim</p>
-            <h2 id="explore-title">
-              Same workflow.<br />Three different outcomes.
-            </h2>
+            <h2 id="explore-title">Compare three<br />analysis examples.</h2>
           </div>
           <p>
-            Choose an example, then move through the analysis. Every plotted
-            value and decision comes from the released code.
+            Choose an example, then move through its plan, results, and checks.
+            The released code generates the data and computes every result.
           </p>
         </div>
         <div
@@ -104,7 +101,7 @@
           <div class="workspace-top">
             <span class="dataset-label"
               ><span class="small-dot"></span>Synthetic data
-              <span class="separator">/</span> 600 observations per cohort</span
+              <span class="separator">/</span> 600 observations per sample</span
             ><a
               id="record-link"
               class="text-link"
@@ -150,12 +147,13 @@
             <div>
               <p class="eyebrow">02 / Follow the agent</p>
               <h2 id="followup-title">
-                A failed check<br />sets the next question.
+                How a failed check<br />guides a revision
               </h2>
             </div>
             <p>
-              A recorded agent run on a site-confounded benchmark control. Watch
-              the agent propose two follow-ups, then see the code evaluate them.
+              In this recorded run, the original analysis leaves out scanning
+              site. The agent proposes two revised plans, and CONFIRM tests
+              whether either one meets the requirements for support.
             </p>
           </div>
           <div class="replay-layout">
@@ -193,17 +191,15 @@
           <details class="source-details">
             <summary>About this recorded example</summary>
             <p>
-              This is a separate benchmark control, not one of the three
-              synthetic examples above. The original agent proposed changes to a
-              group comparison after CONFIRM detected an omitted site effect.
-              Both proposals passed plan validation and were evaluated; neither
-              received support. The browser replays the recorded results and
-              makes no model calls.
+              This run uses a separate benchmark control built around a
+              scanning-site difference. The agent revises a group comparison
+              after CONFIRM identifies the missing site adjustment. Both revised
+              plans are allowed to run; neither passes the evidence checks. The
+              page displays saved results from that run.
             </p>
             <p>
               <a href="data/followup.json" download
-                >Download the plans, validation decisions, aggregate results,
-                and source hash ↗</a
+                >Download the plans, checks, and results ↗</a
               >
             </p>
           </details>
@@ -214,7 +210,7 @@
         <div>
           <p class="eyebrow">03 / Try it yourself</p>
           <h2 id="takeaway-title">
-            Inspect the evidence.<br />Run the same checks.
+            Run these examples<br />with the released code
           </h2>
           <p>
             Generate all three synthetic examples locally. The command writes
@@ -250,15 +246,17 @@
           <div class="notes-grid">
             <p>
               <strong>Synthetic measurements.</strong> The three interactive
-              examples use independent samples generated with fixed seeds.
-              Measurements are in arbitrary units. Plots show 180 observations
-              from each 600-observation cohort; analyses use all 600.
+              examples use independently simulated samples. Fixed random seeds
+              make the examples reproducible. Measurements are in arbitrary
+              units. Plots show 180 observations from each sample; analyses use
+              all 600.
             </p>
             <p>
               <strong>Reporting support.</strong> Supported means the selected
-              reporting requirements passed. The standard comparison illustrates
-              fixed requirements applied to the same results. Choose the
-              reporting standard before running a new analysis.
+              reporting requirements passed. Switching between Screen,
+              Replicate, and Full changes which checks are required while
+              keeping the results fixed. Choose the standard before running a
+              new analysis.
             </p>
             <p>
               <strong>Computed evidence.</strong> The plan, statistical results,

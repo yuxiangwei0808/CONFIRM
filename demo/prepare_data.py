@@ -18,25 +18,25 @@ from confirm.execution import jsonable
 SITE = ROOT / "demo/site/guide"
 DESCRIPTIONS = {
     "supported": {
-        "title": "Replicated association",
-        "short": "A signal in both cohorts",
+        "title": "Repeats in a new sample",
+        "short": "Passes all five checks",
         "question": "Does the imaging measurement decrease with age?",
-        "setup": "The simulated measurement decreases with age in both independent cohorts.",
-        "lesson": "The association passes all five checks, including replication in a separate cohort.",
+        "setup": "The measurement decreases with age in both independently simulated samples.",
+        "lesson": "The association passes all five checks, including the test in a separate sample.",
     },
     "site_confounded": {
-        "title": "Site-driven association",
-        "short": "An omitted confound",
+        "title": "Explained by scanning site",
+        "short": "Site was left out of the plan",
         "question": "Does the imaging measurement increase with age?",
-        "setup": "Site changes the measurement, and participants at one site are older. The initial plan omits site.",
-        "lesson": "The apparent age association reflects a site difference that the plan does not account for.",
+        "setup": "The simulated measurement differs by scanning site, and participants at one site are older. The initial plan leaves out site.",
+        "lesson": "The apparent link with age comes from a site difference that the plan does not account for.",
     },
     "nonreplicating": {
-        "title": "Discovery-only association",
-        "short": "A signal that does not repeat",
+        "title": "Does not repeat",
+        "short": "Fails the replication check",
         "question": "Does the imaging measurement decrease with age?",
-        "setup": "The simulated measurement decreases with age in discovery. The independent replication sample has no age effect.",
-        "lesson": "The discovery association passes Screen. The missing replication withholds it under Replicate and Full.",
+        "setup": "The simulated measurement decreases with age in the first sample. The second sample has no age effect.",
+        "lesson": "Screen accepts the claim. Replicate and Full withhold support because the association fails the test in the second sample.",
     },
 }
 

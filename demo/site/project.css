@@ -289,9 +289,6 @@ figcaption a {
 .table-scroll {
   overflow-x: auto;
 }
-.scroll-hint {
-  display: none;
-}
 table {
   border-collapse: collapse;
   width: 100%;
@@ -344,6 +341,22 @@ tbody tr:last-child td {
   max-width: 950px;
   margin: 16px 0 0;
   line-height: 1.65;
+}
+.result-notes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-top: 18px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.65;
+}
+.result-notes p {
+  margin: 0;
+}
+.result-notes strong {
+  font-weight: 600;
+  color: var(--ink);
 }
 .worked-example {
   margin-top: 44px;
@@ -466,6 +479,10 @@ footer {
   }
 }
 @media (max-width: 520px) {
+  .result-notes {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
   body {
     font-size: 16px;
   }
@@ -558,12 +575,6 @@ footer {
   table {
     min-width: 620px;
   }
-  .scroll-hint {
-    display: block;
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 8px;
-  }
   th,
   td {
     padding: 13px 16px;
@@ -583,6 +594,54 @@ footer {
   }
   footer a {
     font-size: 13px;
+  }
+}
+@media (max-width: 700px) {
+  #followup-results {
+    display: block;
+    min-width: 0;
+    text-align: left;
+  }
+  #followup-results thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  #followup-results tbody {
+    display: grid;
+    gap: 14px;
+  }
+  #followup-results tbody tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 20px;
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+  #followup-results tbody th {
+    grid-column: 1 / -1;
+    font-size: 16px;
+  }
+  #followup-results tbody td {
+    font-size: 22px;
+    line-height: 1.3;
+  }
+  #followup-results tbody th,
+  #followup-results tbody td {
+    padding: 0;
+    border: 0;
+  }
+  #followup-results td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--muted);
+    font-weight: 400;
+    margin-bottom: 4px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
