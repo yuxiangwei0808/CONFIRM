@@ -1,0 +1,65 @@
+{
+  "claim_id": "demo_nonreplicating",
+  "covariates": [
+    "sex",
+    "eTIV",
+    "site"
+  ],
+  "discovery_cohort": "DEMO_DISC",
+  "estimand": {
+    "direction": "negative",
+    "group": null,
+    "outcome": "smri_discovery_only",
+    "predictor": "age",
+    "region_set": null,
+    "type": "association",
+    "unit": "scalar"
+  },
+  "gates": {
+    "confound": {
+      "motion_check": false,
+      "require_covariates": [
+        "sex",
+        "eTIV",
+        "site"
+      ]
+    },
+    "multiplicity": {
+      "alpha": 0.05,
+      "family_size": 1,
+      "method": "fdr_bh"
+    },
+    "multiverse": {
+      "min_fraction_consistent": 0.6
+    },
+    "power": {
+      "min_power": 0.8,
+      "ref_effect": 0.5
+    },
+    "replication": {
+      "alpha": 0.05,
+      "dice_min": 0.0,
+      "harmonize": "none",
+      "pattern_corr_min": 0.5,
+      "region_replication_frac_min": 0.5,
+      "require_ci_overlap": false,
+      "require_same_sign": true
+    }
+  },
+  "inclusion": null,
+  "question": "Is age associated with smri_discovery_only in these synthetic samples?",
+  "replication_cohorts": [
+    "DEMO_REP"
+  ],
+  "reporting_language_allowed": [
+    "confirmed",
+    "non_replicated",
+    "under_powered",
+    "fragile"
+  ],
+  "search_provenance": {
+    "declared": true,
+    "family_size": 1,
+    "selection": "preregistered"
+  }
+}

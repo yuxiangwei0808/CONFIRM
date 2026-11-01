@@ -1,0 +1,299 @@
+{
+  "kind": "recorded_benchmark_control",
+  "source_sha256": "2fed7c3ebc91405fb48425952289cbddf80f55708f9fe1f01927f729d3252c71",
+  "claim_id": "neg_site_confound_ukb_s1",
+  "model": "openai:gpt-5.5",
+  "parent_contract": {
+    "claim_id": "neg_site_confound_ukb_s1",
+    "question": "Programmatic synthetic known-null/fragile negative stress claim.",
+    "estimand": {
+      "type": "group_diff",
+      "outcome": "fc_fc_Cont_Vis",
+      "predictor": "bench_group",
+      "group": {
+        "var": "bench_group",
+        "case": "case",
+        "control": "control"
+      },
+      "direction": "two_sided",
+      "unit": "scalar",
+      "region_set": null
+    },
+    "covariates": [
+      "age",
+      "sex"
+    ],
+    "inclusion": null,
+    "discovery_cohort": "neg_site_confound_ukb_s1_DISC",
+    "replication_cohorts": [
+      "neg_site_confound_ukb_s1_REP"
+    ],
+    "search_provenance": {
+      "declared": true,
+      "family_size": 1,
+      "selection": "preregistered"
+    },
+    "gates": {
+      "multiplicity": {
+        "method": "fdr_bh",
+        "alpha": 0.05,
+        "family_size": 1
+      },
+      "confound": {
+        "require_covariates": [
+          "age",
+          "sex"
+        ],
+        "motion_check": false
+      },
+      "power": {
+        "min_power": 0.8,
+        "ref_effect": null
+      },
+      "multiverse": {
+        "min_fraction_consistent": 0.6
+      },
+      "replication": {
+        "alpha": 0.05,
+        "require_same_sign": true,
+        "require_ci_overlap": false,
+        "harmonize": "none",
+        "pattern_corr_min": 0.5,
+        "region_replication_frac_min": 0.5,
+        "dice_min": 0.0
+      }
+    },
+    "reporting_language_allowed": [
+      "confirmed",
+      "non_replicated",
+      "under_powered",
+      "fragile"
+    ]
+  },
+  "parent_label": "fragile",
+  "failed_parent_gates": [
+    "confound_completeness"
+  ],
+  "candidates": [
+    {
+      "id": "neg_site_confound_ukb_s1_r1_c1_contract_correction",
+      "question": "Does bench_group case versus control differ in fc_fc_Cont_Vis after adjustment for age, sex, and the measured site confound in the same discovery and replication cohorts?",
+      "type": "corrected_contract",
+      "contract": {
+        "claim_id": "neg_site_confound_ukb_s1_site_adjusted_repair",
+        "question": "Programmatic synthetic known-null/fragile negative stress claim, repaired by adjusting for the measured site confound while retaining the original Control-Visual functional-connectivity estimand.",
+        "estimand": {
+          "type": "group_diff",
+          "outcome": "fc_fc_Cont_Vis",
+          "predictor": "bench_group",
+          "group": {
+            "var": "bench_group",
+            "case": "case",
+            "control": "control"
+          },
+          "direction": "two_sided",
+          "unit": "scalar",
+          "region_set": null
+        },
+        "covariates": [
+          "age",
+          "sex",
+          "site"
+        ],
+        "inclusion": null,
+        "discovery_cohort": "neg_site_confound_ukb_s1_DISC",
+        "replication_cohorts": [
+          "neg_site_confound_ukb_s1_REP"
+        ],
+        "search_provenance": {
+          "declared": true,
+          "family_size": 2,
+          "selection": "preregistered"
+        },
+        "gates": {
+          "multiplicity": {
+            "method": "fdr_bh",
+            "alpha": 0.05,
+            "family_size": 2
+          },
+          "confound": {
+            "require_covariates": [
+              "age",
+              "sex",
+              "site"
+            ],
+            "motion_check": false
+          },
+          "power": {
+            "min_power": 0.8,
+            "ref_effect": null
+          },
+          "multiverse": {
+            "min_fraction_consistent": 0.6
+          },
+          "replication": {
+            "alpha": 0.05,
+            "require_same_sign": true,
+            "require_ci_overlap": false,
+            "harmonize": "none",
+            "pattern_corr_min": 0.5,
+            "region_replication_frac_min": 0.5,
+            "dice_min": 0.0
+          }
+        },
+        "reporting_language_allowed": [
+          "confirmed",
+          "non_replicated",
+          "under_powered",
+          "fragile"
+        ]
+      },
+      "validation": {
+        "ok": true,
+        "violations": [],
+        "warnings": []
+      },
+      "evaluated": true,
+      "label": "fragile",
+      "supported": false,
+      "primary": {
+        "beta": 0.0014320999267145103,
+        "ci_low": -0.004189841605874198,
+        "ci_high": 0.007054041459303219,
+        "p": 0.6175572889341547,
+        "n": 9812
+      },
+      "region_count": 0,
+      "significant_regions": 0,
+      "gates": {
+        "search_provenance": true,
+        "confound": true,
+        "confound_completeness": true,
+        "multiplicity": false,
+        "power": true,
+        "multiverse": false,
+        "replication": false
+      },
+      "final_family_size": 23
+    },
+    {
+      "id": "neg_site_confound_ukb_s1_r1_c2_multivariate_pattern",
+      "question": "Does bench_group case versus control show a reproducible brainwide Control-network functional-connectivity profile, using outcomes matching fc_fc_Cont_, after adjustment for age, sex, and site?",
+      "type": "exploratory_followup_claim",
+      "contract": {
+        "claim_id": "neg_site_confound_ukb_s1_control_fc_profile_site_adjusted",
+        "question": "Exploratory site-adjusted follow-up testing whether the bench_group case-control contrast is expressed as a reproducible Control-network resting-state functional-connectivity profile.",
+        "estimand": {
+          "type": "group_diff",
+          "outcome": "fc_fc_Cont_",
+          "predictor": "bench_group",
+          "group": {
+            "var": "bench_group",
+            "case": "case",
+            "control": "control"
+          },
+          "direction": "two_sided",
+          "unit": "brainwide",
+          "region_set": "control_network_functional_connectivity_profile"
+        },
+        "covariates": [
+          "age",
+          "sex",
+          "site"
+        ],
+        "inclusion": null,
+        "discovery_cohort": "neg_site_confound_ukb_s1_DISC",
+        "replication_cohorts": [
+          "neg_site_confound_ukb_s1_REP"
+        ],
+        "search_provenance": {
+          "declared": true,
+          "family_size": 23,
+          "selection": "discovery_only"
+        },
+        "gates": {
+          "multiplicity": {
+            "method": "fdr_bh",
+            "alpha": 0.05,
+            "family_size": 23
+          },
+          "confound": {
+            "require_covariates": [
+              "age",
+              "sex",
+              "site"
+            ],
+            "motion_check": false
+          },
+          "power": {
+            "min_power": 0.8,
+            "ref_effect": null
+          },
+          "multiverse": {
+            "min_fraction_consistent": 0.6
+          },
+          "replication": {
+            "alpha": 0.05,
+            "require_same_sign": true,
+            "require_ci_overlap": false,
+            "harmonize": "none",
+            "pattern_corr_min": 0.5,
+            "region_replication_frac_min": 0.5,
+            "dice_min": 0.0
+          }
+        },
+        "reporting_language_allowed": [
+          "confirmed",
+          "non_replicated",
+          "under_powered",
+          "fragile"
+        ]
+      },
+      "validation": {
+        "ok": true,
+        "violations": [],
+        "warnings": [
+          "Declared transform 'multivariate_pattern' does not match inferred transform 'compound_change'."
+        ]
+      },
+      "evaluated": true,
+      "label": "fragile",
+      "supported": false,
+      "primary": null,
+      "region_count": 21,
+      "significant_regions": 0,
+      "gates": {
+        "search_provenance": true,
+        "confound": true,
+        "confound_completeness": true,
+        "multiplicity": false,
+        "power": true,
+        "multiverse": false,
+        "replication": false,
+        "pattern_corr": true,
+        "region_replication_fraction": false,
+        "dice": true
+      },
+      "final_family_size": 23
+    }
+  ],
+  "rounds": [
+    {
+      "round_index": 1,
+      "proposals_returned": 2,
+      "schema_valid": 2,
+      "policy_valid": 2,
+      "unique_source_tested": 2,
+      "execution_complete": 2,
+      "provisional_passes": 0,
+      "final_round_passes": 0,
+      "multiplicity_retractions": 0,
+      "cumulative_unique_tested": 2,
+      "cumulative_unique_hypotheses_tested": 22,
+      "final_family_size": 23
+    }
+  ],
+  "final_family_size": 23,
+  "stopped_reason": "max_rounds_exhausted",
+  "description": "A recorded agent run on a site-confounded benchmark control. The export contains plans, validation decisions, and aggregate results. It contains no participant records or model prompts."
+}
