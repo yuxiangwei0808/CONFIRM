@@ -59,10 +59,12 @@ that transformation. The synthetic quickstart uses `none`.
 
 Each run writes `receipt.json` with the plan and cohort hashes, package
 versions, computed results, gate decisions, and the selected reporting
-standard. `confirm ask` also writes `drafted_contract.yaml` and
+standard. Undefined numerical diagnostics are stored as JSON `null`.
+`confirm ask` saves the analysis receipt before requesting narration and
+also writes `drafted_contract.yaml` and
 `narrative.txt`. Follow-up search adds its proposals, validation decisions,
 and execution records to the output directory. Use a separate output
-directory for each analysis.
+directory for each analysis; existing output directories are rejected.
 
 Support means the specified reporting requirements passed. Literature
 reference agreement is measured separately by NeuroClaimBench.

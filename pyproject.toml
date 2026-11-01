@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "confirm"
-version = "0.1.0"
+version = "0.1.1"
 description = "An agentic framework for scientific reporting in neuroimaging."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -35,7 +35,6 @@ dependencies = [
 Repository = "https://github.com/yuxiangwei0808/CONFIRM"
 Documentation = "https://github.com/yuxiangwei0808/CONFIRM/blob/main/README.md"
 Dataset = "https://huggingface.co/datasets/stanjsx/NeuroClaimBench"
-Paper = "https://openreview.net/forum?id=KYE1DzsxWc"
 
 [project.optional-dependencies]
 dev = ["pytest", "build"]

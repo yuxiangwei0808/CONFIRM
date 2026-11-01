@@ -1,4 +1,4 @@
-# CONFIRM 0.1.0
+# CONFIRM 0.1.1
 
 CONFIRM provides an agentic workflow for planning neuroimaging analyses,
 evaluating reporting requirements, and proposing follow-up analyses.
@@ -19,6 +19,3 @@ Python 3.10 or newer is required. The demo and scoring of recorded outcomes
 run locally. LLM workflows require a provider account; benchmark execution
 requires the prepared cohort files described in the
 [data-access guide](benchmark/neuroclaimbench-v2.1/DATA_ACCESS.md).
-
-Code is licensed under Apache-2.0. Benchmark metadata is licensed under
-CC BY 4.0.

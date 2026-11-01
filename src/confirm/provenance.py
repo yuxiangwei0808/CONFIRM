@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
+from numbers import Real
 import subprocess
 import sys
 from importlib import metadata
@@ -23,6 +25,8 @@ def _jsonable(value: Any) -> Any:
         return {str(key): _jsonable(val) for key, val in value.items()}
     if isinstance(value, (list, tuple)):
         return [_jsonable(item) for item in value]
+    if isinstance(value, Real) and not math.isfinite(value):
+        return None
     if isinstance(value, (str, int, float, bool)) or value is None:
         return value
     return str(value)
@@ -127,6 +131,6 @@ def write_receipt(out_dir: str | Path, receipt: dict[str, Any]) -> Path:
     target.mkdir(parents=True, exist_ok=True)
     path = target / "receipt.json"
     with path.open("w", encoding="utf-8") as handle:
-        json.dump(_jsonable(receipt), handle, indent=2, sort_keys=True)
+        json.dump(_jsonable(receipt), handle, indent=2, sort_keys=True, allow_nan=False)
         handle.write("\n")
     return path

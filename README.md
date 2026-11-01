@@ -10,8 +10,6 @@ gates cover search history and multiplicity, confounds, power, analytic
 stability, and replication. Screen, Replicate, and Full select which gates a
 result must pass before it is reported as supported.
 
-**Paper:** [CONFIRM: Governing Scientific Reporting for Trustworthy Agentic Neuroimaging](https://openreview.net/forum?id=KYE1DzsxWc)
-
 **Dataset:** [NeuroClaimBench on Hugging Face](https://huggingface.co/datasets/stanjsx/NeuroClaimBench)
 
 ## Install
@@ -31,8 +29,6 @@ source .venv/bin/activate
 python -m pip install .
 ```
 
-On Windows, activate with `.venv\Scripts\activate`.
-
 | Installation | Use |
 |---|---|
 | `python -m pip install .` | Prepared analysis plans, synthetic demo, benchmark scoring |
@@ -40,9 +36,9 @@ On Windows, activate with `.venv\Scripts\activate`.
 | `python -m pip install '.[imaging]'` | Dataset fetching and image/table imports |
 | `python -m pip install '.[dev]'` | Development and tests |
 
-The [release assets](https://github.com/yuxiangwei0808/CONFIRM/releases/tag/v0.1.0) include an installable
+The [release assets](https://github.com/yuxiangwei0808/CONFIRM/releases/tag/v0.1.1) include an installable
 wheel with the same commands: install it with
-`python -m pip install ./confirm-0.1.0-py3-none-any.whl`. The source ZIP also
+`python -m pip install ./confirm-0.1.1-py3-none-any.whl`. The source ZIP also
 contains the guides, examples, tests, and benchmark metadata.
 
 ## Try a complete local example
@@ -132,12 +128,3 @@ python -m pytest
 The release test suite uses synthetic inputs and requires no model credentials
 or cohort downloads. `python scripts/package_public_release.py` creates the
 source and benchmark ZIPs using an explicit file list.
-
-## Citation and licenses
-
-Use [CITATION.cff](CITATION.cff) to cite the software and paper. Code and
-framework documentation are licensed under [Apache-2.0](LICENSE).
-NeuroClaimBench metadata and its accompanying documentation are licensed under
-[CC BY 4.0](benchmark/neuroclaimbench-v2.1/LICENSE). The benchmark license
-covers the authors' contributions; source datasets and third-party works
-retain their own terms. Raw cohort data and PubMed abstracts are not included.

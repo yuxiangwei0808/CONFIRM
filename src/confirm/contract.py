@@ -100,7 +100,7 @@ class PowerGate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     min_power: float = Field(gt=0.0, le=1.0)
-    ref_effect: Optional[float] = None
+    ref_effect: Optional[float] = Field(default=None, allow_inf_nan=False)
 
 
 class MultiverseGate(BaseModel):

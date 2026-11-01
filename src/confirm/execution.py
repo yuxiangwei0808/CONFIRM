@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from pathlib import Path
+import math
+from numbers import Real
 from typing import Any
 
 import pandas as pd
@@ -28,7 +30,9 @@ from confirm.verdict import (
 def cohort_path(data_dir: Path, cohort: str) -> Path:
     """Resolve an exact canonical cohort parquet."""
 
-    path = data_dir / f"{cohort}.parquet"
+    if not cohort or cohort in {".", ".."} or "/" in cohort or "\\" in cohort:
+        raise ValueError("Cohort names must be filenames without directory components")
+    path = Path(data_dir) / f"{cohort}.parquet"
     if not path.exists():
         raise FileNotFoundError(f"Canonical cohort parquet not found: {path}")
     return path
@@ -65,6 +69,8 @@ def jsonable(value: Any) -> Any:
         return {str(key): jsonable(item) for key, item in value.items()}
     if isinstance(value, (list, tuple)):
         return [jsonable(item) for item in value]
+    if isinstance(value, Real) and not math.isfinite(value):
+        return None
     return value
 
 
@@ -150,6 +156,9 @@ def evaluate_contract(
     replication_paths = [
         cohort_path(data_root, cohort) for cohort in contract.replication_cohorts
     ]
+    paths = [discovery_path, *replication_paths]
+    if len({path.resolve() for path in paths}) != len(paths):
+        raise ValueError("Discovery and replication must use distinct cohort files")
     discovery_df = load_canonical(discovery_path)
     replication_dfs = [load_canonical(path) for path in replication_paths]
     if contract.estimand.unit == "brainwide":
@@ -163,7 +172,7 @@ def evaluate_contract(
             contract,
             discovery_df,
             replication_dfs,
-            ref_effect,
+            contract.gates.power.ref_effect if ref_effect is None else ref_effect,
         )
     return (
         verdict,

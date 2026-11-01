@@ -48,6 +48,10 @@ class GenericCsvAdapter(CohortAdapter):
 
     def to_canonical(self) -> pd.DataFrame:
         raw = pd.read_csv(self.raw_csv)
+        missing = {target: source for target, source in self.column_map.get("columns", {}).items()
+                   if source not in raw.columns}
+        if missing:
+            raise ValueError(f"Mapped source columns not found: {missing}")
         out = pd.DataFrame(index=raw.index)
         out["subject_id"] = self._source(raw, "subject_id").astype(str)
         out["session"] = self._source(raw, "session", "ses-01").fillna("ses-01")

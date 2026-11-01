@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 
 from confirm.analysis import directionally_consistent, fit_effect, multiplicity_threshold
-from confirm.brainwide import run_brainwide
+from confirm.brainwide import run_brainwide, select_region_columns
 from confirm.contract import ClaimContract
 from confirm.results import EffectResult, MultiverseResult, MultiverseSpecResult, RegionTable
 
@@ -119,8 +119,7 @@ def _any_region_significant(regions: RegionTable) -> bool:
 def _apply_brainwide_outlier_handling(df: pd.DataFrame, contract: ClaimContract, method: str) -> pd.DataFrame:
     if method == "none":
         return df.copy()
-    outcomes = contract.estimand.outcome if isinstance(contract.estimand.outcome, list) else [contract.estimand.outcome]
-    cols = [col for col in outcomes if col in df.columns]
+    cols = select_region_columns(df, contract)
     if contract.estimand.type == "association" and contract.estimand.predictor in df.columns:
         cols.append(contract.estimand.predictor)
     data = df.copy()

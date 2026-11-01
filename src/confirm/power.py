@@ -20,7 +20,9 @@ DEFAULT_MDE = 0.3
 
 
 def _reference_effect(effect: EffectResult, ref_effect: float | None) -> float:
-    if ref_effect is not None and not math.isnan(float(ref_effect)) and float(ref_effect) != 0.0:
+    if ref_effect is not None and not math.isfinite(float(ref_effect)):
+        raise ValueError("Reference effect must be finite")
+    if ref_effect is not None:
         return abs(float(ref_effect))
     return DEFAULT_MDE
 
@@ -29,13 +31,16 @@ def _achieved_power(effect_size: float, n: int, alpha: float) -> float:
     if effect_size <= 0 or n <= 3:
         return 0.0
     try:
-        return float(TTestPower().power(effect_size=effect_size, nobs=n, alpha=alpha, alternative="two-sided"))
+        value = float(TTestPower().power(effect_size=effect_size, nobs=n, alpha=alpha, alternative="two-sided"))
+        if math.isfinite(value):
+            return value
     except Exception:
-        # Fallback for partial-r style effects: noncentral t approximation.
-        df = n - 2
-        ncp = effect_size * math.sqrt(max(df, 1) / max(1e-12, 1 - effect_size * effect_size))
-        crit = stats.t.ppf(1 - alpha / 2, df)
-        return float(stats.nct.cdf(-crit, df, ncp) + (1 - stats.nct.cdf(crit, df, ncp)))
+        pass
+    # The same two-sided t-test, using symmetry to avoid an unstable lower CDF.
+    df = n - 1
+    ncp = effect_size * math.sqrt(n)
+    crit = stats.t.isf(alpha / 2, df)
+    return float(stats.nct.sf(crit, df, ncp) + stats.nct.sf(crit, df, -ncp))
 
 
 def _n_needed(effect_size: float, alpha: float, target_power: float) -> float:
@@ -62,7 +67,7 @@ def power_check(effect: EffectResult, contract: ClaimContract, ref_effect: float
     shrunken = effect.beta * shrinkage
     # Fail closed: power is judged against a pre-declared reference/MDE, never the
     # observed effect, so an inflated small-sample estimate cannot pass this gate.
-    under_powered = achieved < contract.gates.power.min_power
+    under_powered = not math.isfinite(achieved) or achieved < contract.gates.power.min_power
     ref_kind = "ref" if ref_effect is not None else f"MDE={DEFAULT_MDE}"
     rationale = (
         f"power={achieved:.3f} vs {ref_kind} effect={effect_size:.2f}, "

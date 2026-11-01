@@ -123,7 +123,9 @@ def _confound_completeness_pass(confound_audit: dict[str, Any] | None) -> bool:
 
 
 def _brainwide_multiplicity_pass(regions: RegionTable, contract: ClaimContract) -> bool:
-    family_size = effective_multiplicity_family_size(contract, observed_family_size=len(regions.regions))
+    family_size = effective_multiplicity_family_size(
+        contract, observed_family_size=regions.family_size or len(regions.regions)
+    )
     q_values = fdr_bh_q_values((region.effect.p for region in regions.regions), family_size=family_size)
     return any(
         q <= contract.gates.multiplicity.alpha and directionally_consistent(region.effect.beta, contract)
@@ -231,7 +233,7 @@ def decide_brainwide(
             gate_state["reason"] = CONFOUND_INCOMPLETE
     failures = [name for name, passed in gate_state.items() if isinstance(passed, bool) and not passed]
     gate_state["multiplicity_effective_family_size"] = effective_multiplicity_family_size(
-        contract, observed_family_size=len(regions.regions)
+        contract, observed_family_size=regions.family_size or len(regions.regions)
     )
     if (
         not gate_state["search_provenance"]

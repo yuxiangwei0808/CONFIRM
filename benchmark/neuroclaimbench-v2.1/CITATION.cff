@@ -1,33 +1,18 @@
 cff-version: 1.2.0
-message: "Please cite the CONFIRM paper when using this benchmark."
+message: Citation metadata for NeuroClaimBench.
 type: dataset
-title: "NeuroClaimBench"
-version: "2.1"
-url: "https://huggingface.co/datasets/stanjsx/NeuroClaimBench"
+title: NeuroClaimBench
+version: '2.1'
+url: https://huggingface.co/datasets/stanjsx/NeuroClaimBench
 license: CC-BY-4.0
 authors:
-  - family-names: Wei
-    given-names: Yuxiang
-  - family-names: Zhu
-    given-names: Lijing
-  - family-names: Lan
-    given-names: Qizhen
-  - family-names: Zhang
-    given-names: Yanteng
-  - family-names: Calhoun
-    given-names: Vince D.
-preferred-citation:
-  type: article
-  title: "CONFIRM: Governing Scientific Reporting for Trustworthy Agentic Neuroimaging"
-  authors:
-    - family-names: Wei
-      given-names: Yuxiang
-    - family-names: Zhu
-      given-names: Lijing
-    - family-names: Lan
-      given-names: Qizhen
-    - family-names: Zhang
-      given-names: Yanteng
-    - family-names: Calhoun
-      given-names: Vince D.
-  url: "https://openreview.net/forum?id=KYE1DzsxWc"
+- family-names: Wei
+  given-names: Yuxiang
+- family-names: Zhu
+  given-names: Lijing
+- family-names: Lan
+  given-names: Qizhen
+- family-names: Zhang
+  given-names: Yanteng
+- family-names: Calhoun
+  given-names: Vince D.

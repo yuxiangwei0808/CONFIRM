@@ -204,6 +204,7 @@ class RegionTable:
     alpha: float
     method: str = "fdr_bh"
     region_set: str | None = None
+    family_size: int | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -211,6 +212,7 @@ class RegionTable:
             "alpha": self.alpha,
             "method": self.method,
             "region_set": self.region_set,
+            "family_size": self.family_size,
         }
 
 

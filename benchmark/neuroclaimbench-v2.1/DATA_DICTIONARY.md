@@ -101,6 +101,6 @@ cohort files.
 | `benchmark_manifest.json` | Record filenames, hashes, schema version, counts, and source identities |
 | `RELEASE_MANIFEST.json` | Benchmark identity, record counts, and distributed file inventory |
 | `PACKAGE_MANIFEST.json` | Version, license, framework dependency, and core record hashes |
-| `CITATION.cff` | Authors and paper citation |
+| `CITATION.cff` | Dataset authors and version |
 | `LICENSE` | CC BY 4.0 license text |
 | `SHA256SUMS` | Checksums of every distributed file except this checksum file |

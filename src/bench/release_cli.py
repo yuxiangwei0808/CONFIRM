@@ -11,7 +11,7 @@ from pathlib import Path
 from bench.benchmark import BenchmarkDataset
 from confirm.cli import REPORTING_STANDARDS
 from confirm.execution import evaluate_contract, jsonable
-from confirm.verdict import classify_support
+from confirm.verdict import EVIDENCE_TIER_REQUIRED_GATES, classify_support
 
 
 def digest(path: Path) -> str:
@@ -92,8 +92,16 @@ def verify(root: Path) -> tuple[BenchmarkDataset, dict]:
             raise ValueError(f"Missing case link: {task.task_id}")
         if outcomes[task.task_id].benchmark_case_id != task.benchmark_case_id:
             raise ValueError(f"Outcome link mismatch: {task.task_id}")
+        if (task.discovery_cohort != task.contract.discovery_cohort
+                or task.replication_cohorts != task.contract.replication_cohorts):
+            raise ValueError(f"Task and contract cohort mismatch: {task.task_id}")
+        if task.contract_sha256 != case.contract_sha256:
+            raise ValueError(f"Task and case contract hash mismatch: {task.task_id}")
     counts = {name: len(getattr(data, name)) for name in ("cases", "references", "tasks", "outcomes")}
     manifest = json.loads((root / "benchmark_manifest.json").read_text())
+    for name in ("cases", "references", "tasks", "outcomes"):
+        if manifest["files"][name]["sha256"] != digest(root / f"{name}.jsonl"):
+            raise ValueError(f"Frozen record hash mismatch: {name}")
     if any(manifest["counts"][k] != v for k, v in counts.items()):
         raise ValueError("Manifest counts differ from the files")
     return data, {"verified_files": len(listed), **counts,
@@ -108,10 +116,14 @@ def frozen_predictions(data: BenchmarkDataset, standard: str) -> list[dict]:
         row = {"task_id": outcome.task_id, "standard": standard,
                "source": "frozen_confirm_outcomes"}
         gates = (outcome.gate_verdict or {}).get("gates")
-        if outcome.status == "completed" and isinstance(gates, dict):
+        complete = isinstance(gates, dict) and all(
+            type(gates.get(name)) is bool
+            for name in EVIDENCE_TIER_REQUIRED_GATES["confirmed"]
+        )
+        if outcome.status == "completed" and complete:
             row.update(status="completed", supported=classify_support(gates, REPORTING_STANDARDS[standard]).supported)
         else:
-            row.update(status="error", error=outcome.error or "Missing completed gate vector")
+            row.update(status="error", error=outcome.error or "Missing or invalid completed gate vector")
         rows.append(row)
     return rows
 
@@ -126,15 +138,17 @@ def score(data: BenchmarkDataset, rows: list[dict], allow_partial: bool = False,
     predictions = {}
     for row in rows:
         task_id = row.get("task_id")
-        if task_id not in tasks or task_id in predictions:
+        if not isinstance(task_id, str) or task_id not in tasks or task_id in predictions:
             raise ValueError(f"Unknown or duplicate task_id: {task_id}")
         status = row.get("status", "completed")
-        if status not in {"completed", "error"}:
+        if not isinstance(status, str) or status not in {"completed", "error"}:
             raise ValueError(f"Invalid prediction status: {task_id}")
         if status == "completed" and type(row.get("supported")) is not bool:
             raise ValueError(f"supported must be a JSON boolean: {task_id}")
         if status == "error" and "supported" in row:
             raise ValueError(f"An error cannot also be a reporting decision: {task_id}")
+        if status == "error" and (not isinstance(row.get("error"), str) or not row["error"].strip()):
+            raise ValueError(f"An error row requires an explanatory error string: {task_id}")
         predictions[task_id] = {**row, "status": status}
     missing = sorted(set(tasks) - predictions.keys())
     if missing and not allow_partial:
@@ -176,10 +190,14 @@ def score(data: BenchmarkDataset, rows: list[dict], allow_partial: bool = False,
 
 def run_tasks(data: BenchmarkDataset, roots: list[Path], out: Path, standard: str,
               task_ids: list[str] | None = None) -> dict:
+    if standard not in REPORTING_STANDARDS:
+        raise ValueError(f"Unknown reporting standard: {standard}")
     tasks = indexed(data.tasks, "task_id")
     selected = list(tasks) if task_ids is None else task_ids
     if len(selected) != len(set(selected)) or set(selected) - tasks.keys():
         raise ValueError("Requested task IDs must be unique IDs from tasks.jsonl")
+    if any(not name or name in {".", ".."} or "/" in name or "\\" in name for name in selected):
+        raise ValueError("Task IDs must be single filenames")
     outcomes = indexed(data.outcomes, "task_id")
     out.mkdir(parents=True, exist_ok=False)
     cache = {}
@@ -209,11 +227,11 @@ def run_tasks(data: BenchmarkDataset, roots: list[Path], out: Path, standard: st
             verdict, results, paths = evaluate_contract(task.contract, matching,
                 ref_effect=task.contract.gates.power.ref_effect,
                 minimum_evidence_tier=REPORTING_STANDARDS[standard])
-            row.update(status="completed", supported=results["support_decision"].supported,
-                       raw_label=verdict.label)
             detail = {"task_id": task_id, "results": jsonable(results),
                       "input_hashes": {str(p): cache[p.resolve()] for p in paths}}
-            (out / f"{task_id}.json").write_text(json.dumps(detail, indent=2) + "\n")
+            (out / f"{task_id}.json").write_text(json.dumps(detail, indent=2, allow_nan=False) + "\n")
+            row.update(status="completed", supported=results["support_decision"].supported,
+                       raw_label=verdict.label)
         except (ValueError, OSError, KeyError, RuntimeError) as exc:
             row.update(status="error", error=str(exc))
         predictions.append(row)

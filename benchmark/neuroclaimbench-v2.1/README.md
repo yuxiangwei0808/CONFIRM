@@ -33,8 +33,7 @@ configs:
 # NeuroClaimBench v2.1
 
 NeuroClaimBench evaluates whether a system supports or withholds a
-neuroimaging claim. It accompanies
-[CONFIRM: Governing Scientific Reporting for Trustworthy Agentic Neuroimaging](https://openreview.net/forum?id=KYE1DzsxWc).
+neuroimaging claim.
 
 The package contains 489 executable tasks: 279 scientific claims, 150
 constructed stress controls, and 60 external-transfer claims and controls.
@@ -58,7 +57,7 @@ Load an individual record collection:
 ```python
 from datasets import load_dataset
 
-tasks = load_dataset("stanjsx/NeuroClaimBench", "tasks", split="test", revision="v2.1")
+tasks = load_dataset("stanjsx/NeuroClaimBench", "tasks", split="test", revision="v2.1.1")
 print(tasks[0]["task_id"])
 print(tasks[0]["contract"])
 ```
@@ -76,7 +75,7 @@ from huggingface_hub import snapshot_download
 snapshot_download(
     repo_id="stanjsx/NeuroClaimBench",
     repo_type="dataset",
-    revision="v2.1",
+    revision="v2.1.1",
     local_dir="neuroclaimbench-v2.1",
 )
 ```
@@ -84,19 +83,19 @@ snapshot_download(
 ## Install the tools
 
 Use Python 3.10 or newer. CONFIRM supplies the `neuroclaimbench` command.
-Download `confirm-0.1.0-py3-none-any.whl` from the
-[CONFIRM v0.1.0 release](https://github.com/yuxiangwei0808/CONFIRM/releases/tag/v0.1.0)
+Download `confirm-0.1.1-py3-none-any.whl` from the
+[CONFIRM v0.1.1 release](https://github.com/yuxiangwei0808/CONFIRM/releases/tag/v0.1.1)
 into the directory containing the extracted `neuroclaimbench-v2.1` folder.
 Run from that parent directory:
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install ./confirm-0.1.0-py3-none-any.whl
+python -m pip install ./confirm-0.1.1-py3-none-any.whl
 ```
 
-On Windows, activate with `.venv\Scripts\activate`. To install from source,
-extract `confirm-0.1.0.zip` and run `python -m pip install ./confirm-0.1.0`
+To install from source,
+extract `confirm-0.1.1.zip` and run `python -m pip install ./confirm-0.1.1`
 from its parent directory. An existing CONFIRM installation provides the
 same benchmark commands.
 
@@ -121,15 +120,7 @@ no cohort data or model calls. Choose a new output filename for each export.
 - [Python loading, metrics, and evaluation](USAGE.md)
 - [File and field definitions](DATA_DICTIONARY.md)
 - [Cohort data and exact-input requirements](DATA_ACCESS.md)
-- [Citation](CITATION.cff)
 
 Executing a task requires its corresponding prepared cohort files. The
 metadata package contains no participant tables, random-control assignment
 tables, or PubMed abstracts.
-
-## License
-
-The authors' benchmark metadata and documentation are licensed under
-[CC BY 4.0](LICENSE). Source datasets and referenced third-party works retain
-their own licenses and access terms. Cite the paper and this benchmark when
-using the release.

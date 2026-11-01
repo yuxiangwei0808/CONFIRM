@@ -67,7 +67,7 @@ def run_brainwide(df: pd.DataFrame, contract: ClaimContract) -> RegionTable:
     if not effects:
         raise ValueError("No brain-wide regions could be fitted")
 
-    family_size = effective_multiplicity_family_size(contract, observed_family_size=len(effects))
+    family_size = effective_multiplicity_family_size(contract, observed_family_size=len(regions))
     q_values = fdr_bh_q_values((effect.p for effect in effects), family_size=family_size)
     alpha = contract.gates.multiplicity.alpha
     region_results = [
@@ -84,4 +84,5 @@ def run_brainwide(df: pd.DataFrame, contract: ClaimContract) -> RegionTable:
         alpha=alpha,
         method=contract.gates.multiplicity.method,
         region_set=contract.estimand.region_set,
+        family_size=family_size,
     )

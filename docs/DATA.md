@@ -55,7 +55,8 @@ the analysis plan. Repeat with a separate mapping for each cohort.
 
 The [mapping template](../configs/cohort_maps/_TEMPLATE.yaml) also shows
 optional metadata, value mappings, and behavioral columns. Map each
-measurement explicitly to preserve its scientific meaning.
+measurement explicitly to preserve its scientific meaning. Every mapped
+source column must exist in the CSV.
 
 The `imaging` extra supplies dependencies for the built-in ABIDE, ADHD200,
 and OASIS1 import commands. Those importers compute summary features from

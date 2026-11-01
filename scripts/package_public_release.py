@@ -11,7 +11,7 @@ import tempfile
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 BENCHMARK_FILES = (
     "README.md", "DATA_DICTIONARY.md", "DATA_ACCESS.md", "USAGE.md", "CITATION.cff", "LICENSE",
     "PACKAGE_MANIFEST.json", "RELEASE_MANIFEST.json", "SHA256SUMS", "alignment_policy.json",
@@ -33,6 +33,7 @@ BASE_FILES = (
     "tests/test_brainwide.py", "tests/test_confirmation_subtype.py", "tests/test_search_provenance.py",
     "tests/test_claim_search.py", "tests/test_claim_proposals.py", "tests/test_llm_factory.py",
     "tests/test_public_release.py",
+    "tests/test_release_regressions.py",
     "tests/test_claim_search_pipeline_option.py",
 )
 

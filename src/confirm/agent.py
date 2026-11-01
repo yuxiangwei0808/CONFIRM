@@ -393,6 +393,7 @@ def run_claim(
     contract = load_contract(contract_path)
     data_root = Path(data_dir)
     out_path = Path(out_dir)
+    out_path.mkdir(parents=True, exist_ok=False)
     ref_effect = contract.gates.power.ref_effect
     verdict, results, cohort_paths = _execute_contract(contract, data_root, ref_effect=ref_effect)
     results["support_decision"] = classify_support(verdict.gates, minimum_evidence_tier)
@@ -431,7 +432,7 @@ def run_question(
     """Draft, optionally approve, execute, interpret, and receipt a natural-language question."""
 
     out_dir = Path(out)
-    out_dir.mkdir(parents=True, exist_ok=True)
+    out_dir.mkdir(parents=True, exist_ok=False)
     catalog = build_data_catalog(data_dir)
     llm = get_llm()
     contract = draft_contract(question, catalog, llm=llm)
@@ -458,10 +459,6 @@ def run_question(
     )
     if search_payload is not None:
         results.update(search_payload)
-    primary_result = results.get("regions") or results.get("primary")
-    narrative = interpret(verdict, primary_result, atlas=contract.estimand.region_set, llm=llm)
-    (out_dir / "narrative.txt").write_text(narrative + "\n", encoding="utf-8")
-
     prompt_hash = hashlib.sha256(_contract_prompt(question, catalog).encode("utf-8")).hexdigest()
     receipt = make_receipt(
         contract_path=contract_path,
@@ -475,9 +472,14 @@ def run_question(
                 "llm_model": getattr(llm, "model", type(llm).__name__),
                 "prompt_hash": prompt_hash,
                 "drafted_contract": contract.model_dump(mode="json"),
-                "narrative": narrative,
+                "narrative": None,
             },
         },
     )
+    write_receipt(out_dir, receipt)
+    primary_result = results.get("regions") or results.get("primary")
+    narrative = interpret(verdict, primary_result, atlas=contract.estimand.region_set, llm=llm)
+    (out_dir / "narrative.txt").write_text(narrative + "\n", encoding="utf-8")
+    receipt["results"]["agent"]["narrative"] = narrative
     write_receipt(out_dir, receipt)
     return verdict
