@@ -1,0 +1,22 @@
+method,method_label,family,metric,supported_count,denominator,supported_rate
+veritas_adapted,VERITAS-adapted,neuroimaging_system,recovery,20,31,0.6451612903225806
+veritas_adapted,VERITAS-adapted,neuroimaging_system,unsafe,6,15,0.4
+veritas_adapted,VERITAS-adapted,neuroimaging_system,synthetic,57,150,0.38
+neuroclaw_adapted_judge,NeuroClaw-adapted,neuroimaging_system,recovery,15,31,0.4838709677419355
+neuroclaw_adapted_judge,NeuroClaw-adapted,neuroimaging_system,unsafe,2,15,0.13333333333333333
+neuroclaw_adapted_judge,NeuroClaw-adapted,neuroimaging_system,synthetic,34,150,0.22666666666666666
+direct_llm_judge,Direct LLM judge,simple_baseline,recovery,17,31,0.5483870967741935
+direct_llm_judge,Direct LLM judge,simple_baseline,unsafe,3,15,0.2
+direct_llm_judge,Direct LLM judge,simple_baseline,synthetic,43,150,0.2866666666666667
+conventional_significance,Significance filter,simple_baseline,recovery,16,31,0.5161290322580645
+conventional_significance,Significance filter,simple_baseline,unsafe,2,15,0.13333333333333333
+conventional_significance,Significance filter,simple_baseline,synthetic,42,150,0.28
+discovery,CONFIRM-Screen,confirm,recovery,19,31,0.6129032258064516
+discovery,CONFIRM-Screen,confirm,unsafe,6,15,0.4
+discovery,CONFIRM-Screen,confirm,synthetic,5,150,0.03333333333333333
+replicated,CONFIRM-Replicate,confirm,recovery,15,31,0.4838709677419355
+replicated,CONFIRM-Replicate,confirm,unsafe,2,15,0.13333333333333333
+replicated,CONFIRM-Replicate,confirm,synthetic,1,150,0.006666666666666667
+confirmed,CONFIRM-Full,confirm,recovery,15,31,0.4838709677419355
+confirmed,CONFIRM-Full,confirm,unsafe,2,15,0.13333333333333333
+confirmed,CONFIRM-Full,confirm,synthetic,0,150,0.0

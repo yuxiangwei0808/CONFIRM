@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="An interactive guide to CONFIRM: follow a neuroimaging claim through its analysis plan, evidence checks, reporting decision, and agent follow-up."
+    />
+    <meta name="theme-color" content="#f7f7f2" />
+    <title>CONFIRM — A visual guide</title>
+    <link rel="icon" href="../icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#explore">Skip to the examples</a>
+    <header class="site-header wrap">
+      <a class="brand" href="../" aria-label="CONFIRM project page"
+        ><img src="../icon.svg" width="30" height="30" alt="" />CONFIRM<span
+          >Visual guide</span
+        ></a
+      >
+      <nav aria-label="Main navigation">
+        <a href="../">Project page</a><a href="#explore">Explore</a
+        ><a href="https://github.com/yuxiangwei0808/CONFIRM"
+          >GitHub <span aria-hidden="true">↗</span></a
+        >
+      </nav>
+    </header>
+    <main>
+      <section class="hero wrap">
+        <div>
+          <p class="eyebrow">An agentic framework for scientific reporting</p>
+          <h1>When is a finding<br /><em>ready to report?</em></h1>
+          <p class="hero-copy">
+            Follow a claim from an analysis plan to a reporting decision. See
+            what the evidence supports, what the checks catch, and how an agent
+            follows up.
+          </p>
+          <a class="button primary" href="#explore"
+            >Explore a claim <span aria-hidden="true">↓</span></a
+          >
+          <p class="quiet hero-note">
+            Three reproducible examples. One recorded agent run.
+          </p>
+        </div>
+        <div
+          class="hero-diagram"
+          role="img"
+          aria-label="The agent proposes a plan. Code analyzes the data and checks five requirements. A reporting decision follows. Failed checks guide a new proposal."
+        >
+          <div class="diagram-top">
+            <span class="tiny-label">THE WORKFLOW</span
+            ><span class="diagram-dot"></span>
+          </div>
+          <div class="diagram-flow">
+            <span class="flow-node"><b>01</b>Plan</span
+            ><span class="flow-arrow">→</span
+            ><span class="flow-node"><b>02</b>Analyze</span
+            ><span class="flow-arrow">→</span
+            ><span class="flow-node selected"><b>03</b>Check</span>
+          </div>
+          <div class="diagram-checks">
+            <span>Search</span><span>Confounds</span><span>Power</span
+            ><span>Stability</span><span>Replication</span>
+          </div>
+          <div class="diagram-output">
+            <span>Reporting decision</span
+            ><span class="mono">Supported / Withheld</span>
+          </div>
+          <div class="diagram-loop">
+            <span aria-hidden="true">↶</span
+            ><span>Failed checks guide<br />the next proposal</span
+            ><b>Agent follow-up</b>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="explore"
+        class="explore wrap"
+        aria-labelledby="explore-title"
+      >
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">01 / Follow a claim</p>
+            <h2 id="explore-title">
+              Same workflow.<br />Three different outcomes.
+            </h2>
+          </div>
+          <p>
+            Choose an example, then move through the analysis. Every plotted
+            value and decision comes from the released code.
+          </p>
+        </div>
+        <div
+          id="case-picker"
+          class="case-picker"
+          role="group"
+          aria-label="Choose a synthetic example"
+        ></div>
+        <div class="workspace" id="workspace">
+          <div class="workspace-top">
+            <span class="dataset-label"
+              ><span class="small-dot"></span>Synthetic data
+              <span class="separator">/</span> 600 observations per cohort</span
+            ><a
+              id="record-link"
+              class="text-link"
+              href="data/nonreplicating-record.json"
+              download
+              >Download record <span aria-hidden="true">↓</span></a
+            >
+          </div>
+          <nav
+            id="step-picker"
+            class="step-picker"
+            aria-label="Analysis stages"
+          ></nav>
+          <div
+            id="stage-content"
+            class="stage-content"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <p>Loading the recorded examples…</p>
+          </div>
+          <div class="workspace-bottom">
+            <button id="previous" class="button quiet-button" type="button">
+              ← Previous</button
+            ><span id="step-count" class="mono"></span
+            ><button id="next" class="button primary" type="button">
+              Next: analysis plan →
+            </button>
+          </div>
+        </div>
+        <noscript
+          ><p>
+            This interactive guide needs JavaScript. You can download the
+            <a href="data/examples.json">example results</a> and
+            <a href="data/followup.json">recorded follow-up</a> directly.
+          </p></noscript
+        >
+      </section>
+
+      <section id="followup" class="followup" aria-labelledby="followup-title">
+        <div class="wrap">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">02 / Follow the agent</p>
+              <h2 id="followup-title">
+                A failed check<br />sets the next question.
+              </h2>
+            </div>
+            <p>
+              A recorded agent run on a site-confounded benchmark control. Watch
+              the agent propose two follow-ups, then see the code evaluate them.
+            </p>
+          </div>
+          <div class="replay-layout">
+            <div class="replay-sidebar">
+              <span class="replay-label">RECORDED PLAYBACK</span>
+              <nav id="replay-picker" aria-label="Agent follow-up stages"></nav>
+              <p>
+                The original claim remains withheld. Each proposal gets its own
+                evaluation.
+              </p>
+            </div>
+            <div class="replay-panel">
+              <div class="replay-panel-top">
+                <span id="replay-actor"></span
+                ><span class="mono" id="replay-count"></span>
+              </div>
+              <div
+                id="replay-content"
+                aria-live="polite"
+                aria-atomic="true"
+              ></div>
+              <div class="replay-controls">
+                <button
+                  id="replay-prev"
+                  class="button dark-outline"
+                  type="button"
+                >
+                  ← Back</button
+                ><button id="replay-next" class="button light" type="button">
+                  Next →
+                </button>
+              </div>
+            </div>
+          </div>
+          <details class="source-details">
+            <summary>About this recorded example</summary>
+            <p>
+              This is a separate benchmark control, not one of the three
+              synthetic examples above. The original agent proposed changes to a
+              group comparison after CONFIRM detected an omitted site effect.
+              Both proposals passed plan validation and were evaluated; neither
+              received support. The browser replays the recorded results and
+              makes no model calls.
+            </p>
+            <p>
+              <a href="data/followup.json" download
+                >Download the plans, validation decisions, aggregate results,
+                and source hash ↗</a
+              >
+            </p>
+          </details>
+        </div>
+      </section>
+
+      <section class="takeaway wrap" aria-labelledby="takeaway-title">
+        <div>
+          <p class="eyebrow">03 / Try it yourself</p>
+          <h2 id="takeaway-title">
+            Inspect the evidence.<br />Run the same checks.
+          </h2>
+          <p>
+            Generate all three synthetic examples locally. The command writes
+            the analysis plans, computed results, and reporting decisions.
+          </p>
+        </div>
+        <div class="run-box">
+          <div class="command">
+            <code>confirm demo --out outputs/demo</code
+            ><button
+              id="copy-command"
+              type="button"
+              aria-label="Copy demo command"
+            >
+              Copy
+            </button>
+          </div>
+          <p id="copy-status" class="quiet" role="status">
+            Python 3.10+ · No API key · No cohort downloads
+          </p>
+          <div class="resource-links">
+            <a href="https://github.com/yuxiangwei0808/CONFIRM#install"
+              >Install CONFIRM ↗</a
+            ><a href="https://huggingface.co/datasets/stanjsx/NeuroClaimBench"
+              >Explore NeuroClaimBench ↗</a
+            >
+          </div>
+        </div>
+      </section>
+      <section class="notes wrap">
+        <details>
+          <summary>How to read these examples</summary>
+          <div class="notes-grid">
+            <p>
+              <strong>Synthetic measurements.</strong> The three interactive
+              examples use independent samples generated with fixed seeds.
+              Measurements are in arbitrary units. Plots show 180 observations
+              from each 600-observation cohort; analyses use all 600.
+            </p>
+            <p>
+              <strong>Reporting support.</strong> Supported means the selected
+              reporting requirements passed. The standard comparison illustrates
+              fixed requirements applied to the same results. Choose the
+              reporting standard before running a new analysis.
+            </p>
+            <p>
+              <strong>Computed evidence.</strong> The plan, statistical results,
+              and checks are exported from CONFIRM. The visual guide adds
+              explanations and plots. A complete analysis record is available
+              for each example.
+            </p>
+          </div>
+        </details>
+      </section>
+    </main>
+    <footer class="wrap">
+      <a class="brand" href="../">CONFIRM</a>
+      <p>An agentic framework for scientific reporting in neuroimaging.</p>
+      <a
+        href="https://github.com/yuxiangwei0808/CONFIRM/tree/demo/visual-guide/demo"
+        >Guide source ↗</a
+      >
+    </footer>
+  </body>
+</html>

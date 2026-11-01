@@ -1,4 +1,4 @@
-name: Visual guide
+name: Project website
 
 on:
   push:
@@ -23,7 +23,9 @@ jobs:
       - name: Validate evidence and links
         run: python demo/validate.py
       - name: Check browser code
-        run: node --check demo/site/app.js
+        run: |
+          node --check demo/site/project.js
+          node --check demo/site/guide/app.js
       - uses: actions/upload-pages-artifact@v4
         if: github.event_name != 'pull_request'
         with:
@@ -39,6 +41,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy the visual guide
+      - name: Deploy the project website
         id: deployment
         uses: actions/deploy-pages@v4

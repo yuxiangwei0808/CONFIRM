@@ -15,7 +15,7 @@ import pandas as pd
 from confirm.demo import run_demo
 from confirm.execution import jsonable
 
-SITE = ROOT / "demo/site"
+SITE = ROOT / "demo/site/guide"
 DESCRIPTIONS = {
     "supported": {
         "title": "Replicated association",
@@ -132,4 +132,4 @@ if __name__ == "__main__":
     build_examples()
     if args.followup_source:
         extract_followup(args.followup_source)
-    print("Visual-guide data generated in demo/site/data")
+    print("Visual-guide data generated in demo/site/guide/data")

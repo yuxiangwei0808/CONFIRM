@@ -1,0 +1,16 @@
+arm,arm_label,metric,metric_label,supported_count,denominator
+agent_alone,NeuroClaw-adapted alone,recovery,Recovery (literature),15,31
+agent_alone,NeuroClaw-adapted alone,unsafe_support,False support (literature),2,15
+agent_alone,NeuroClaw-adapted alone,synthetic_support,False support on controls,34,150
+veto_screen,+ CONFIRM-Screen (veto),recovery,Recovery (literature),15,31
+veto_screen,+ CONFIRM-Screen (veto),unsafe_support,False support (literature),2,15
+veto_screen,+ CONFIRM-Screen (veto),synthetic_support,False support on controls,1,150
+veto_full,+ CONFIRM-Full (veto),recovery,Recovery (literature),15,31
+veto_full,+ CONFIRM-Full (veto),unsafe_support,False support (literature),2,15
+veto_full,+ CONFIRM-Full (veto),synthetic_support,False support on controls,0,150
+substitute_screen,CONFIRM-Screen (substitute),recovery,Recovery (literature),19,31
+substitute_screen,CONFIRM-Screen (substitute),unsafe_support,False support (literature),6,15
+substitute_screen,CONFIRM-Screen (substitute),synthetic_support,False support on controls,5,150
+substitute_full,CONFIRM-Full (substitute),recovery,Recovery (literature),15,31
+substitute_full,CONFIRM-Full (substitute),unsafe_support,False support (literature),2,15
+substitute_full,CONFIRM-Full (substitute),synthetic_support,False support on controls,0,150
