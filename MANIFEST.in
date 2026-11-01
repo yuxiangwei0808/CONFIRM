@@ -1,0 +1,9 @@
+include README.md LICENSE NOTICE CITATION.cff RELEASE_NOTES.md
+include .gitignore requirements.txt
+recursive-include docs *.md
+recursive-include examples *.py *.md
+recursive-include configs/cohort_maps *.yaml
+recursive-include configs/contracts *.yaml
+recursive-include tests *.py
+recursive-include scripts *.py
+recursive-include benchmark *.md *.json *.jsonl *.csv *.cff LICENSE SHA256SUMS

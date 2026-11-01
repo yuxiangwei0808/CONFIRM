@@ -14,8 +14,24 @@ from confirm.ingest.abide import AbideAdapter
 from confirm.ingest.adhd200 import Adhd200Adapter
 from confirm.ingest.generic_csv import GenericCsvAdapter
 from confirm.ingest.oasis1 import Oasis1Adapter
+from confirm.verdict import classify_support
 
 LOGGER = logging.getLogger(__name__)
+REPORTING_STANDARDS = {"screen": "discovery", "replicate": "replicated", "full": "confirmed"}
+
+
+def _report(verdict, args: argparse.Namespace) -> int:
+    decision = classify_support(verdict.gates, REPORTING_STANDARDS[args.standard])
+    print(json.dumps({**verdict.to_dict(), "reporting_standard": args.standard,
+                      "support_decision": decision.to_dict()}, indent=2, sort_keys=True))
+    accepted = verdict.label in args.accept_label if args.accept_label else decision.supported
+    return 0 if accepted else 1
+
+
+def _cmd_demo(args: argparse.Namespace) -> int:
+    from confirm.demo import run_demo
+    print(json.dumps(run_demo(Path(args.out)), indent=2, sort_keys=True))
+    return 0
 
 
 def _cmd_run(args: argparse.Namespace) -> int:
@@ -24,6 +40,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
         args.data_dir,
         args.out,
         command=sys.argv,
+        minimum_evidence_tier=REPORTING_STANDARDS[args.standard],
         claim_search=args.claim_search == "on",
         claim_search_config=ClaimSearchConfig(
             max_rounds=args.claim_search_max_rounds,
@@ -32,8 +49,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
             feedback_mode=args.claim_search_feedback_mode,
         ),
     )
-    print(json.dumps(verdict.to_dict(), indent=2, sort_keys=True))
-    return 0 if verdict.label in args.accept_label else 1
+    return _report(verdict, args)
 
 
 def _cmd_ask(args: argparse.Namespace) -> int:
@@ -42,6 +58,7 @@ def _cmd_ask(args: argparse.Namespace) -> int:
         args.data_dir,
         args.out,
         approve=not args.auto,
+        minimum_evidence_tier=REPORTING_STANDARDS[args.standard],
         claim_search=args.claim_search == "on",
         claim_search_config=ClaimSearchConfig(
             max_rounds=args.claim_search_max_rounds,
@@ -50,8 +67,7 @@ def _cmd_ask(args: argparse.Namespace) -> int:
             feedback_mode=args.claim_search_feedback_mode,
         ),
     )
-    print(json.dumps(verdict.to_dict(), indent=2, sort_keys=True))
-    return 0 if verdict.label in args.accept_label else 1
+    return _report(verdict, args)
 
 
 def _cmd_ingest(args: argparse.Namespace) -> int:
@@ -74,7 +90,7 @@ def _cmd_ingest(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="confirm", description="CONFIRM statistical claim governance")
+    parser = argparse.ArgumentParser(prog="confirm", description="CONFIRM agentic neuroimaging framework")
     parser.add_argument("--log-level", default="INFO")
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -82,7 +98,8 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--contract", required=True)
     run.add_argument("--data-dir", default="data/canonical")
     run.add_argument("--out", required=True)
-    run.add_argument("--accept-label", action="append", default=["confirmed"])
+    run.add_argument("--standard", choices=REPORTING_STANDARDS, default="full", help="Reporting standard (default: full)")
+    run.add_argument("--accept-label", action="append", help="Override exit-status acceptance with a raw verdict label")
     run.add_argument("--claim-search", choices=["off", "on"], default="off", help="Write iterative claim-search artifacts")
     run.add_argument("--claim-search-max-rounds", type=int, default=3)
     run.add_argument("--claim-search-max-candidates", type=int, default=5)
@@ -99,7 +116,8 @@ def build_parser() -> argparse.ArgumentParser:
     ask.add_argument("--data-dir", default="data/canonical")
     ask.add_argument("--out", required=True)
     ask.add_argument("--auto", action="store_true", help="Skip the contract approval prompt")
-    ask.add_argument("--accept-label", action="append", default=["confirmed"])
+    ask.add_argument("--standard", choices=REPORTING_STANDARDS, default="full", help="Reporting standard (default: full)")
+    ask.add_argument("--accept-label", action="append", help="Override exit-status acceptance with a raw verdict label")
     ask.add_argument("--claim-search", choices=["off", "on"], default="off", help="Write iterative claim-search artifacts")
     ask.add_argument("--claim-search-max-rounds", type=int, default=3)
     ask.add_argument("--claim-search-max-candidates", type=int, default=5)
@@ -119,6 +137,10 @@ def build_parser() -> argparse.ArgumentParser:
     ingest.add_argument("--raw-csv", default=None)
     ingest.add_argument("--mapping-yaml", default=None)
     ingest.set_defaults(func=_cmd_ingest)
+
+    demo = sub.add_parser("demo", help="Run synthetic examples locally without an LLM or dataset download")
+    demo.add_argument("--out", default="outputs/demo")
+    demo.set_defaults(func=_cmd_demo)
     return parser
 
 

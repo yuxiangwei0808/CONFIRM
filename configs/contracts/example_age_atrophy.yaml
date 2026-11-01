@@ -1,5 +1,5 @@
-# Example claim contract — the P1 known-positive pilot.
-# "Cortical thickness decreases with age" — a huge, universally-replicated effect.
+# Example analysis plan for an age-related cortical-thickness association.
+# Requires the named prepared cohorts; use `confirm demo` for synthetic inputs.
 claim_id: age_atrophy_smri
 question: "Does global mean cortical thickness decrease with age in typically-developing/control subjects?"
 estimand:

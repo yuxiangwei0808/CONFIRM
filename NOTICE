@@ -1,0 +1,9 @@
+CONFIRM
+Copyright 2026 the CONFIRM contributors.
+
+Authors: Yuxiang Wei, Lijing Zhu, Qizhen Lan, Yanteng Zhang, Vince D. Calhoun.
+
+The code and framework documentation are distributed under Apache-2.0.
+NeuroClaimBench metadata has its own CC BY 4.0 license in
+benchmark/neuroclaimbench-v2.1/LICENSE. Third-party dependencies and source
+datasets remain under their respective licenses and access terms.

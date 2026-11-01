@@ -1,4 +1,4 @@
-"""CONFIRM: CPU-only statistical claim governance for tabular neuroimaging derivatives."""
+"""CONFIRM: an agentic framework for scientific reporting in neuroimaging."""
 
 from confirm.contract import ClaimContract, load_contract
 from confirm.verdict import Verdict

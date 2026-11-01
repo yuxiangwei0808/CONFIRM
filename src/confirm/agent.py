@@ -29,7 +29,7 @@ from confirm.llm import LLMClient, get_llm
 from confirm.provenance import make_receipt, write_receipt
 from confirm.results import PowerResult
 from confirm.schema import idp_columns, validate_canonical
-from confirm.verdict import Verdict
+from confirm.verdict import MinimumEvidenceTier, Verdict, classify_support
 
 SEED = 20260615
 
@@ -386,6 +386,7 @@ def run_claim(
     *,
     claim_search: bool = False,
     claim_search_config: ClaimSearchConfig | None = None,
+    minimum_evidence_tier: MinimumEvidenceTier = "confirmed",
 ) -> Verdict:
     """Run the full CONFIRM gate chain for one claim contract."""
 
@@ -394,6 +395,7 @@ def run_claim(
     out_path = Path(out_dir)
     ref_effect = contract.gates.power.ref_effect
     verdict, results, cohort_paths = _execute_contract(contract, data_root, ref_effect=ref_effect)
+    results["support_decision"] = classify_support(verdict.gates, minimum_evidence_tier)
     search_payload = _maybe_write_claim_search(
         out_path,
         data_root,
@@ -424,6 +426,7 @@ def run_question(
     *,
     claim_search: bool = False,
     claim_search_config: ClaimSearchConfig | None = None,
+    minimum_evidence_tier: MinimumEvidenceTier = "confirmed",
 ) -> Verdict:
     """Draft, optionally approve, execute, interpret, and receipt a natural-language question."""
 
@@ -442,6 +445,7 @@ def run_question(
     contract_path = out_dir / "drafted_contract.yaml"
     contract_path.write_text(contract_text, encoding="utf-8")
     verdict, results, cohort_paths = _execute_contract(contract, Path(data_dir), ref_effect=contract.gates.power.ref_effect)
+    results["support_decision"] = classify_support(verdict.gates, minimum_evidence_tier)
     search_payload = _maybe_write_claim_search(
         out_dir,
         Path(data_dir),

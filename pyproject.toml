@@ -5,9 +5,17 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "confirm"
 version = "0.1.0"
-description = "CONFIRM: CPU-only statistical claim governance for neuroimaging derivatives."
+description = "An agentic framework for scientific reporting in neuroimaging."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Yuxiang Wei"},
+  {name = "Lijing Zhu"},
+  {name = "Qizhen Lan"},
+  {name = "Yanteng Zhang"},
+  {name = "Vince D. Calhoun"},
+]
 dependencies = [
   "numpy",
   "pandas",
@@ -15,25 +23,28 @@ dependencies = [
   "statsmodels",
   "scikit-learn",
   "nibabel",
-  "nilearn",
   "neuroHarmonize",
   "neuroCombat",
   "pyyaml",
-  "pydantic>=2",
+  "pydantic>=2,<3",
   "pyarrow",
-  "h5py",
-  "openpyxl",
   "python-dotenv",
-  "openai",
-  "anthropic",
-  "google-genai",
 ]
 
+[project.urls]
+Repository = "https://github.com/yuxiangwei0808/CONFIRM"
+Documentation = "https://github.com/yuxiangwei0808/CONFIRM/blob/main/README.md"
+Dataset = "https://huggingface.co/datasets/stanjsx/NeuroClaimBench"
+Paper = "https://openreview.net/forum?id=KYE1DzsxWc"
+
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = ["pytest", "build"]
+llm = ["openai", "anthropic", "google-genai"]
+imaging = ["nilearn", "h5py", "openpyxl"]
 
 [project.scripts]
 confirm = "confirm.cli:main"
+neuroclaimbench = "bench.release_cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

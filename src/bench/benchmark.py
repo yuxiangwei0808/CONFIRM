@@ -91,7 +91,7 @@ class BenchmarkEvaluationTask(BaseModel):
 
 
 class TaskOutcome(BaseModel):
-    """Compact verdict record; detailed gate bundles live in the audit archive."""
+    """Recorded gate verdict and hashes identifying its analysis inputs and result."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -112,7 +112,7 @@ class TaskOutcome(BaseModel):
 
 
 class BenchmarkDataset:
-    """Load the compact release schema with no legacy triage vocabulary."""
+    """Load and validate benchmark cases, references, tasks, and outcomes."""
 
     def __init__(self, root: str | Path) -> None:
         self.root = Path(root)

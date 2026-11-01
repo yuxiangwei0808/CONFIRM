@@ -1,7 +1,5 @@
-# TODO(confirm): Fill this template for credentialed or oddly formatted cohorts
-# such as ADNI, UKB, ABCD, OASIS-3, AIBL, PPMI, and CamCAN.
-#
-# This file documents the GenericCsvAdapter mapping schema.
+# Copy this mapping and replace the source column names with your CSV columns.
+# `cohort` becomes the output Parquet filename and the name used in contracts.
 cohort: EXAMPLE
 defaults:
   session: ses-01

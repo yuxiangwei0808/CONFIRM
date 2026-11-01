@@ -44,15 +44,15 @@ def claim_search_implementation_hashes(
     """Hash code that can affect source-data claim generation or evaluation."""
 
     root = Path(repository_root) if repository_root is not None else Path(__file__).resolve().parents[2]
-    paths = [
-        root / "src/bench/run_iterative_claim_search_replay.py",
-        *sorted((root / "src/confirm").glob("*.py")),
-    ]
-    return {
-        str(path.relative_to(root)): file_sha256(path)
-        for path in paths
-        if str(path.relative_to(root)) not in CLAIM_SEARCH_NON_RUNTIME_PATHS
-    }
+    package = root / "src/confirm"
+    if not package.is_dir() and repository_root is None:
+        package = Path(__file__).resolve().parent
+    paths = {f"src/confirm/{p.name}": p for p in sorted(package.glob("*.py"))}
+    runner = root / "src/bench/run_iterative_claim_search_replay.py"
+    if runner.is_file():
+        paths["src/bench/run_iterative_claim_search_replay.py"] = runner
+    return {name: file_sha256(path) for name, path in paths.items()
+            if name not in CLAIM_SEARCH_NON_RUNTIME_PATHS}
 
 
 def mapping_sha256(value: dict[str, Any]) -> str:
@@ -66,7 +66,8 @@ def git_sha() -> str | None:
     """Return the current git SHA when available."""
 
     try:
-        proc = subprocess.run(["git", "rev-parse", "HEAD"], check=True, capture_output=True, text=True)
+        proc = subprocess.run(["git", "rev-parse", "HEAD"], cwd=Path(__file__).resolve().parent,
+                              check=True, capture_output=True, text=True)
         return proc.stdout.strip()
     except Exception:
         return None
@@ -76,6 +77,7 @@ def package_versions(packages: list[str] | None = None) -> dict[str, str]:
     """Collect package versions for the provenance receipt."""
 
     names = packages or [
+        "confirm",
         "numpy",
         "pandas",
         "scipy",
@@ -84,6 +86,7 @@ def package_versions(packages: list[str] | None = None) -> dict[str, str]:
         "nibabel",
         "nilearn",
         "neuroHarmonize",
+        "neuroCombat",
         "pyyaml",
         "pydantic",
         "pyarrow",

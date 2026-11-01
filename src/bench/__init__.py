@@ -1,2 +1,2 @@
-"""Benchmark builders for NeuroDecide-Bench-lite."""
+"""NeuroClaimBench data models, evaluation tools, and construction utilities."""
 
